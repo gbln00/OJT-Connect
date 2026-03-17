@@ -8,6 +8,10 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\ApplicationController;
+use App\Http\Controllers\Admin\HoursController;
+use App\Http\Controllers\Admin\WeeklyReportController;
+use App\Http\Controllers\Admin\EvaluationController;
+use App\Http\Controllers\Admin\ExportController;
 
 
 Route::get('/', function () {
@@ -61,6 +65,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/applications/{application}/approve',[ApplicationController::class, 'approve'])->name('applications.approve');
     Route::post('/applications/{application}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
     Route::delete('/applications/{application}',      [ApplicationController::class, 'destroy'])->name('applications.destroy');
+
+    //Hour logs
+    Route::get('/hours',                         [HoursController::class, 'index'])->name('hours.index');
+    Route::get('/hours/{student}',               [HoursController::class, 'show'])->name('hours.show');
+    Route::post('/hours/{hourLog}/approve',      [HoursController::class, 'approve'])->name('hours.approve');
+    Route::post('/hours/{student}/approve-all',  [HoursController::class, 'approveAll'])->name('hours.approveAll');
+
+    //Reports
+    Route::get('/reports',                    [WeeklyReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{report}',           [WeeklyReportController::class, 'show'])->name('reports.show');
+    Route::post('/reports/{report}/approve',  [WeeklyReportController::class, 'approve'])->name('reports.approve');
+    Route::post('/reports/{report}/return',   [WeeklyReportController::class, 'return'])->name('reports.return');
+
+    //Evaluation
+    Route::get('/evaluations',          [EvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{evaluation}', [EvaluationController::class, 'show'])->name('evaluations.show');
+
+    //Exports
+    Route::get('/exports',                [ExportController::class, 'index'])->name('export.index');
+    Route::get('/exports/pdf/students',   [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
+    Route::get('/exports/pdf/evaluations',[ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
+    Route::get('/exports/excel',          [ExportController::class, 'excelFull'])->name('export.excel');
 
 });
 

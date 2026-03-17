@@ -3,109 +3,72 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreUserRequest;
-use App\Http\Requests\Admin\UpdateUserRequest;
-use App\Models\User;
+use App\Http\Requests\Admin\StoreCompanyRequest;
+use App\Http\Requests\Admin\UpdateCompanyRequest;
+use App\Models\Company;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class CompanyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = Company::query();
 
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
+            $query->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('contact_person', 'like', '%' . $request->search . '%');
         }
 
         if ($request->filled('status')) {
             $query->where('is_active', $request->status === 'active');
         }
 
-        $users = $query->latest()->paginate(15)->withQueryString();
+        $companies = $query->latest()->paginate(15)->withQueryString();
+        $total     = Company::count();
+        $active    = Company::where('is_active', true)->count();
 
-        $counts = [
-            'total'       => User::count(),
-            'admin'       => User::where('role', 'admin')->count(),
-            'coordinator' => User::where('role', 'ojt_coordinator')->count(),
-            'supervisor'  => User::where('role', 'company_supervisor')->count(),
-            'student'     => User::where('role', 'student_intern')->count(),
-        ];
-
-        return view('admin.users.index', compact('users', 'counts'));
+        return view('admin.companies.index', compact('companies', 'total', 'active'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        return view('admin.companies.create');
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreCompanyRequest $request)
     {
-        User::create([
-            'name'      => $request->validated()['name'],
-            'email'     => $request->validated()['email'],
-            'password'  => Hash::make($request->validated()['password']),
-            'role'      => $request->validated()['role'],
-            'is_active' => true,
-        ]);
+        Company::create($request->validated() + ['is_active' => true]);
 
-        return redirect()->route('admin.users.index')
-                         ->with('success', 'User account created successfully.');
+        return redirect()->route('admin.companies.index')
+                         ->with('success', 'Company added successfully.');
     }
 
-    public function edit(User $user)
+    public function edit(Company $company)
     {
-        return view('admin.users.edit', compact('user'));
+        return view('admin.companies.edit', compact('company'));
     }
 
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateCompanyRequest $request, Company $company)
     {
-        $data = [
-            'name'  => $request->validated()['name'],
-            'email' => $request->validated()['email'],
-            'role'  => $request->validated()['role'],
-        ];
+        $company->update($request->validated());
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->validated()['password']);
-        }
-
-        $user->update($data);
-
-        return redirect()->route('admin.users.index')
-                         ->with('success', 'User updated successfully.');
+        return redirect()->route('admin.companies.index')
+                         ->with('success', 'Company updated successfully.');
     }
 
-    public function toggleActive(User $user)
+    public function toggleActive(Company $company)
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot deactivate your own account.');
-        }
+        $company->update(['is_active' => ! $company->is_active]);
+        $status = $company->is_active ? 'activated' : 'deactivated';
 
-        $user->update(['is_active' => ! $user->is_active]);
-        $status = $user->is_active ? 'activated' : 'deactivated';
-
-        return back()->with('success', "User account {$status} successfully.");
+        return back()->with('success', "Company {$status} successfully.");
     }
 
-    public function destroy(User $user)
+    public function destroy(Company $company)
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
-        }
+        $company->delete();
 
-        $user->delete();
-
-        return redirect()->route('admin.users.index')
-                         ->with('success', 'User deleted successfully.');
+        return redirect()->route('admin.companies.index')
+                         ->with('success', 'Company removed successfully.');
     }
 }

@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\HourLog;
+use App\Models\WeeklyReport;
+use App\Models\Evaluation;
 
 class OjtApplication extends Model
 {
@@ -74,6 +78,21 @@ class OjtApplication extends Model
             default    => 'gold',
         };
     }
+    // ── Hour Logs Relationship ─────────────────────────────────────────────
+    public function hourLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(HourLog::class, 'application_id');
+    }
 
-    
+    // ── Weekly Reports Relationship ────────────────────────────────────────────
+    public function weeklyReports(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WeeklyReport::class, 'application_id');
+    }
+
+    // ── Evaluations Relationship ────────────────────────────────────────────
+        public function evaluations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Evaluation::class, 'application_id');
+    }
 }
