@@ -33,14 +33,6 @@ class LoginController extends Controller
                 ])->withInput($request->only('email'));
             }
 
-            // Block unverified student accounts
-            if ($user->role === 'student_intern' && !$user->is_verified) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Your account is pending verification. Please wait for admin approval before logging in.',
-                ])->withInput($request->only('email'));
-            }
-
             $request->session()->regenerate();
 
             return match($user->role) {
