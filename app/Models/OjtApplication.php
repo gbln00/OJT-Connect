@@ -74,4 +74,20 @@ class OjtApplication extends Model
     {
         return max(0, $this->required_hours - $this->total_logged_hours);
     }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'pending'  => 'Pending Review',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            default    => 'Unknown',
+        };
+    }
+
+    // Scope: student's current active application
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', ['pending', 'approved']);
+    }
 }

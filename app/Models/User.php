@@ -64,4 +64,16 @@ class User extends Authenticatable
     public function isStudent(): bool { 
         return $this->role === 'student_intern'; 
     }
-}
+    
+    // Relationships
+    public function applications()
+    {
+        return $this->hasMany(OjtApplication::class, 'student_id');
+    }
+
+    public function activeApplication()
+    {
+        return $this->hasOne(OjtApplication::class, 'student_id')
+                    ->whereIn('status', ['pending', 'approved']);
+    }
+    }
