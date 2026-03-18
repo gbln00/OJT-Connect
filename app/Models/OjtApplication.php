@@ -3,15 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\HourLog;
-use App\Models\WeeklyReport;
-use App\Models\Evaluation;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OjtApplication extends Model
 {
-    protected $table = 'applications'; 
+    use HasFactory;
+
+    protected $table = 'applications';
 
     protected $fillable = [
         'student_id',
@@ -31,68 +29,49 @@ class OjtApplication extends Model
         'reviewed_at' => 'datetime',
     ];
 
-    // ── Relationships ────────────────────────────────────────────
-
-    public function student(): BelongsTo
+    // Relationships
+    public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function company(): BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function reviewer(): BelongsTo
+    public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
-
-    public function isPending(): bool
-    {
-        return $this->status === 'pending';
-    }
-
-    public function isApproved(): bool
-    {
-        return $this->status === 'approved';
-    }
-
-    public function isRejected(): bool
-    {
-        return $this->status === 'rejected';
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        return ucfirst($this->status);
-    }
-
-    public function getStatusClassAttribute(): string
-    {
-        return match($this->status) {
-            'approved' => 'teal',
-            'rejected' => 'coral',
-            default    => 'gold',
-        };
-    }
-    // ── Hour Logs Relationship ─────────────────────────────────────────────
-    public function hourLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function hourLogs()
     {
         return $this->hasMany(HourLog::class, 'application_id');
     }
 
-    // ── Weekly Reports Relationship ────────────────────────────────────────────
-    public function weeklyReports(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function weeklyReports()
     {
         return $this->hasMany(WeeklyReport::class, 'application_id');
     }
 
-    // ── Evaluations Relationship ────────────────────────────────────────────
-        public function evaluations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function evaluation()
     {
-        return $this->hasMany(Evaluation::class, 'application_id');
+        return $this->hasOne(Evaluation::class, 'application_id');
+    }
+
+    // Helpers
+    public function isPending(): bool  { return $this->status === 'pending'; }
+    public function isApproved(): bool { return $this->status === 'approved'; }
+    public function isRejected(): bool { return $this->status === 'rejected'; }
+
+    public function getTotalLoggedHoursAttribute(): float
+    {
+        return $this->hourLogs()->where('status', 'approved')->sum('total_hours');
+    }
+
+    public function getRemainingHoursAttribute(): float
+    {
+        return max(0, $this->required_hours - $this->total_logged_hours);
     }
 }
