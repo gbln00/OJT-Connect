@@ -84,6 +84,18 @@
             Hour Logs
         </a>
 
+        <a href="{{ route('admin.verification.index') }}"
+            class="nav-item {{ request()->routeIs('admin.verification.*') ? 'active' : '' }}">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+            Verification
+            @if(\App\Models\User::where('role','student_intern')->where('is_verified',false)->whereNull('rejection_reason')->count() > 0)
+                <span class="nav-badge">{{ \App\Models\User::where('role','student_intern')->where('is_verified',false)->whereNull('rejection_reason')->count() }}</span>
+            @endif
+        </a>
+
         <a href="{{ route('admin.reports.index') }}"
             class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

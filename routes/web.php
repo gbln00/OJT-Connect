@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\HoursController;
 use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Auth\StudentRegisterController;
+use App\Http\Controllers\Admin\VerificationController;
 
 
 Route::get('/', function () {
@@ -26,6 +28,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+    
+    // Guest routes — add registration
+    Route::get('/register',  [StudentRegisterController::class, 'showRegister'])->name('register');
+    Route::post('/register', [StudentRegisterController::class, 'register']);
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
@@ -87,6 +93,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/exports/pdf/students',   [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
     Route::get('/exports/pdf/evaluations',[ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
     Route::get('/exports/excel',          [ExportController::class, 'excelFull'])->name('export.excel');
+
+    // Admin routes — add verification
+    Route::get('/verification',              [VerificationController::class, 'index'])->name('verification.index');
+    Route::get('/verification/{user}',       [VerificationController::class, 'show'])->name('verification.show');
+    Route::post('/verification/{user}/verify', [VerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('/verification/{user}/reject', [VerificationController::class, 'reject'])->name('verification.reject');
 
 });
 

@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Controllers/Auth/LoginController.php
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -16,27 +15,46 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $credentials = $request->only('email', 'password');
 
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
 
-            if (! $user->is_active) {
+            // Block inactive accounts
+            if (!$user->is_active) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Your account has been deactivated.']);
+                return back()->withErrors([
+                    'email' => 'Your account has been deactivated. Please contact the administrator.',
+                ])->withInput($request->only('email'));
             }
 
-            return redirect()->intended($this->redirectByRole($user->role));
+            // Block unverified student accounts
+            if ($user->role === 'student_intern' && !$user->is_verified) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account is pending verification. Please wait for admin approval before logging in.',
+                ])->withInput($request->only('email'));
+            }
+
+            $request->session()->regenerate();
+
+            return match($user->role) {
+                'admin'              => redirect()->route('admin.dashboard'),
+                'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
+                'company_supervisor' => redirect()->route('supervisor.dashboard'),
+                'student_intern'     => redirect()->route('student.dashboard'),
+                default              => redirect('/'),
+            };
         }
 
         return back()->withErrors([
-            'email' => 'These credentials do not match our records.',
-        ])->onlyInput('email');
+            'email' => 'The provided credentials do not match our records.',
+        ])->withInput($request->only('email'));
     }
 
     public function logout(Request $request)
@@ -46,16 +64,4 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
-
-    private function redirectByRole(string $role): string
-    {
-        return match($role) {
-            'admin'              => route('admin.dashboard'),
-            'ojt_coordinator'    => route('coordinator.dashboard'),
-            'company_supervisor' => route('supervisor.dashboard'),
-            'student_intern'     => route('student.dashboard'),
-            default              => '/',
-        };
-    }
 }
-
