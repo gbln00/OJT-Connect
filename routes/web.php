@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 
+use App\Http\Controllers\Student\StudentApplicationController;
+use App\Http\Controllers\Student\StudentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -101,10 +103,20 @@ Route::middleware(['auth', 'role:company_supervisor'])
 });
 
 // ── STUDENT ───────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:student_intern'])
-    ->prefix('student')
-    ->name('student.')
-    ->group(function () {
+Route::middleware(['auth', 'role:student_intern'])->prefix('student')->name('student.')->group(function () {
 
-    Route::get('/dashboard', fn() => view('student.dashboard'))->name('dashboard');
+    // Dashboard
+    Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+
+    // OJT Application
+    Route::get('/application/create',        [StudentApplicationController::class, 'create'])->name('application.create');
+    Route::post('/application',              [StudentApplicationController::class, 'store'])->name('application.store');
+    Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
+
+    // Placeholder routes — prevents sidebar from crashing before modules are built
+    Route::get('/hours',      fn() => abort(404))->name('hours.index');
+    Route::get('/reports',    fn() => abort(404))->name('reports.index');
+    Route::get('/evaluation', fn() => abort(404))->name('evaluation.show');
+    Route::get('/settings',   fn() => abort(404))->name('settings');
+
 });
