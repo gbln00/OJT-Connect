@@ -21,6 +21,7 @@ use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\HourLogController;
 use App\Http\Controllers\Student\StudentWeeklyReportController;
 use App\Http\Controllers\Student\StudentEvaluationController;
+use App\Http\Controllers\Student\StudentSettingsController;
 
 
 Route::get('/', function () {
@@ -160,8 +161,8 @@ Route::middleware(['auth', 'role:student_intern'])
     
     
     // Others
-    // Replace the placeholder evaluation route:
-   
+    Route::get('/settings',          [StudentSettingsController::class, 'index'])->name('settings');
+    Route::patch('/settings/profile',  [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::patch('/settings/password', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
 
-    Route::get('/settings', fn() => back())->name('settings');
 });

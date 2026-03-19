@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Models\StudentProfile;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -78,4 +80,11 @@ class User extends Authenticatable
                     ->whereIn('status', ['pending', 'approved'])
                     ->latest();           
     }
+
+    
+    public function studentProfile()
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
 }
