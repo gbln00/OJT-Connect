@@ -25,6 +25,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
 
+
             // Block inactive accounts
             if (!$user->is_active) {
                 Auth::logout();

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+
+// Admin controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CompanyController;
@@ -13,16 +15,33 @@ use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 
+//student controllers
 use App\Http\Controllers\Student\StudentApplicationController;
 use App\Http\Controllers\Student\StudentController;
+use App\Http\Controllers\Student\HourLogController;
+use App\Http\Controllers\Student\ReportController;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+
+        return match($user->role) {
+            'admin'              => redirect()->route('admin.dashboard'),
+            'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
+            'company_supervisor' => redirect()->route('supervisor.dashboard'),
+            'student_intern'     => redirect()->route('student.dashboard'),
+            default              => abort(403, 'Invalid role: ' . $user->role),
+        };
+    }
+
     return view('welcome');
 });
 
 // ── Guest-only routes ─────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
-    Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
+    Route::get('/login', [LoginController::class, 'showLogin'])
+    ->name('login')
+    ->middleware('guest');
     Route::post('/login',                 [LoginController::class, 'login']);
     Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
     Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
@@ -112,19 +131,29 @@ Route::middleware(['auth', 'role:company_supervisor'])
 });
 
 // ── STUDENT ───────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:student_intern'])->prefix('student')->name('student.')->group(function () {
+
+Route::middleware(['auth', 'role:student_intern'])
+    ->prefix('student')
+    ->name('student.')
+    ->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
 
     // OJT Application
-    Route::get('/application/create',        [StudentApplicationController::class, 'create'])->name('application.create');
-    Route::post('/application',              [StudentApplicationController::class, 'store'])->name('application.store');
+    Route::get('/application/create', [StudentApplicationController::class, 'create'])->name('application.create');
+    Route::post('/application', [StudentApplicationController::class, 'store'])->name('application.store');
     Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
 
-    // Placeholder routes — prevents sidebar from crashing before modules are built
-    Route::get('/hours',        [StudentHourLogController::class, 'index'])->name('hours.index');
-    Route::get('/hours/create', [StudentHourLogController::class, 'create'])->name('hours.create');
-    Route::post('/hours',        [StudentHourLogController::class, 'store'])->name('hours.store');
+    // Hour logs
+    Route::get('/hours', [HourLogController::class, 'index'])->name('hours.index');
+    Route::get('/hours/create', [HourLogController::class, 'create'])->name('hours.create');
+    Route::post('/hours', [HourLogController::class, 'store'])->name('hours.store');
 
+    // Reports (FIXED)
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // Others
+    Route::get('/evaluation', fn() => redirect()->route('student.dashboard'))->name('evaluation.show');
+    Route::get('/settings', fn() => back())->name('settings');
 });
