@@ -123,9 +123,8 @@ Route::middleware(['auth', 'role:student_intern'])->prefix('student')->name('stu
     Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
 
     // Placeholder routes — prevents sidebar from crashing before modules are built
-    Route::get('/hours',      fn() => abort(404))->name('hours.index');
-    Route::get('/reports',    fn() => abort(404))->name('reports.index');
-    Route::get('/evaluation', fn() => abort(404))->name('evaluation.show');
-    Route::get('/settings',   fn() => abort(404))->name('settings');
+    Route::get('/hours',        [StudentHourLogController::class, 'index'])->name('hours.index');
+    Route::get('/hours/create', [StudentHourLogController::class, 'create'])->name('hours.create');
+    Route::post('/hours',        [StudentHourLogController::class, 'store'])->name('hours.store');
 
 });
