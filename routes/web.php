@@ -19,7 +19,9 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Student\StudentApplicationController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\HourLogController;
-use App\Http\Controllers\Student\ReportController;
+use App\Http\Controllers\Student\StudentWeeklyReportController;
+use App\Http\Controllers\Student\StudentEvaluationController;
+
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -39,9 +41,7 @@ Route::get('/', function () {
 
 // ── Guest-only routes ─────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLogin'])
-    ->name('login')
-    ->middleware('guest');
+    Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
     Route::post('/login',                 [LoginController::class, 'login']);
     Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
     Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
@@ -58,7 +58,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Settings
-    Route::get('/settings',           [AdminController::class, 'settings'])->name('settings');
+    Route::get('/settings',            [AdminController::class, 'settings'])->name('settings');
     Route::patch('/settings/profile',  [AdminController::class, 'updateProfile'])->name('settings.update.profile');
     Route::patch('/settings/password', [AdminController::class, 'updatePassword'])->name('settings.update.password');
 
@@ -138,22 +138,30 @@ Route::middleware(['auth', 'role:student_intern'])
     ->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard',    [StudentController::class, 'dashboard'])->name('dashboard');
 
     // OJT Application
-    Route::get('/application/create', [StudentApplicationController::class, 'create'])->name('application.create');
-    Route::post('/application', [StudentApplicationController::class, 'store'])->name('application.store');
-    Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
+    Route::get('/application/create',           [StudentApplicationController::class, 'create'])->name('application.create');
+    Route::post('/application',                 [StudentApplicationController::class, 'store'])->name('application.store');
+    Route::get('/application/{application}',    [StudentApplicationController::class, 'show'])->name('application.show');
 
     // Hour logs
-    Route::get('/hours', [HourLogController::class, 'index'])->name('hours.index');
-    Route::get('/hours/create', [HourLogController::class, 'create'])->name('hours.create');
-    Route::post('/hours', [HourLogController::class, 'store'])->name('hours.store');
+    Route::get('/hours',                [HourLogController::class, 'index'])->name('hours.index');
+    Route::get('/hours/create',         [HourLogController::class, 'create'])->name('hours.create');
+    Route::post('/hours',               [HourLogController::class, 'store'])->name('hours.store');
 
-    // Reports (FIXED)
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    // Reports
+    Route::get('/reports',            [StudentWeeklyReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/create',     [StudentWeeklyReportController::class, 'create'])->name('reports.create');
+    Route::post('/reports',           [StudentWeeklyReportController::class, 'store'])->name('reports.store');
 
+    // Evaluations
+    Route::get('/evaluation', [StudentEvaluationController::class, 'show'])->name('evaluation.show');
+    
+    
     // Others
-    Route::get('/evaluation', fn() => redirect()->route('student.dashboard'))->name('evaluation.show');
+    // Replace the placeholder evaluation route:
+   
+
     Route::get('/settings', fn() => back())->name('settings');
 });
