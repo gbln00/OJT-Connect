@@ -14,9 +14,15 @@ class StudentController extends Controller
         $application = $user->activeApplication()->with('company')->first();
 
         // Hours progress — only if approved application exists
-        $totalLogged   = $application ? $application->total_logged_hours : 0;
-        $requiredHours = $application ? $application->required_hours : ($profile->required_hours ?? 486);
-        $progressPct   = $requiredHours > 0 ? min(100, round(($totalLogged / $requiredHours) * 100)) : 0;
+        $totalLogged   = $application 
+        ? $application->total_logged_hours : 0;
+        
+        $requiredHours = $application 
+        ? $application->required_hours 
+        : ($profile->required_hours ?? 490); // <-
+        
+        $progressPct   = $requiredHours > 0 
+        ? min(100, round(($totalLogged / $requiredHours) * 100)) : 0;
 
         // Recent hour logs — latest 5
         $recentLogs = $application

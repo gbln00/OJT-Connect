@@ -66,6 +66,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
     Route::delete('/applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 
+    Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
+    Route::post('/applications/{application}/reject',  [ApplicationController::class, 'reject'])->name('applications.reject');
+    
     // Hours monitoring — admin view only
     Route::get('/hours',           [HoursController::class, 'index'])->name('hours.index');
     Route::get('/hours/{student}', [HoursController::class, 'show'])->name('hours.show');
@@ -87,10 +90,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // ── COORDINATOR ───────────────────────────────────────────────────
 Route::middleware(['auth', 'role:ojt_coordinator'])
-        ->prefix('coordinator')
-        ->name('coordinator.')
-        ->group(function () {
-            Route::get('/dashboard', fn() => view('coordinator.dashboard'))->name('dashboard');
+    ->prefix('coordinator')
+    ->name('coordinator.')
+    ->group(function () {
+    
+    Route::get('/dashboard', fn() => view('coordinator.dashboard'))->name('dashboard');
+
+    // Uncomment when CoordinatorApplicationController is created:
+    // Route::get('/applications', [CoordinatorApplicationController::class, 'index'])->name('applications.index');
+    // Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
+    // Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
 });
 
 // ── SUPERVISOR ────────────────────────────────────────────────────

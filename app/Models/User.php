@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
         'is_active',
     ];
 
@@ -74,6 +75,7 @@ class User extends Authenticatable
     public function activeApplication()
     {
         return $this->hasOne(OjtApplication::class, 'student_id')
-                    ->whereIn('status', ['pending', 'approved']);
+                    ->whereIn('status', ['pending', 'approved'])
+                    ->latest();           
     }
-    }
+}

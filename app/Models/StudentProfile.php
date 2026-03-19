@@ -15,6 +15,7 @@ class StudentProfile extends Model
         'middlename',
         'course',
         'year_level',
+        'section',
         'phone',
         'address',
         'required_hours',

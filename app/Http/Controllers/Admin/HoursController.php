@@ -77,7 +77,11 @@ class HoursController extends Controller
     // Approve a single log entry
     public function approve(HourLog $hourLog)
     {
-        $hourLog->update(['status' => 'approved']);
+        $hourLog->update([
+            'status'      => 'approved',
+            'approved_by' => auth()->id(), 
+            'approved_at' => now(),          
+        ]);
         return back()->with('success', 'Hour log approved.');
     }
 

@@ -16,6 +16,8 @@ class HourLog extends Model
         'total_hours',
         'description',
         'status',
+        'approved_by',
+        'approved_at',
     ];
 
     protected $casts = [
