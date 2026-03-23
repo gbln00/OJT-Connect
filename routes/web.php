@@ -15,6 +15,12 @@ use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 
+// Coordinator controllers
+use App\Http\Controllers\Coordinator\CoordinatorController;
+use App\Http\Controllers\Coordinator\CoordinatorApplicationController;
+use App\Http\Controllers\Coordinator\CoordinatorHourLogController;
+use App\Http\Controllers\Coordinator\CoordinatorReportController;
+
 //student controllers
 use App\Http\Controllers\Student\StudentApplicationController;
 use App\Http\Controllers\Student\StudentController;
@@ -82,24 +88,24 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/companies/{company}',       [CompanyController::class, 'destroy'])->name('companies.destroy');
 
     // Applications — admin view only, no approve/reject
-    Route::get('/applications',               [ApplicationController::class, 'index'])->name('applications.index');
-    Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
-    Route::delete('/applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
+    Route::get('/applications',                     [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/applications/{application}',       [ApplicationController::class, 'show'])->name('applications.show');
+    Route::delete('/applications/{application}',    [ApplicationController::class, 'destroy'])->name('applications.destroy');
 
     Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
     Route::post('/applications/{application}/reject',  [ApplicationController::class, 'reject'])->name('applications.reject');
     
     // Hours monitoring — admin view only
-    Route::get('/hours',           [HoursController::class, 'index'])->name('hours.index');
-    Route::get('/hours/{student}', [HoursController::class, 'show'])->name('hours.show');
+    Route::get('/hours',                    [HoursController::class, 'index'])->name('hours.index');
+    Route::get('/hours/{student}',          [HoursController::class, 'show'])->name('hours.show');
 
     // Weekly reports — admin view only
-    Route::get('/reports',          [WeeklyReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{report}', [WeeklyReportController::class, 'show'])->name('reports.show');
+    Route::get('/reports',                  [WeeklyReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{report}',         [WeeklyReportController::class, 'show'])->name('reports.show');
 
     // Evaluations — admin view only
-    Route::get('/evaluations',              [EvaluationController::class, 'index'])->name('evaluations.index');
-    Route::get('/evaluations/{evaluation}', [EvaluationController::class, 'show'])->name('evaluations.show');
+    Route::get('/evaluations',                  [EvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{evaluation}',     [EvaluationController::class, 'show'])->name('evaluations.show');
 
     // Exports
     Route::get('/exports',                 [ExportController::class, 'index'])->name('export.index');
@@ -114,11 +120,23 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     ->name('coordinator.')
     ->group(function () {
     
+    // Dashboard
     Route::get('/dashboard', fn() => view('coordinator.dashboard'))->name('dashboard');
 
-    Route::get('/applications', [CoordinatorApplicationController::class, 'index'])->name('applications.index');
-    Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
-    Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+    // Applications
+    Route::get('/applications',                         [CoordinatorApplicationController::class, 'index'])->name('applications.index');
+    Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
+    Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+
+    // Hour logs
+    Route::get('/hours',                        [CoordinatorHourLogController::class, 'index'])->name('hours.index');
+    Route::post('/hours/{hourLog}/approve',     [CoordinatorHourLogController::class, 'approve'])->name('hours.approve');
+    Route::post('/hours/{hourLog}/reject',      [CoordinatorHourLogController::class, 'reject'])->name('hours.reject');
+
+    // Weekly reports
+    Route::get('/reports',                      [CoordinatorReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/{report}/approve',    [CoordinatorReportController::class, 'approve'])->name('reports.approve');
+    Route::post('/reports/{report}/return',     [CoordinatorReportController::class, 'return'])->name('reports.return');
 
 });
 
@@ -139,7 +157,7 @@ Route::middleware(['auth', 'role:student_intern'])
     ->group(function () {
 
     // Dashboard
-    Route::get('/dashboard',    [StudentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard',            [StudentController::class, 'dashboard'])->name('dashboard');
 
     // OJT Application
     Route::get('/application/create',           [StudentApplicationController::class, 'create'])->name('application.create');
@@ -152,17 +170,17 @@ Route::middleware(['auth', 'role:student_intern'])
     Route::post('/hours',               [HourLogController::class, 'store'])->name('hours.store');
 
     // Reports
-    Route::get('/reports',            [StudentWeeklyReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/create',     [StudentWeeklyReportController::class, 'create'])->name('reports.create');
-    Route::post('/reports',           [StudentWeeklyReportController::class, 'store'])->name('reports.store');
+    Route::get('/reports',              [StudentWeeklyReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/create',       [StudentWeeklyReportController::class, 'create'])->name('reports.create');
+    Route::post('/reports',             [StudentWeeklyReportController::class, 'store'])->name('reports.store');
 
     // Evaluations
-    Route::get('/evaluation', [StudentEvaluationController::class, 'show'])->name('evaluation.show');
+    Route::get('/evaluation',           [StudentEvaluationController::class, 'show'])->name('evaluation.show');
     
     
     // Others
-    Route::get('/settings',          [StudentSettingsController::class, 'index'])->name('settings');
-    Route::patch('/settings/profile',  [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
-    Route::patch('/settings/password', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::get('/settings',             [StudentSettingsController::class, 'index'])->name('settings');
+    Route::patch('/settings/profile',   [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::patch('/settings/password',  [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
 
 });
