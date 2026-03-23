@@ -116,10 +116,10 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     
     Route::get('/dashboard', fn() => view('coordinator.dashboard'))->name('dashboard');
 
-    // Uncomment when CoordinatorApplicationController is created:
-    // Route::get('/applications', [CoordinatorApplicationController::class, 'index'])->name('applications.index');
-    // Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
-    // Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+    Route::get('/applications', [CoordinatorApplicationController::class, 'index'])->name('applications.index');
+    Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
+    Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+
 });
 
 // ── SUPERVISOR ────────────────────────────────────────────────────
