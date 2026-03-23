@@ -11,7 +11,7 @@
             Internship Period: {{ $application->start_date->format('M d, Y') }} – {{ $application->end_date->format('M d, Y') }}
         </div>
     </div>
-    <a href="{{ route('reports.create') }}"
+    <a href="{{ route('student.reports.create') }}"
        style="padding:9px 20px;background:var(--gold);color:var(--bg);border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">
         + New Report
     </a>
@@ -104,7 +104,7 @@
     <div style="font-size:32px;margin-bottom:12px;">📋</div>
     <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">No reports submitted yet</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Start documenting your internship experience week by week.</div>
-    <a href="{{ route('reports.create') }}"
+    <a href="{{ route('student.reports.create') }}"
        style="padding:10px 24px;background:var(--gold);color:var(--bg);border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
         Submit First Report
     </a>

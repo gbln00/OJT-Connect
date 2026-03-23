@@ -51,6 +51,21 @@ class User extends Authenticatable
             'is_active' => 'boolean',
         ];
     }
+
+    /**
+ * Get a human-readable role label.
+ */
+    public function getRoleLabelAttribute(): string
+    {
+        return match($this->role) {
+            'admin'              => 'Admin',
+            'ojt_coordinator'    => 'Coordinator',
+            'company_supervisor' => 'Supervisor',
+            'student_intern'     => 'Student',
+            default              => ucfirst($this->role),
+        };
+    }
+
     // Role helpers
     public function isAdmin(): bool { 
         return $this->role === 'admin'; 

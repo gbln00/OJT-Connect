@@ -13,29 +13,38 @@ class StudentWeeklyReportController extends Controller
     public function index()
     {
         $user        = Auth::user();
-        
         $application = $user->activeApplication()->first();
+
         if (!$application || !$application->isApproved()) {
             return redirect()->route('student.dashboard')
                 ->with('error', 'You need an approved application to submit reports.');
-                // dd([
-                //     'application'  => $application,
-                //     'status'       => $application?->status,
-                //     'isApproved'   => $application?->isApproved(),
-                // ]);
         }
+
         $reports = WeeklyReport::where('student_id', $user->id)
             ->where('application_id', $application->id)
-            ->orderBy('week_number', 'desc')->paginate(10);
-        return view('student.reports.index', compact('application','reports'));
+            ->orderBy('week_number', 'desc')
+            ->paginate(10);
 
+        // ✅ These must all be BEFORE the return
+        $totalReports    = $reports->total();
+        $approvedReports = WeeklyReport::where('student_id', $user->id)
+            ->where('application_id', $application->id)
+            ->where('status', 'approved')->count();
+        $pendingReports  = WeeklyReport::where('student_id', $user->id)
+            ->where('application_id', $application->id)
+            ->where('status', 'pending')->count();
         $rejectedReports = WeeklyReport::where('student_id', $user->id)
             ->where('application_id', $application->id)
-            ->where('status', 'rejected')
-            ->count();
-        return view('student.reports.index', compact('application','reports','rejectedReports'));
+            ->where('status', 'rejected')->count();
 
-         
+        return view('student.reports.index', compact(
+            'application',
+            'reports',
+            'totalReports',
+            'approvedReports',
+            'pendingReports',
+            'rejectedReports'
+        ));
     }
 
     public function create()

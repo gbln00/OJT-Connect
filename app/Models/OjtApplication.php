@@ -59,10 +59,6 @@ class OjtApplication extends Model
     {
         return $this->hasOne(Evaluation::class, 'application_id');
     }
-    public function applications()
-    {
-        return $this->hasMany(OjtApplication::class);
-    }
 
     // Helpers
     public function isPending(): bool  { return $this->status === 'pending'; }

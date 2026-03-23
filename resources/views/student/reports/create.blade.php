@@ -6,7 +6,7 @@
 <div style="max-width:720px;">
 
     {{-- Back link --}}
-    <a href="{{ route('reports.index') }}"
+    <a href="{{ route('student.reports.index') }}"
        style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:20px;">
         ← Back to Weekly Reports
     </a>
@@ -123,7 +123,7 @@
                                font-size:13px;font-weight:600;cursor:pointer;">
                     Submit Report
                 </button>
-                <a href="{{ route('reports.index') }}"
+                <a href="{{ route('student.reports.index') }}"
                    style="padding:10px 20px;background:transparent;color:var(--muted);border:1px solid var(--border2);
                           border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
                     Cancel
