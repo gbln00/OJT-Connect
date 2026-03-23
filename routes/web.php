@@ -17,9 +17,11 @@ use App\Http\Controllers\Admin\ExportController;
 
 // Coordinator controllers
 use App\Http\Controllers\Coordinator\CoordinatorController;
+use App\Http\Controllers\Coordinator\CoordinatorStudentController;
 use App\Http\Controllers\Coordinator\CoordinatorApplicationController;
 use App\Http\Controllers\Coordinator\CoordinatorHourLogController;
 use App\Http\Controllers\Coordinator\CoordinatorReportController;
+use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
 
 //student controllers
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -121,7 +123,10 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     ->group(function () {
     
     // Dashboard
-    Route::get('/dashboard', fn() => view('coordinator.dashboard'))->name('dashboard');
+    Route::get('/dashboard',                [CoordinatorController::class, 'dashboard'])->name('dashboard');
+
+    // Students
+    Route::get('/students', [CoordinatorStudentController::class, 'index'])->name('students.index');
 
     // Applications
     Route::get('/applications',                         [CoordinatorApplicationController::class, 'index'])->name('applications.index');
@@ -137,6 +142,11 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     Route::get('/reports',                      [CoordinatorReportController::class, 'index'])->name('reports.index');
     Route::post('/reports/{report}/approve',    [CoordinatorReportController::class, 'approve'])->name('reports.approve');
     Route::post('/reports/{report}/return',     [CoordinatorReportController::class, 'return'])->name('reports.return');
+
+    //evaluations
+    Route::get('/evaluations',                      [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{evaluation}',         [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
+    Route::post('/evaluations/{evaluation}/complete',     [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
 
 });
 
