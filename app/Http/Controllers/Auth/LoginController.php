@@ -26,14 +26,6 @@ class LoginController extends Controller
             $user = Auth::user();
 
 
-            // Block inactive accounts
-            if (!$user->is_active) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Your account has been deactivated. Please contact the administrator.',
-                ])->withInput($request->only('email'));
-            }
-
             $request->session()->regenerate();
 
             return match($user->role) {
