@@ -37,6 +37,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             return match($user->role) {
+                'super_admin'        => redirect()->route('super_admin.dashboard'),
                 'admin'              => redirect()->route('admin.dashboard'),
                 'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
                 'company_supervisor' => redirect()->route('supervisor.dashboard'),
