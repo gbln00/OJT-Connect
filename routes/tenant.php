@@ -63,20 +63,20 @@ Route::middleware([
     // ── Root redirect ─────────────────────────────────────────────────
     Route::get('/', function () {
         if (auth()->check()) {
-            $user = auth()->user();
-
-            return match($user->role) {
-                'admin'              => redirect()->route('admin.dashboard'),
-                'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
-                'company_supervisor' => redirect()->route('supervisor.dashboard'),
-                'student_intern'     => redirect()->route('student.dashboard'),
-                default              => abort(403, 'Invalid role: ' . $user->role),
+            $path = match(auth()->user()->role) {
+                'admin'              => '/admin/dashboard',
+                'ojt_coordinator'    => '/coordinator/dashboard',
+                'company_supervisor' => '/supervisor/dashboard',
+                'student_intern'     => '/student/dashboard',
+                default              => abort(403),
             };
+
+            return redirect($path);
         }
 
         return view('welcome');
     });
-
+    
     // ── Guest-only routes ─────────────────────────────────────────────
     Route::middleware('guest')->group(function () {
         Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');

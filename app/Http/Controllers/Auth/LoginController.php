@@ -24,18 +24,23 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
-
-
             $request->session()->regenerate();
 
-            return match($user->role) {
-                'super_admin'        => redirect()->route('super_admin.dashboard'),
-                'admin'              => redirect()->route('admin.dashboard'),
-                'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
-                'company_supervisor' => redirect()->route('supervisor.dashboard'),
-                'student_intern'     => redirect()->route('student.dashboard'),
-                default              => redirect('/'),
+            // Super admin stays on central domain via named route
+            if ($user->role === 'super_admin') {
+                return redirect()->route('super_admin.dashboard');
+            }
+
+            // Tenant roles use relative paths to stay on current domain
+            $path = match($user->role) {
+                'admin'              => '/admin/dashboard',
+                'ojt_coordinator'    => '/coordinator/dashboard',
+                'company_supervisor' => '/supervisor/dashboard',
+                'student_intern'     => '/student/dashboard',
+                default              => '/',
             };
+
+            return redirect($path);
         }
 
         return back()->withErrors([

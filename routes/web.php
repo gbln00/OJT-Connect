@@ -13,14 +13,17 @@ foreach (config('tenancy.central_domains') as $domain) {
         // ── Root Redirect ─────────────────────────────────────────────────
         Route::get('/', function () {
             if (auth()->check()) {
-                return match(auth()->user()->role) {
-                    'super_admin'        => redirect()->route('super_admin.dashboard'),
-                    'admin'              => redirect()->route('admin.dashboard'),
-                    'ojt_coordinator'    => redirect()->route('coordinator.dashboard'),
-                    'company_supervisor' => redirect()->route('supervisor.dashboard'),
-                    'student_intern'     => redirect()->route('student.dashboard'),
-                    default              => abort(403, 'Invalid role.'),
-                };
+                $role = auth()->user()->role;
+
+                if ($role === 'super_admin') {
+                    return redirect()->route('super_admin.dashboard');
+                }
+
+                // Non-super-admin users don't belong on the central domain
+                Auth::logout();
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Please log in from your institution\'s domain.',
+                ]);
             }
 
             return view('welcome');

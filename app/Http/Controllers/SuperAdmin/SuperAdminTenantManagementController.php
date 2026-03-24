@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class SuperAdminTenantManagementController extends Controller
 {
@@ -34,8 +35,11 @@ class SuperAdminTenantManagementController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'id'     => ['required', 'string', 'max:255', 'unique:tenants,id', 'regex:/^[a-z0-9\-]+$/'],
-            'domain' => ['required', 'string', 'max:255', 'unique:domains,domain'],
+            'id'             => ['required', 'string', 'max:255', 'unique:tenants,id', 'regex:/^[a-z0-9\-]+$/'],
+            'domain'         => ['required', 'string', 'max:255', 'unique:domains,domain'],
+            'admin_name'     => ['required', 'string', 'max:255'],
+            'admin_email'    => ['required', 'email', 'max:255'],
+            'admin_password' => ['required', 'string', 'min:8'],
         ], [
             'id.regex' => 'Tenant ID may only contain lowercase letters, numbers, and hyphens.',
         ]);
@@ -43,11 +47,18 @@ class SuperAdminTenantManagementController extends Controller
         $tenant = Tenant::create(['id' => $data['id']]);
         $tenant->domains()->create(['domain' => $data['domain']]);
 
-        // Run tenant migrations automatically
-        $tenant->run(function () {
+        $tenant->run(function () use ($data) {
             \Artisan::call('tenants:migrate', [
                 '--tenants' => [tenant('id')],
                 '--force'   => true,
+            ]);
+
+            // Create the tenant's admin user after migrations run
+            \App\Models\User::create([
+                'name'     => $data['admin_name'],
+                'email'    => $data['admin_email'],
+                'password' => \Illuminate\Support\Facades\Hash::make($data['admin_password']),
+                'role'     => 'admin',
             ]);
         });
 
@@ -55,7 +66,6 @@ class SuperAdminTenantManagementController extends Controller
             ->route('super_admin.tenants.index')
             ->with('success', "Tenant \"{$tenant->id}\" created successfully.");
     }
-
     /**
      * Show a single tenant's details.
      */

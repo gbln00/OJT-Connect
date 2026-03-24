@@ -25,6 +25,7 @@
         <form method="POST" action="{{ route('super_admin.tenants.store') }}">
             @csrf
 
+            {{-- Tenant Identity --}}
             <div class="form-group">
                 <label for="id">Tenant ID</label>
                 <input
@@ -60,6 +61,71 @@
 
             <hr class="divider">
 
+            {{-- Admin Credentials --}}
+            <div style="margin-bottom: 16px;">
+                <div style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px;">Admin Account</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.6;">
+                    This account will be created inside the tenant's database and used to log in to their dashboard.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="admin_name">Admin Name</label>
+                <input
+                    type="text"
+                    id="admin_name"
+                    name="admin_name"
+                    value="{{ old('admin_name') }}"
+                    placeholder="e.g. Juan dela Cruz"
+                    autocomplete="off"
+                >
+                @error('admin_name')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="admin_email">Admin Email</label>
+                <input
+                    type="email"
+                    id="admin_email"
+                    name="admin_email"
+                    value="{{ old('admin_email') }}"
+                    placeholder="e.g. admin@university-of-manila.com"
+                    autocomplete="off"
+                >
+                @error('admin_email')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="admin_password">Admin Password</label>
+                <input
+                    type="password"
+                    id="admin_password"
+                    name="admin_password"
+                    placeholder="Minimum 8 characters"
+                    autocomplete="new-password"
+                >
+                @error('admin_password')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="admin_password_confirmation">Confirm Password</label>
+                <input
+                    type="password"
+                    id="admin_password_confirmation"
+                    name="admin_password_confirmation"
+                    placeholder="Re-enter the password"
+                    autocomplete="new-password"
+                >
+            </div>
+
+            <hr class="divider">
+
             <div style="display:flex; gap:10px; justify-content:flex-end;">
                 <a href="{{ route('super_admin.tenants.index') }}" class="btn btn-ghost">Cancel</a>
                 <button type="submit" class="btn btn-primary">Create Tenant</button>
@@ -70,7 +136,7 @@
     {{-- Info box --}}
     <div style="margin-top:16px; padding:16px 18px; border-radius:10px; border:1px solid rgba(108,99,255,.25); background:rgba(108,99,255,.06); font-size:13px; color:var(--muted); line-height:1.7;">
         <strong style="color:#a09aff;">What happens on creation:</strong><br>
-        A new isolated database is provisioned for this tenant, all tenant migrations are run automatically, and the domain is registered so traffic is routed correctly.
+        A new isolated database is provisioned for this tenant, all tenant migrations are run automatically, the domain is registered so traffic is routed correctly, and the admin account is seeded into the tenant's database.
     </div>
 </div>
 

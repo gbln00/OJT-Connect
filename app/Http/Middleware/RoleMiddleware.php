@@ -11,7 +11,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): mixed
     {
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return redirect('/login'); // ← changed from route('login')
         }
 
         if (!in_array(Auth::user()->role, $roles)) {
@@ -19,7 +19,7 @@ class RoleMiddleware
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->withErrors([
+            return redirect('/login')->withErrors([ // ← changed from route('login')
                 'email' => 'You do not have access to that page.',
             ]);
         }
