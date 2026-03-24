@@ -14,7 +14,7 @@ class SupervisorEvaluationController extends Controller
         $existing = Evaluation::where('application_id', $application->id)->first();
         if ($existing) return redirect()->route('supervisor.dashboard')
             ->with('info', 'Evaluation already submitted for this intern.');
-        return view('supervisor.evaluation.create', compact('application'));
+        return view('supervisor.evaluations.create', compact('application'));
     }
 
     public function store(Request $request, OjtApplication $application)
@@ -40,5 +40,17 @@ class SupervisorEvaluationController extends Controller
         ]);
         return redirect()->route('supervisor.dashboard')
             ->with('success', 'Evaluation submitted successfully.');
+    }
+
+    
+    public function index()
+    {
+        $companyId   = Auth::user()->company_id;
+        $applications = OjtApplication::with(['student', 'evaluation'])
+            ->where('company_id', $companyId)
+            ->where('status', 'approved')
+            ->latest()
+            ->get();
+        return view('supervisor.evaluations.index', compact('applications'));
     }
 }

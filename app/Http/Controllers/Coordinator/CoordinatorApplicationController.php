@@ -32,4 +32,10 @@ class CoordinatorApplicationController extends Controller
         $application->update(['status'=>'rejected','reviewed_by'=>auth()->id(),'reviewed_at'=>now(),'remarks'=>$request->remarks]);
         return back()->with('success', $application->student->name.' has been rejected.');
     }
+
+    public function show(OjtApplication $application)
+    {
+        $application->load(['student', 'company', 'reviewer']);
+        return view('coordinator.applications.show', compact('application'));
+    }
 }

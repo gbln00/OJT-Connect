@@ -15,4 +15,16 @@ class SupervisorController extends Controller
             ->get();
         return view('supervisor.dashboard', compact('interns'));
     }
-}
+
+    // SupervisorController
+    public function interns()
+    {
+        $companyId = Auth::user()->company_id;
+        $interns   = OjtApplication::with(['student', 'company', 'evaluation'])
+            ->where('company_id', $companyId)
+            ->where('status', 'approved')
+            ->latest()
+            ->get();
+        return view('supervisor.interns.index', compact('interns'));
+    }
+    }

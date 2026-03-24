@@ -130,12 +130,13 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     Route::get('/dashboard',                [CoordinatorController::class, 'dashboard'])->name('dashboard');
 
     // Students
-    Route::get('/students', [CoordinatorStudentController::class, 'index'])->name('students.index');
+    Route::get('/students',                 [CoordinatorStudentController::class, 'index'])->name('students.index');
 
     // Applications
     Route::get('/applications',                         [CoordinatorApplicationController::class, 'index'])->name('applications.index');
     Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
     Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+    Route::get('/applications/{application}',           [CoordinatorApplicationController::class, 'show'])->name('applications.show');
 
     // Hour logs
     Route::get('/hours',                        [CoordinatorHourLogController::class, 'index'])->name('hours.index');
@@ -148,18 +149,29 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     Route::post('/reports/{report}/return',     [CoordinatorReportController::class, 'return'])->name('reports.return');
 
     //evaluations
-    Route::get('/evaluations',                      [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
-    Route::get('/evaluations/{evaluation}',         [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
-    Route::post('/evaluations/{evaluation}/complete',     [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
+    Route::get('/evaluations',                              [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{evaluation}',                 [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
+    Route::post('/evaluations/{evaluation}/complete',       [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
 
 });
 
 // ── SUPERVISOR ────────────────────────────────────────────────────
 
 Route::middleware(['auth','role:company_supervisor'])->prefix('supervisor')->name('supervisor.')->group(function () {
-    Route::get('/dashboard', [SupervisorController::class, 'dashboard'])->name('dashboard');
-    Route::get('/evaluate/{application}', [SupervisorEvaluationController::class, 'create'])->name('evaluation.create');
-    Route::post('/evaluate/{application}', [SupervisorEvaluationController::class, 'store'])->name('evaluation.store');
+    Route::get('/dashboard',                      [SupervisorController::class,           'dashboard'])->name('dashboard');
+
+    // routes
+    Route::get('/interns', [SupervisorController::class, 'interns'])->name('interns.index');
+
+    // Evaluations
+    Route::get('/evaluations',                    [SupervisorEvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{application}',      [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
+    Route::post('/evaluations/{application}',     [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
+    
+    // Settings
+    Route::get('/profile/settings',                       [SupervisorSettingsController::class,   'edit'])->name('profile.settings');
+    Route::patch('/settings/profile',             [SupervisorSettingsController::class,   'updateProfile'])->name('settings.update.profile');
+    Route::patch('/settings/password',            [SupervisorSettingsController::class,   'updatePassword'])->name('settings.update.password');
 });
 
 
