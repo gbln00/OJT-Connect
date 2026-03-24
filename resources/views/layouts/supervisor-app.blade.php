@@ -40,8 +40,8 @@
 
         <div class="nav-section-label">Interns</div>
 
-        <a href="{{ route('supervisor.dashboard') }}"
-           class="nav-item {{ request()->routeIs('supervisor.dashboard') ? '' : '' }}">
+        <a href="{{ route('supervisor.interns.index') }}"
+           class="nav-item {{ request()->routeIs('supervisor.interns.index') ? 'active' : '' }}">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
