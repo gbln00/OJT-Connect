@@ -6,9 +6,15 @@
 {{-- Header row --}}
 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
     <div>
-        <div style="font-size:13px;color:var(--muted);">{{ $application->company_name }}</div>
+        <div style="font-size:13px;color:var(--muted);">
+            {{ $application->company_name }}
+        </div>
+
         <div style="font-size:12px;color:var(--muted);margin-top:2px;">
-            Internship Period: {{ $application->start_date->format('M d, Y') }} – {{ $application->end_date->format('M d, Y') }}
+            Internship Period:
+            {{ $application->start_date?->format('M d, Y') ?? 'N/A' }}
+            –
+            {{ $application->end_date?->format('M d, Y') ?? 'N/A' }}
         </div>
     </div>
     <a href="{{ route('student.reports.create') }}"
