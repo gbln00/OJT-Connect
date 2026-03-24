@@ -13,7 +13,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "^5.5",
-        "setasign/fpdf": "^1.8"
+        "setasign/fpdf": "^1.8",
+        "stancl/tenancy": "^3.10"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
