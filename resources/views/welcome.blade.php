@@ -397,7 +397,7 @@
         </a>
         <span class="nav-tag">BukSU</span>
     </div>
-    <a href="{{ route('login') }}" class="btn-login">
+    <a href="/login" class="btn-login">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
         Log in
     </a>
@@ -420,7 +420,7 @@
     </p>
 
     <div class="hero-cta">
-        <a href="{{ route('login') }}" class="btn-hero">
+        <a href="/login" class="btn-hero">
             Access the system
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
         </a>
