@@ -33,6 +33,7 @@ use App\Http\Controllers\Student\StudentSettingsController;
 
 // Supervisor controllers
 use App\Http\Controllers\Supervisor\SupervisorController;
+use App\Http\Controllers\Supervisor\SupervisorHourLogController;
 use App\Http\Controllers\Supervisor\SupervisorEvaluationController;
 
 
@@ -139,9 +140,9 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
     Route::get('/applications/{application}',           [CoordinatorApplicationController::class, 'show'])->name('applications.show');
 
     // Hour logs
-    Route::get('/hours',                        [CoordinatorHourLogController::class, 'index'])->name('hours.index');
-    Route::post('/hours/{hourLog}/approve',     [CoordinatorHourLogController::class, 'approve'])->name('hours.approve');
-    Route::post('/hours/{hourLog}/reject',      [CoordinatorHourLogController::class, 'reject'])->name('hours.reject');
+    // Route::get('/hours',                        [CoordinatorHourLogController::class, 'index'])->name('hours.index');
+    // Route::post('/hours/{hourLog}/approve',     [CoordinatorHourLogController::class, 'approve'])->name('hours.approve');
+    // Route::post('/hours/{hourLog}/reject',      [CoordinatorHourLogController::class, 'reject'])->name('hours.reject');
 
     // Weekly reports
     Route::get('/reports',                      [CoordinatorReportController::class, 'index'])->name('reports.index');
@@ -158,20 +159,25 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
 // ── SUPERVISOR ────────────────────────────────────────────────────
 
 Route::middleware(['auth','role:company_supervisor'])->prefix('supervisor')->name('supervisor.')->group(function () {
-    Route::get('/dashboard',                      [SupervisorController::class,           'dashboard'])->name('dashboard');
+    Route::get('/dashboard',                        [SupervisorController::class,           'dashboard'])->name('dashboard');
 
     // routes
-    Route::get('/interns', [SupervisorController::class, 'interns'])->name('interns.index');
+    Route::get('/interns',                          [SupervisorController::class, 'interns'])->name('interns.index');
+
+    // Hour logs
+    Route::get('/hours',                            [SupervisorHourLogController::class, 'index'])->name('hours.index');
+    Route::post('/hours/{hourLog}/approve',         [SupervisorHourLogController::class, 'approve'])->name('hours.approve');
+    Route::post('/hours/{hourLog}/reject',          [SupervisorHourLogController::class, 'reject'])->name('hours.reject');
 
     // Evaluations
-    Route::get('/evaluations',                    [SupervisorEvaluationController::class, 'index'])->name('evaluations.index');
-    Route::get('/evaluations/{application}',      [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
-    Route::post('/evaluations/{application}',     [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
+    Route::get('/evaluations',                      [SupervisorEvaluationController::class, 'index'])->name('evaluations.index');
+    Route::get('/evaluations/{application}',        [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
+    Route::post('/evaluations/{application}',       [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
     
     // Settings
-    Route::get('/profile/settings',                       [SupervisorSettingsController::class,   'edit'])->name('profile.settings');
-    Route::patch('/settings/profile',             [SupervisorSettingsController::class,   'updateProfile'])->name('settings.update.profile');
-    Route::patch('/settings/password',            [SupervisorSettingsController::class,   'updatePassword'])->name('settings.update.password');
+    Route::get('/profile/settings',                 [SupervisorSettingsController::class,   'edit'])->name('profile.settings');
+    Route::patch('/settings/profile',               [SupervisorSettingsController::class,   'updateProfile'])->name('settings.update.profile');
+    Route::patch('/settings/password',              [SupervisorSettingsController::class,   'updatePassword'])->name('settings.update.password');
 });
 
 
@@ -199,6 +205,13 @@ Route::middleware(['auth', 'role:student_intern'])
     Route::get('/reports',              [StudentWeeklyReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/create',       [StudentWeeklyReportController::class, 'create'])->name('reports.create');
     Route::post('/reports',             [StudentWeeklyReportController::class, 'store'])->name('reports.store');
+    Route::get('/reports/{report}/edit', [StudentWeeklyReportController::class, 'edit'])
+        ->name('reports.edit');
+    Route::patch('/reports/{report}', [StudentWeeklyReportController::class, 'update'])
+        ->name('reports.update');
+
+    Route::get('/reports/{report}', [StudentWeeklyReportController::class, 'show'])
+    ->name('reports.show');
 
     // Evaluations
     Route::get('/evaluation',           [StudentEvaluationController::class, 'show'])->name('evaluation.show');

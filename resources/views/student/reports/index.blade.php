@@ -93,11 +93,11 @@
                 </a>
                 @endif
                 @if($report->status === 'pending')
-                <a href="{{ route('reports.edit', $report->id) }}"
+                <a href="{{ route('student.reports.edit', $report->id) }}"
                    style="font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border2);
                           padding:4px 12px;border-radius:6px;">Edit</a>
                 @endif
-                <a href="{{ route('reports.show', $report->id) }}"
+                <a href="{{ route('student.reports.show', $report->id) }}"
                    style="font-size:12px;color:var(--teal);text-decoration:none;border:1px solid var(--teal);
                           padding:4px 12px;border-radius:6px;font-weight:600;">View</a>
             </div>

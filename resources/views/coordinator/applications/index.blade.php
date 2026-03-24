@@ -119,35 +119,15 @@
 
                 {{-- Actions --}}
                 <td>
-                    @if($app->status === 'pending')
-                    <div style="display:flex;gap:6px;align-items:center;">
-                        {{-- Approve --}}
-                        <button onclick="openModal('approve-{{ $app->id }}')"
-                                style="padding:4px 12px;background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal);
-                                       border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
-                            Approve
-                        </button>
-                        {{-- Reject --}}
-                        <button onclick="openModal('reject-{{ $app->id }}')"
-                                style="padding:4px 12px;background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral);
-                                       border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
-                            Reject
-                        </button>
-                    </div>
-                    @else
-                    <div style="font-size:12px;color:var(--muted);">
-                        @if($app->reviewer)
-                            By {{ $app->reviewer->name }}<br>
-                            <span style="font-size:11px;">{{ $app->reviewed_at?->format('M d, Y') }}</span>
-                        @else
-                            —
-                        @endif
-                    </div>
-                    @endif
+                    <a href="{{ route('coordinator.applications.show', $app->id) }}"
+                           style="font-size:12px;color:var(--teal);text-decoration:none;border:1px solid var(--teal);
+                                  padding:4px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">
+                            Review
+                        </a>
                 </td>
             </tr>
 
-            {{-- Approve modal --}}
+            <!-- {{-- Approve modal --}}
             @if($app->status === 'pending')
             <tr id="approve-{{ $app->id }}" style="display:none;">
                 <td colspan="6" style="padding:0;border:none;">
@@ -217,7 +197,7 @@
                     </div>
                 </td>
             </tr>
-            @endif
+            @endif -->
 
             @empty
             <tr>

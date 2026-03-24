@@ -62,6 +62,23 @@
         </a>
 
         <div class="nav-section-label">Evaluate</div>
+         <a href="{{ route('supervisor.hours.index') }}"
+           class="nav-item {{ request()->routeIs('supervisor.hours.*') ? 'active' : '' }}">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+            </svg>
+            Hour Logs
+            @php
+                $pendingLogsCount = \App\Models\HourLog::where('status','pending')->count();
+            @endphp
+            @if($pendingLogsCount > 0)
+                <span style="margin-left:auto;padding:1px 7px;background:var(--blue-dim);color:var(--blue);
+                             border-radius:20px;font-size:10.5px;font-weight:700;">
+                    {{ $pendingLogsCount }}
+                </span>
+            @endif
+        </a>
 
         <a href="{{ route('supervisor.evaluations.index') }}"
            class="nav-item {{ request()->routeIs('supervisor.evaluations.*') ? 'active' : '' }}">
@@ -84,7 +101,7 @@
             @endif
         </a>
 
-        <div class="nav-section-label">System</div>
+        <!-- <div class="nav-section-label">System</div>
 
         <a href="{{ route('supervisor.profile.settings') }}"
            class="nav-item {{ request()->routeIs('supervisor.profile.settings') ? 'active' : '' }}">
@@ -93,7 +110,7 @@
                 <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
             </svg>
             Settings
-        </a>
+        </a> -->
 
     </nav>
 

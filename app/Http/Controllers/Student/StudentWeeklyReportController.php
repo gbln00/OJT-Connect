@@ -89,4 +89,79 @@ class StudentWeeklyReportController extends Controller
         return redirect()->route('student.reports.index')
             ->with('success', 'Weekly report submitted successfully.');
     }
+
+    public function edit(WeeklyReport $report)
+    {
+        $user = Auth::user();
+
+        // امنیت: ensure ownership
+        if ($report->student_id !== $user->id) {
+            abort(403);
+        }
+
+        // Only allow editing if rejected
+        if ($report->status !== 'rejected') {
+            return redirect()->route('student.reports.index')
+                ->with('error', 'You can only edit rejected reports.');
+        }
+
+        return view('student.reports.edit', compact('report'));
+    }
+
+    public function update(Request $request, WeeklyReport $report)
+    {
+        $user = Auth::user();
+
+        if ($report->student_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($report->status !== 'rejected') {
+            return redirect()->route('student.reports.index')
+                ->with('error', 'You can only edit rejected reports.');
+        }
+
+        $request->validate([
+            'week_number'  => ['required','integer','min:1'],
+            'week_start'   => ['required','date'],
+            'week_end'     => ['required','date','after:week_start'],
+            'description'  => ['required','string','min:20'],
+            'file'         => ['nullable','file','mimes:pdf,jpg,jpeg,png','max:5120'],
+        ]);
+
+        // Handle file update
+        if ($request->hasFile('file')) {
+            // delete old file
+            if ($report->file_path) {
+                Storage::disk('public')->delete($report->file_path);
+            }
+
+            $filePath = $request->file('file')
+                ->store('weekly-reports/' . $user->id, 'public');
+
+            $report->file_path = $filePath;
+        }
+
+        $report->update([
+            'week_number' => $request->week_number,
+            'week_start'  => $request->week_start,
+            'week_end'    => $request->week_end,
+            'description' => $request->description,
+            'status'      => 'pending', // 🔥 resubmitted
+        ]);
+
+        return redirect()->route('student.reports.index')
+            ->with('success', 'Report updated and resubmitted.');
+    }
+
+    public function show(WeeklyReport $report)
+    {
+        $user = Auth::user();
+
+        if ($report->student_id !== $user->id) {
+            abort(403);
+        }
+
+        return view('student.reports.show', compact('report'));
+    }
 }

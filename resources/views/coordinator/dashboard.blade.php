@@ -40,17 +40,7 @@
         </a>
     </div>
 
-    {{-- Pending Hour Logs --}}
-    <div class="card" style="padding:20px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-10px;right:-10px;width:60px;height:60px;border-radius:50%;background:var(--blue-dim);opacity:.5;"></div>
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;">PENDING HOUR LOGS</div>
-        <div style="font-size:32px;font-weight:800;color:var(--blue);line-height:1;">{{ $pendingLogs }}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px;">logs to approve</div>
-        <a href="{{ route('coordinator.hours.index') }}"
-           style="display:inline-block;margin-top:12px;font-size:11.5px;color:var(--blue);text-decoration:none;font-weight:600;">
-            Approve →
-        </a>
-    </div>
+
 
     {{-- Pending Reports --}}
     <div class="card" style="padding:20px;position:relative;overflow:hidden;">
@@ -174,28 +164,7 @@
                 @endif
             </a>
 
-            <a href="{{ route('coordinator.hours.index') }}"
-               style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;
-                      background:var(--surface2);border:1px solid var(--border2);text-decoration:none;
-                      transition:border-color .15s;"
-               onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)'">
-                <div style="width:32px;height:32px;border-radius:8px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0;">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                </div>
-                <div>
-                    <div style="font-size:13px;font-weight:600;color:var(--text);">Hour Logs</div>
-                    <div style="font-size:11.5px;color:var(--muted);">Approve submissions</div>
-                </div>
-                @if($pendingLogs > 0)
-                <span style="margin-left:auto;padding:2px 8px;background:var(--blue-dim);color:var(--blue);
-                             border-radius:20px;font-size:11px;font-weight:700;">
-                    {{ $pendingLogs }}
-                </span>
-                @endif
-            </a>
+
 
             <a href="{{ route('coordinator.reports.index') }}"
                style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;
