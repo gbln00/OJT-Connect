@@ -1,0 +1,44 @@
+<?php
+namespace App\Http\Controllers\Supervisor;
+use App\Http\Controllers\Controller;
+use App\Models\{Evaluation, OjtApplication};
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class SupervisorEvaluationController extends Controller
+{
+    public function create(OjtApplication $application)
+    {
+        // Make sure this intern belongs to this supervisor's company
+        abort_if($application->company_id !== Auth::user()->company_id, 403);
+        $existing = Evaluation::where('application_id', $application->id)->first();
+        if ($existing) return redirect()->route('supervisor.dashboard')
+            ->with('info', 'Evaluation already submitted for this intern.');
+        return view('supervisor.evaluation.create', compact('application'));
+    }
+
+    public function store(Request $request, OjtApplication $application)
+    {
+        abort_if($application->company_id !== Auth::user()->company_id, 403);
+        $request->validate([
+            'attendance_rating'  => ['required','integer','min:1','max:5'],
+            'performance_rating' => ['required','integer','min:1','max:5'],
+            'overall_grade'      => ['required','numeric','min:0','max:100'],
+            'recommendation'     => ['required','in:pass,fail'],
+            'remarks'            => ['nullable','string','max:2000'],
+        ]);
+        Evaluation::create([
+            'student_id'         => $application->student_id,
+            'application_id'     => $application->id,
+            'supervisor_id'      => Auth::id(),
+            'attendance_rating'  => $request->attendance_rating,
+            'performance_rating' => $request->performance_rating,
+            'overall_grade'      => $request->overall_grade,
+            'recommendation'     => $request->recommendation,
+            'remarks'            => $request->remarks,
+            'submitted_at'       => now(),
+        ]);
+        return redirect()->route('supervisor.dashboard')
+            ->with('success', 'Evaluation submitted successfully.');
+    }
+}

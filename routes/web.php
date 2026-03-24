@@ -31,6 +31,10 @@ use App\Http\Controllers\Student\StudentWeeklyReportController;
 use App\Http\Controllers\Student\StudentEvaluationController;
 use App\Http\Controllers\Student\StudentSettingsController;
 
+// Supervisor controllers
+use App\Http\Controllers\Supervisor\SupervisorController;
+use App\Http\Controllers\Supervisor\SupervisorEvaluationController;
+
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -151,13 +155,13 @@ Route::middleware(['auth', 'role:ojt_coordinator'])
 });
 
 // ── SUPERVISOR ────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:company_supervisor'])
-    ->prefix('supervisor')
-    ->name('supervisor.')
-    ->group(function () {
-        
-    Route::get('/dashboard', fn() => view('supervisor.dashboard'))->name('dashboard');
+
+Route::middleware(['auth','role:company_supervisor'])->prefix('supervisor')->name('supervisor.')->group(function () {
+    Route::get('/dashboard', [SupervisorController::class, 'dashboard'])->name('dashboard');
+    Route::get('/evaluate/{application}', [SupervisorEvaluationController::class, 'create'])->name('evaluation.create');
+    Route::post('/evaluate/{application}', [SupervisorEvaluationController::class, 'store'])->name('evaluation.store');
 });
+
 
 // ── STUDENT ───────────────────────────────────────────────────────
 

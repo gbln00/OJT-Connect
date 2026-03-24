@@ -59,6 +59,8 @@ class UserController extends Controller
             'role'     => ['required', Rule::in([
                 'ojt_coordinator', 'company_supervisor', 'student_intern'
             ])],
+            'company_id' => $request->role === 'company_supervisor' ? 
+                ['required','exists:companies,id'] : ['nullable'],
         ]);
 
         User::create([
@@ -78,6 +80,7 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user'));
     }
 
+    
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -87,12 +90,15 @@ class UserController extends Controller
                 'admin', 'ojt_coordinator', 'company_supervisor', 'student_intern'
             ])],
             'password' => ['nullable', 'min:8', 'confirmed'],
+            'company_id' => $request->role === 'company_supervisor' ? 
+                ['required','exists:companies,id'] : ['nullable'],
         ]);
 
         $data = [
             'name'  => $request->name,
             'email' => $request->email,
             'role'  => $request->role,
+            'company_id' => $request->company_id ?? null,
         ];
 
         if ($request->filled('password')) {
@@ -119,6 +125,7 @@ class UserController extends Controller
         return back()->with('success', "User account {$status} successfully.");
     }
 
+    // Prevent admin from deleting themselves
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {

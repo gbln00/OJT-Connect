@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'company_id',
     ];
 
     /**
@@ -84,11 +85,14 @@ class User extends Authenticatable
     }
     
     // Relationships
+
+    // A user with role 'student_intern' can have many OJT applications
     public function applications()
     {
         return $this->hasMany(OjtApplication::class, 'student_id');
     }
 
+    // Get the active application (pending or approved) for the student
     public function activeApplication()
     {
         return $this->hasOne(OjtApplication::class, 'student_id')
@@ -96,10 +100,17 @@ class User extends Authenticatable
                     ->latest();           
     }
 
-    
+    // A user with role 'student_intern' has one student profile
     public function studentProfile()
     {
         return $this->hasOne(StudentProfile::class);
     }
+
+    // A user with role 'company_supervisor' belongs to a company
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+    
 
 }
