@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +15,6 @@ class UserController extends Controller
     {
         $query = User::query();
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -22,12 +22,10 @@ class UserController extends Controller
             });
         }
 
-        // Filter by role
         if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('is_active', $request->status === 'active');
         }
@@ -47,28 +45,36 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('admin.users.create');
+        // Pass active companies so the supervisor role can pick one
+        $companies = Company::where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.users.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
+        $isSupervisor = $request->role === 'company_supervisor';
+
         $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'min:8', 'confirmed'],
-            'role'     => ['required', Rule::in([
-                'ojt_coordinator', 'company_supervisor', 'student_intern'
+            'name'       => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'email', 'unique:users,email'],
+            'password'   => ['required', 'min:8', 'confirmed'],
+            'role'       => ['required', Rule::in([
+                'ojt_coordinator', 'company_supervisor', 'student_intern',
             ])],
-            'company_id' => $request->role === 'company_supervisor' ? 
-                ['required','exists:companies,id'] : ['nullable'],
+            // company_id is required only for supervisors
+            'company_id' => $isSupervisor
+                ? ['required', 'exists:companies,id']
+                : ['nullable'],
         ]);
 
         User::create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'role'      => $request->role,
-            'is_active' => true,
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'password'   => Hash::make($request->password),
+            'role'       => $request->role,
+            'company_id' => $isSupervisor ? $request->company_id : null,
+            'is_active'  => true,
         ]);
 
         return redirect()->route('admin.users.index')
@@ -77,28 +83,32 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $companies = Company::where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.users.edit', compact('user', 'companies'));
     }
 
-    
     public function update(Request $request, User $user)
     {
+        $isSupervisor = $request->role === 'company_supervisor';
+
         $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role'  => ['required', Rule::in([
-                'admin', 'ojt_coordinator', 'company_supervisor', 'student_intern'
+            'name'       => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'role'       => ['required', Rule::in([
+                'admin', 'ojt_coordinator', 'company_supervisor', 'student_intern',
             ])],
-            'password' => ['nullable', 'min:8', 'confirmed'],
-            'company_id' => $request->role === 'company_supervisor' ? 
-                ['required','exists:companies,id'] : ['nullable'],
+            'password'   => ['nullable', 'min:8', 'confirmed'],
+            'company_id' => $isSupervisor
+                ? ['required', 'exists:companies,id']
+                : ['nullable'],
         ]);
 
         $data = [
-            'name'  => $request->name,
-            'email' => $request->email,
-            'role'  => $request->role,
-            'company_id' => $request->company_id ?? null,
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'role'       => $request->role,
+            'company_id' => $isSupervisor ? $request->company_id : null,
         ];
 
         if ($request->filled('password')) {
@@ -113,7 +123,6 @@ class UserController extends Controller
 
     public function toggleActive(User $user)
     {
-        // Prevent admin from deactivating themselves
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot deactivate your own account.');
         }
@@ -125,7 +134,6 @@ class UserController extends Controller
         return back()->with('success', "User account {$status} successfully.");
     }
 
-    // Prevent admin from deleting themselves
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
