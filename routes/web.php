@@ -37,6 +37,13 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
             Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
             Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+
+            // ── PUBLIC: Self-service registration form ──
+            Route::get('/register/company',       [TenantRegisterController::class, 'showForm'])
+                ->name('tenant.register');
+            Route::post('/register/company',      [TenantRegisterController::class, 'submit'])
+                ->name('tenant.register.submit');
+        
         });
 
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
@@ -48,7 +55,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->group(function () {
 
             // Dashboard
-            Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
+            Route::get('/dashboard',             [SuperAdminController::class, 'dashboard'])->name('dashboard');
 
             // Tenant management (CRUD)
             Route::get('/tenants',               [SuperAdminTenantManagementController::class, 'index'])->name('tenants.index');
@@ -58,6 +65,16 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/tenants/{tenant}/edit', [SuperAdminTenantManagementController::class, 'edit'])->name('tenants.edit');
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
+            
+            // Approval queue (Path A)
+            Route::get('/tenants/pending',                      [TenantApprovalController::class, 'pending'])->name('tenants.pending');
+            Route::post('/tenants/{registration}/approve',      [TenantApprovalController::class, 'approve'])->name('tenants.approve');
+            Route::post('/tenants/{registration}/reject',       [TenantApprovalController::class, 'reject'])->name('tenants.reject');
+
+            // Manual creation (Path B)
+            Route::get('/tenants/create',                   [TenantManualController::class, 'create'])->name('tenants.create');
+            Route::post('/tenants',                         [TenantManualController::class, 'store'])
+                ->name('tenants.store');
         });
 
     });

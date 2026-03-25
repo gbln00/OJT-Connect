@@ -15,9 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('/login');
 
         $middleware->alias([
+            // Role-based access control middleware
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+
+            // Register SuperAdmin middleware for central domain access control
+            'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
+    

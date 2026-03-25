@@ -13,8 +13,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     public static function getCustomColumns(): array
     {
-        return ['id', 'name', 'email', 'plan'];
+        return ['id', 'name', 'email', 'plan', 'status', 'created_by' ];
     }
 
-    protected $fillable = ['id', 'name', 'email', 'plan'];
+    protected $fillable = ['id', 'name', 'email', 'plan', 'status', 'created_by'];
 }
