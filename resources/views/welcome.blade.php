@@ -422,7 +422,7 @@
                 <div>
                     <label class="block font-['DM_Mono'] text-[11px] tracking-[0.16em] text-[#D4ECDD]/35 uppercase mb-2">Email Address <span class="text-red-400/60">*</span></label>
                     <input type="email" name="email" value="{{ old('email') }}"
-                        placeholder="admin@institution.edu.ph"
+                        placeholder="admin@institution.edu"
                         class="form-input w-full px-4 py-3 rounded-xl border border-[#D4ECDD]/[0.11] bg-[#112031]/60 text-[#D4ECDD] placeholder-[#D4ECDD]/20 text-sm"
                         required>
                 </div>
@@ -435,7 +435,7 @@
                             placeholder="yourschool"
                             class="flex-1 px-4 py-3 bg-transparent text-[#D4ECDD] placeholder-[#D4ECDD]/20 text-sm focus:outline-none"
                             required>
-                        <span class="px-3 py-3 text-[#D4ECDD]/25 text-xs font-['DM_Mono'] border-l border-[#D4ECDD]/[0.08] bg-[#112031]/40 whitespace-nowrap">.ojtconnect.edu</span>
+                        <span class="px-3 py-3 text-[#D4ECDD]/25 text-xs font-['DM_Mono'] border-l border-[#D4ECDD]/[0.08] bg-[#112031]/40 whitespace-nowrap">.ojtconnect.com</span>
                     </div>
                     <p class="mt-1.5 text-[11px] text-[#D4ECDD]/20 font-['DM_Mono']">Letters, numbers, hyphens. Min 3 characters.</p>
                 </div>

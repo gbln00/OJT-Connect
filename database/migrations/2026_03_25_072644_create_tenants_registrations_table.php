@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('subdomain')->unique();      // e.g. "acme" → acme.yourapp.com
             $table->string('contact_person');
             $table->string('phone')->nullable();
-            $table->enum('plan', ['basic', 'pro'])->default('basic');
+            $table->enum('plan', ['basic', 'standard', 'premium']);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->timestamps();

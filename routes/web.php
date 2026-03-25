@@ -8,6 +8,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManagementController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as TenantApprovalController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantManualController;
+use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {

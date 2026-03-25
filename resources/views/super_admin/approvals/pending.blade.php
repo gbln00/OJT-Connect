@@ -1,567 +1,493 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tenant Approval — OJT Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+@extends('layouts.superadmin-app')
+
+@section('title', 'Tenant Approvals')
+@section('page-title', 'Tenant Approvals')
+
+@push('styles')
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          mint:   '#D4ECDD',
-          teal:   '#345B63',
-          deep:   '#152D35',
-          abyss:  '#112031',
-        },
-        fontFamily: {
-          display: ['Playfair Display', 'serif'],
-          body:    ['Outfit', 'sans-serif'],
-        },
-      }
-    }
-  }
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Outfit', sans-serif; }
+  .apr-wrap { font-family: 'DM Sans', sans-serif; }
 
-  .noise-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
+  .apr-stat {
+    background: #0e1c28;
+    border: 1px solid rgba(52,91,99,.35);
+    border-radius: 14px;
+    padding: 20px 24px;
+    animation: aprCardIn .35s cubic-bezier(.22,.68,0,1.2) both;
   }
-
-  .card-enter {
-    animation: cardIn .35s cubic-bezier(.22,.68,0,1.2) both;
-  }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(18px) scale(.98); }
+  @keyframes aprCardIn {
+    from { opacity: 0; transform: translateY(14px) scale(.98); }
     to   { opacity: 1; transform: none; }
   }
 
-  .row-hover {
-    transition: background .15s, transform .12s;
+  .apr-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: rgba(212,236,221,.4); font-weight: 600; margin-bottom: 10px; }
+  .apr-stat-value { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #D4ECDD; line-height: 1; }
+  .apr-stat-sub   { font-size: 12px; color: rgba(212,236,221,.35); margin-top: 5px; }
+
+  .apr-tabs { display: flex; border-bottom: 1px solid rgba(52,91,99,.35); margin-bottom: 20px; }
+  .apr-tab {
+    padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer;
+    border-bottom: 2px solid transparent; color: rgba(212,236,221,.4);
+    background: none; border-top: none; border-left: none; border-right: none;
+    transition: all .15s; text-decoration: none; display: inline-block;
   }
-  .row-hover:hover {
-    background: rgba(212,236,221,.04);
-    transform: translateX(3px);
+  .apr-tab:hover  { color: rgba(212,236,221,.75); }
+  .apr-tab.active { color: #D4ECDD; border-bottom-color: #345B63; }
+  .apr-tab-badge  {
+    display: inline-block; margin-left: 6px;
+    background: rgba(52,91,99,.5); color: #D4ECDD;
+    font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px;
   }
 
-  .badge-pending  { background: rgba(212,236,221,.12); color: #a8d5bc; border: 1px solid rgba(212,236,221,.2); }
-  .badge-approved { background: rgba(45,212,160,.1);  color: #2dd4a0; border: 1px solid rgba(45,212,160,.2); }
-  .badge-rejected { background: rgba(255,77,109,.1);  color: #ff7a94; border: 1px solid rgba(255,77,109,.2); }
+  .apr-card {
+    background: #0e1c28;
+    border: 1px solid rgba(52,91,99,.35);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: aprCardIn .35s .2s cubic-bezier(.22,.68,0,1.2) both;
+  }
 
-  .btn-approve {
+  .apr-table { width: 100%; border-collapse: collapse; }
+  .apr-table th {
+    text-align: left; font-size: 10px; text-transform: uppercase;
+    letter-spacing: .1em; color: rgba(212,236,221,.3); font-weight: 600;
+    padding: 12px 16px; border-bottom: 1px solid rgba(52,91,99,.3);
+    background: none;
+  }
+  .apr-table td {
+    padding: 16px; font-size: 14px;
+    border-bottom: 1px solid rgba(52,91,99,.15);
+    vertical-align: middle; color: #D4ECDD;
+    background: none;
+  }
+  .apr-table tbody tr:last-child td { border-bottom: none; }
+  .apr-table tbody tr { transition: background .12s, transform .12s; cursor: pointer; }
+  .apr-table tbody tr:hover td { background: rgba(212,236,221,.03); }
+  .apr-table tbody tr:hover { transform: translateX(2px); }
+
+  .apr-avatar {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(52,91,99,.5);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 15px; color: #D4ECDD; flex-shrink: 0;
+  }
+
+  .apr-code {
+    font-family: monospace; font-size: 12px;
+    background: rgba(52,91,99,.2); border: 1px solid rgba(52,91,99,.35);
+    color: #6fa8b5; padding: 3px 8px; border-radius: 6px;
+  }
+
+  .apr-badge-pending  { background: rgba(212,236,221,.1);  color: #a8d5bc; border: 1px solid rgba(212,236,221,.2); font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .apr-badge-pro      { background: rgba(160,154,255,.1);  color: #a09aff; border: 1px solid rgba(160,154,255,.2); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .apr-badge-basic    { background: rgba(212,236,221,.06); color: rgba(212,236,221,.5); border: 1px solid rgba(212,236,221,.15); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+
+  .apr-btn-approve {
+    display: inline-flex; align-items: center; gap: 6px;
     background: linear-gradient(135deg, #345B63, #2a4a51);
-    color: #D4ECDD;
-    transition: all .2s;
+    color: #D4ECDD; font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 8px; border: none; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
   }
-  .btn-approve:hover {
+  .apr-btn-approve:hover {
     background: linear-gradient(135deg, #3d6b74, #345B63);
-    box-shadow: 0 0 20px rgba(52,91,99,.5);
+    box-shadow: 0 0 16px rgba(52,91,99,.5);
     transform: translateY(-1px);
   }
 
-  .btn-reject {
-    background: transparent;
-    color: #ff7a94;
+  .apr-btn-reject {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; color: #ff7a94;
     border: 1px solid rgba(255,77,109,.3);
-    transition: all .2s;
+    font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
   }
-  .btn-reject:hover {
-    background: rgba(255,77,109,.1);
-    border-color: rgba(255,77,109,.6);
-  }
+  .apr-btn-reject:hover { background: rgba(255,77,109,.1); border-color: rgba(255,77,109,.6); }
 
-  .modal-overlay {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
+  .apr-empty { text-align: center; padding: 64px 24px; color: rgba(212,236,221,.35); }
+  .apr-empty-icon { font-size: 42px; margin-bottom: 14px; opacity: .35; }
+  .apr-empty-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #D4ECDD; margin-bottom: 6px; }
 
-  .tab-active {
-    color: #D4ECDD;
-    border-bottom: 2px solid #345B63;
-  }
+  .apr-pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid rgba(52,91,99,.25); }
+  .apr-pagination-info { font-size: 12px; color: rgba(212,236,221,.3); }
 
-  .tab-inactive {
-    color: rgba(212,236,221,.4);
-    border-bottom: 2px solid transparent;
+  /* Override Laravel's default pagination to match the design */
+  .apr-pagination nav { display: flex; gap: 0; }
+  .apr-pagination nav > div:first-child { display: none; } /* hide "Showing X to Y" text from Laravel since we show our own */
+  .apr-pagination nav svg { display: none; }
+  .apr-pagination .pagination { display: flex; gap: 6px; align-items: center; margin: 0; }
+  .apr-pagination .page-item .page-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 7px;
+    font-size: 13px; text-decoration: none;
+    border: 1px solid rgba(52,91,99,.35) !important; color: rgba(212,236,221,.4);
+    background: transparent; transition: all .15s;
   }
-
-  .tab-inactive:hover {
-    color: rgba(212,236,221,.7);
-    border-bottom-color: rgba(52,91,99,.4);
+  .apr-pagination .page-item.active .page-link {
+    background: #345B63 !important; border-color: #345B63 !important; color: #D4ECDD !important;
   }
+  .apr-pagination .page-item .page-link:hover { border-color: #345B63 !important; color: #D4ECDD; }
+  .apr-pagination .page-item.disabled .page-link { opacity: .35; cursor: not-allowed; }
 
-  .sidebar-link {
+  /* Modals */
+  .apr-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.65);
+    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    z-index: 300; align-items: center; justify-content: center;
+  }
+  .apr-modal-overlay.open { display: flex; }
+
+  .apr-modal {
+    background: #0e1c28; border-radius: 18px; width: 100%; margin: 16px;
+    overflow: hidden; animation: aprFadeIn .2s ease;
+  }
+  @keyframes aprFadeIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+
+  .apr-modal-header { padding: 24px 28px 20px; border-bottom: 1px solid rgba(52,91,99,.25); }
+  .apr-modal-body   { padding: 20px 28px; }
+  .apr-modal-footer { padding: 16px 28px; border-top: 1px solid rgba(52,91,99,.25); display: flex; justify-content: flex-end; gap: 10px; }
+
+  .apr-detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid rgba(52,91,99,.15); font-size: 14px; }
+  .apr-detail-row:last-child { border-bottom: none; }
+  .apr-detail-key { width: 150px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgba(212,236,221,.35); font-weight: 600; flex-shrink: 0; padding-top: 2px; }
+  .apr-detail-val { color: #D4ECDD; font-weight: 500; word-break: break-all; }
+
+  .apr-btn-close {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: rgba(212,236,221,.4);
+    padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    border: 1px solid rgba(52,91,99,.35); background: transparent;
     transition: all .15s;
   }
-  .sidebar-link:hover {
-    background: rgba(212,236,221,.06);
-    color: #D4ECDD;
-  }
-  .sidebar-link.active {
-    background: rgba(52,91,99,.4);
-    color: #D4ECDD;
-    border-left: 2px solid #D4ECDD;
-  }
+  .apr-btn-close:hover { color: #D4ECDD; border-color: rgba(52,91,99,.7); }
 
-  .search-input:focus {
-    outline: none;
-    border-color: rgba(52,91,99,.8);
-    box-shadow: 0 0 0 3px rgba(52,91,99,.2);
+  /* Toast */
+  .apr-toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 400;
+    transition: all .3s; opacity: 0; transform: translateY(8px); pointer-events: none;
   }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  .apr-toast.show { opacity: 1; transform: translateY(0); }
+  .apr-toast-inner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 20px; border-radius: 12px; border: 1px solid;
+    font-size: 13px; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,.4);
   }
-  .modal-anim { animation: fadeIn .2s ease; }
+  .apr-toast-success { background: #0e1c28; border-color: rgba(45,212,160,.3); color: #2dd4a0; }
+  .apr-toast-error   { background: #0e1c28; border-color: rgba(255,77,109,.3); color: #ff7a94; }
 </style>
-</head>
-<body class="noise-bg bg-abyss text-mint min-h-screen flex">
+@endpush
 
-<!-- Sidebar -->
-<aside class="w-60 bg-[#0e1c28] border-r border-teal/20 flex flex-col fixed top-0 left-0 bottom-0 z-50">
-  <div class="px-6 pt-7 pb-5 border-b border-teal/20">
-    <div class="text-[10px] font-semibold tracking-widest uppercase text-teal mb-1">Super Admin</div>
-    <div class="font-display text-2xl font-bold text-mint leading-tight">OJT<span class="text-teal">Hub</span></div>
-  </div>
+@section('content')
+<div class="apr-wrap">
 
-  <nav class="flex-1 px-3 py-5 space-y-1">
-    <p class="text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-3 pb-2">Overview</p>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-mint/50 text-sm font-medium">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
-      Dashboard
-    </a>
-
-    <p class="text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-3 pb-2 pt-4">Management</p>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-mint/50 text-sm font-medium">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-      Tenants
-    </a>
-    <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      Approvals
-      <span class="ml-auto bg-teal/60 text-mint text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
-    </a>
-  </nav>
-
-  <div class="px-3 py-4 border-t border-teal/20">
-    <div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-teal/10">
-      <div class="w-8 h-8 rounded-lg bg-teal flex items-center justify-center text-mint font-display font-bold text-sm flex-shrink-0">A</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium text-mint truncate">Admin</div>
-        <div class="text-[11px] text-mint/40">Super Admin</div>
-      </div>
-      <button class="text-mint/30 hover:text-red-400 transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      </button>
+  {{-- ── Stats ── --}}
+  <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:28px;">
+    <div class="apr-stat" style="animation-delay:.04s">
+      <div class="apr-stat-label">Pending</div>
+      <div class="apr-stat-value">{{ $registrations->total() }}</div>
+      <div class="apr-stat-sub">Awaiting review</div>
+    </div>
+    <div class="apr-stat" style="animation-delay:.08s">
+      <div class="apr-stat-label">Approved</div>
+      <div class="apr-stat-value" style="color:#2dd4a0;">{{ \App\Models\TenantRegistration::where('status','approved')->count() }}</div>
+      <div class="apr-stat-sub">All time</div>
+    </div>
+    <div class="apr-stat" style="animation-delay:.12s">
+      <div class="apr-stat-label">Rejected</div>
+      <div class="apr-stat-value" style="color:#ff7a94;">{{ \App\Models\TenantRegistration::where('status','rejected')->count() }}</div>
+      <div class="apr-stat-sub">All time</div>
+    </div>
+    <div class="apr-stat" style="animation-delay:.16s">
+      <div class="apr-stat-label">Total Submitted</div>
+      <div class="apr-stat-value">{{ \App\Models\TenantRegistration::count() }}</div>
+      <div class="apr-stat-sub">Since launch</div>
     </div>
   </div>
-</aside>
 
-<!-- Main -->
-<div class="ml-60 flex-1 flex flex-col min-h-screen">
+  {{-- ── Tabs ── --}}
+  <div class="apr-tabs">
+    <span class="apr-tab active">
+      Pending
+      <span class="apr-tab-badge">{{ $registrations->total() }}</span>
+    </span>
+  </div>
 
-  <!-- Topbar -->
-  <header class="sticky top-0 z-40 px-8 py-4 border-b border-teal/20 bg-abyss/80 backdrop-blur-sm flex items-center justify-between">
-    <div>
-      <h1 class="font-display text-xl font-bold text-mint">Tenant Approvals</h1>
-      <p class="text-xs text-mint/40 mt-0.5">Review and manage institution signup requests</p>
-    </div>
-    <div class="flex items-center gap-3">
-      <div class="relative">
-        <svg class="w-4 h-4 text-mint/30 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Search registrations…" class="search-input bg-[#0e1c28] border border-teal/20 rounded-lg pl-9 pr-4 py-2 text-sm text-mint placeholder-mint/30 w-56 transition-all">
+  {{-- ── Table card ── --}}
+  <div class="apr-card">
+
+    @if($registrations->isEmpty())
+      <div class="apr-empty">
+        <div class="apr-empty-icon">🎉</div>
+        <div class="apr-empty-title">All caught up!</div>
+        <div style="font-size:14px;">No pending registrations at the moment.</div>
       </div>
-    </div>
-  </header>
-
-  <main class="p-8 flex-1">
-
-    <!-- Stats Row -->
-    <div class="grid grid-cols-4 gap-4 mb-8">
-      <div class="card-enter bg-[#0e1c28] border border-teal/20 rounded-xl p-5" style="animation-delay:.05s">
-        <div class="text-[11px] uppercase tracking-widest text-mint/40 font-semibold mb-3">Pending</div>
-        <div class="font-display text-4xl font-bold text-mint">3</div>
-        <div class="text-xs text-mint/40 mt-1">Awaiting review</div>
-      </div>
-      <div class="card-enter bg-[#0e1c28] border border-teal/20 rounded-xl p-5" style="animation-delay:.1s">
-        <div class="text-[11px] uppercase tracking-widest text-mint/40 font-semibold mb-3">Approved</div>
-        <div class="font-display text-4xl font-bold text-[#2dd4a0]">18</div>
-        <div class="text-xs text-mint/40 mt-1">This month</div>
-      </div>
-      <div class="card-enter bg-[#0e1c28] border border-teal/20 rounded-xl p-5" style="animation-delay:.15s">
-        <div class="text-[11px] uppercase tracking-widest text-mint/40 font-semibold mb-3">Rejected</div>
-        <div class="font-display text-4xl font-bold text-[#ff7a94]">2</div>
-        <div class="text-xs text-mint/40 mt-1">This month</div>
-      </div>
-      <div class="card-enter bg-[#0e1c28] border border-teal/20 rounded-xl p-5" style="animation-delay:.2s">
-        <div class="text-[11px] uppercase tracking-widest text-mint/40 font-semibold mb-3">Avg. Response</div>
-        <div class="font-display text-4xl font-bold text-mint">4h</div>
-        <div class="text-xs text-mint/40 mt-1">Review time</div>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="flex gap-0 border-b border-teal/20 mb-6">
-      <button onclick="switchTab('pending')" id="tab-pending" class="tab-active px-5 py-3 text-sm font-medium transition-all">Pending <span class="ml-1.5 text-xs bg-teal/40 text-mint px-1.5 py-0.5 rounded-full">3</span></button>
-      <button onclick="switchTab('approved')" id="tab-approved" class="tab-inactive px-5 py-3 text-sm font-medium transition-all">Approved</button>
-      <button onclick="switchTab('rejected')" id="tab-rejected" class="tab-inactive px-5 py-3 text-sm font-medium transition-all">Rejected</button>
-      <button onclick="switchTab('all')" id="tab-all" class="tab-inactive px-5 py-3 text-sm font-medium transition-all">All</button>
-    </div>
-
-    <!-- Table -->
-    <div class="card-enter bg-[#0e1c28] border border-teal/20 rounded-2xl overflow-hidden" style="animation-delay:.25s">
-
-      <!-- Pending Tab -->
-      <div id="content-pending">
-        <table class="w-full">
+    @else
+      <div style="overflow-x:auto;">
+        <table class="apr-table">
           <thead>
-            <tr class="border-b border-teal/20">
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-6 py-4">Company</th>
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-4 py-4">Contact</th>
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-4 py-4">Subdomain</th>
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-4 py-4">Plan</th>
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-4 py-4">Submitted</th>
-              <th class="text-left text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-4 py-4">Status</th>
-              <th class="text-right text-[10px] uppercase tracking-widest text-mint/30 font-semibold px-6 py-4">Actions</th>
+            <tr>
+              <th style="padding-left:24px;">Company</th>
+              <th>Contact</th>
+              <th>Subdomain</th>
+              <th>Plan</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th style="text-align:right; padding-right:24px;">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Row 1 -->
-            <tr class="row-hover border-b border-teal/10 cursor-pointer" onclick="openModal('Greenfield Academy','greenfieldacademy','maria@greenfieldacademy.com','Maria Santos','pro','2 hours ago')">
-              <td class="px-6 py-5">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-teal/30 flex items-center justify-center font-display font-bold text-mint text-base flex-shrink-0">G</div>
+            @foreach($registrations as $reg)
+            <tr onclick="openDetailModal(
+                  '{{ addslashes($reg->company_name) }}',
+                  '{{ addslashes($reg->subdomain) }}',
+                  '{{ addslashes($reg->email) }}',
+                  '{{ addslashes($reg->contact_person) }}',
+                  '{{ addslashes($reg->phone ?? '—') }}',
+                  '{{ ucfirst($reg->plan) }}',
+                  '{{ $reg->created_at->diffForHumans() }}',
+                  {{ $reg->id }}
+                )">
+              <td style="padding-left:24px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div class="apr-avatar">{{ strtoupper(substr($reg->company_name, 0, 1)) }}</div>
                   <div>
-                    <div class="text-sm font-semibold text-mint">Greenfield Academy</div>
-                    <div class="text-xs text-mint/40">maria@greenfieldacademy.com</div>
+                    <div style="font-weight:600;">{{ $reg->company_name }}</div>
+                    <div style="font-size:12px; color:rgba(212,236,221,.4); margin-top:2px;">{{ $reg->email }}</div>
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-5">
-                <div class="text-sm text-mint/80">Maria Santos</div>
-                <div class="text-xs text-mint/40">+63 917 234 5678</div>
+              <td>
+                <div style="color:rgba(212,236,221,.8);">{{ $reg->contact_person }}</div>
+                @if($reg->phone)
+                  <div style="font-size:12px; color:rgba(212,236,221,.4); margin-top:2px;">{{ $reg->phone }}</div>
+                @endif
               </td>
-              <td class="px-4 py-5">
-                <code class="text-xs bg-teal/10 border border-teal/20 text-teal px-2 py-1 rounded-md">greenfieldacademy</code>
-              </td>
-              <td class="px-4 py-5">
-                <span class="text-xs font-semibold text-[#a09aff] bg-[#a09aff]/10 border border-[#a09aff]/20 px-2.5 py-1 rounded-full">Pro</span>
-              </td>
-              <td class="px-4 py-5 text-sm text-mint/40">2 hours ago</td>
-              <td class="px-4 py-5">
-                <span class="badge-pending text-xs font-medium px-2.5 py-1 rounded-full">Pending</span>
-              </td>
-              <td class="px-6 py-5 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="event.stopPropagation(); approveRow(this, 'Greenfield Academy')" class="btn-approve text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    Approve
-                  </button>
-                  <button onclick="event.stopPropagation(); openRejectModal('Greenfield Academy')" class="btn-reject text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              <td><span class="apr-code">{{ $reg->subdomain }}</span></td>
+              <td>
+                    @if($reg->plan === 'premium')
+                        <span class="apr-badge-pro">Premium</span>
+                    @elseif($reg->plan === 'standard')
+                        <span class="apr-badge-standard">Standard</span>
+                    @else
+                        <span class="apr-badge-basic">Basic</span>
+                    @endif
+                </td>
+              <td style="color:rgba(212,236,221,.45); font-size:13px;">{{ $reg->created_at->diffForHumans() }}</td>
+              <td><span class="apr-badge-pending">Pending</span></td>
+              <td style="text-align:right; padding-right:24px;">
+                <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+
+                  {{-- Approve --}}
+                  <form method="POST"
+                        action="{{ route('super_admin.approvals.approve', $reg) }}"
+                        onsubmit="event.stopPropagation();"
+                        onclick="event.stopPropagation();">
+                    @csrf
+                    <button type="submit" class="apr-btn-approve">
+                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                      Approve
+                    </button>
+                  </form>
+
+                  {{-- Reject --}}
+                  <button type="button"
+                          class="apr-btn-reject"
+                          onclick="event.stopPropagation(); openRejectModal({{ $reg->id }}, '{{ addslashes($reg->company_name) }}')">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     Reject
                   </button>
+
                 </div>
               </td>
             </tr>
-            <!-- Row 2 -->
-            <tr class="row-hover border-b border-teal/10 cursor-pointer" onclick="openModal('Pacific Institute of Technology','pacificiot','chen@pacificiot.edu','James Chen','basic','1 day ago')">
-              <td class="px-6 py-5">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-deep flex items-center justify-center font-display font-bold text-mint text-base flex-shrink-0">P</div>
-                  <div>
-                    <div class="text-sm font-semibold text-mint">Pacific Institute of Technology</div>
-                    <div class="text-xs text-mint/40">chen@pacificiot.edu</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-4 py-5">
-                <div class="text-sm text-mint/80">James Chen</div>
-                <div class="text-xs text-mint/40">+63 912 345 6789</div>
-              </td>
-              <td class="px-4 py-5">
-                <code class="text-xs bg-teal/10 border border-teal/20 text-teal px-2 py-1 rounded-md">pacificiot</code>
-              </td>
-              <td class="px-4 py-5">
-                <span class="text-xs font-semibold text-mint/60 bg-mint/5 border border-mint/15 px-2.5 py-1 rounded-full">Basic</span>
-              </td>
-              <td class="px-4 py-5 text-sm text-mint/40">1 day ago</td>
-              <td class="px-4 py-5">
-                <span class="badge-pending text-xs font-medium px-2.5 py-1 rounded-full">Pending</span>
-              </td>
-              <td class="px-6 py-5 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="event.stopPropagation(); approveRow(this, 'Pacific Institute of Technology')" class="btn-approve text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    Approve
-                  </button>
-                  <button onclick="event.stopPropagation(); openRejectModal('Pacific Institute of Technology')" class="btn-reject text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Reject
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <!-- Row 3 -->
-            <tr class="row-hover cursor-pointer" onclick="openModal('Horizon University','horizonuniv','admin@horizonuniv.ph','Lea Reyes','pro','3 days ago')">
-              <td class="px-6 py-5">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-teal/20 flex items-center justify-center font-display font-bold text-mint text-base flex-shrink-0">H</div>
-                  <div>
-                    <div class="text-sm font-semibold text-mint">Horizon University</div>
-                    <div class="text-xs text-mint/40">admin@horizonuniv.ph</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-4 py-5">
-                <div class="text-sm text-mint/80">Lea Reyes</div>
-                <div class="text-xs text-mint/40">+63 918 765 4321</div>
-              </td>
-              <td class="px-4 py-5">
-                <code class="text-xs bg-teal/10 border border-teal/20 text-teal px-2 py-1 rounded-md">horizonuniv</code>
-              </td>
-              <td class="px-4 py-5">
-                <span class="text-xs font-semibold text-[#a09aff] bg-[#a09aff]/10 border border-[#a09aff]/20 px-2.5 py-1 rounded-full">Pro</span>
-              </td>
-              <td class="px-4 py-5 text-sm text-mint/40">3 days ago</td>
-              <td class="px-4 py-5">
-                <span class="badge-pending text-xs font-medium px-2.5 py-1 rounded-full">Pending</span>
-              </td>
-              <td class="px-6 py-5 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="event.stopPropagation(); approveRow(this, 'Horizon University')" class="btn-approve text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    Approve
-                  </button>
-                  <button onclick="event.stopPropagation(); openRejectModal('Horizon University')" class="btn-reject text-xs font-semibold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Reject
-                  </button>
-                </div>
-              </td>
-            </tr>
+            @endforeach
           </tbody>
         </table>
-
-        <!-- Pagination -->
-        <div class="flex items-center justify-between px-6 py-4 border-t border-teal/20">
-          <span class="text-xs text-mint/30">Showing 3 of 3 pending registrations</span>
-          <div class="flex items-center gap-1.5">
-            <button class="w-8 h-8 rounded-lg border border-teal/20 flex items-center justify-center text-mint/30 text-sm hover:border-teal/50 transition-colors disabled:opacity-30" disabled>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="w-8 h-8 rounded-lg bg-teal text-mint text-sm font-semibold">1</button>
-            <button class="w-8 h-8 rounded-lg border border-teal/20 flex items-center justify-center text-mint/30 text-sm hover:border-teal/50 transition-colors">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
       </div>
 
-      <!-- Empty state for other tabs -->
-      <div id="content-approved" class="hidden py-20 text-center">
-        <div class="text-4xl mb-4 opacity-30">✓</div>
-        <div class="font-display text-lg font-bold text-mint mb-1">18 Approved Tenants</div>
-        <div class="text-sm text-mint/40">All approved registrations this month.</div>
-      </div>
-      <div id="content-rejected" class="hidden py-20 text-center">
-        <div class="text-4xl mb-4 opacity-30">✗</div>
-        <div class="font-display text-lg font-bold text-mint mb-1">2 Rejected Applications</div>
-        <div class="text-sm text-mint/40">Rejected registrations are archived here.</div>
-      </div>
-      <div id="content-all" class="hidden py-20 text-center">
-        <div class="text-4xl mb-4 opacity-30">📋</div>
-        <div class="font-display text-lg font-bold text-mint mb-1">All 23 Registrations</div>
-        <div class="text-sm text-mint/40">Full history across all statuses.</div>
-      </div>
-
-    </div>
-  </main>
-</div>
-
-<!-- ── Detail Modal ── -->
-<div id="detail-modal" class="modal-overlay fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center" onclick="closeModal()">
-  <div class="modal-anim bg-[#0e1c28] border border-teal/30 rounded-2xl w-full max-w-lg mx-4 overflow-hidden" onclick="event.stopPropagation()">
-    <!-- Header -->
-    <div class="px-7 pt-7 pb-5 border-b border-teal/20">
-      <div class="flex items-start justify-between">
+      {{-- Pagination --}}
+      @if($registrations->hasPages())
+      <div class="apr-pagination">
+        <span class="apr-pagination-info">
+          Showing {{ $registrations->firstItem() }}–{{ $registrations->lastItem() }} of {{ $registrations->total() }} pending
+        </span>
         <div>
-          <div class="text-[10px] uppercase tracking-widest text-mint/30 font-semibold mb-1">Registration Details</div>
-          <h2 id="modal-company" class="font-display text-2xl font-bold text-mint"></h2>
+          {{ $registrations->links() }}
         </div>
-        <button onclick="closeModal()" class="text-mint/30 hover:text-mint transition-colors mt-1">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
       </div>
-    </div>
+      @endif
+    @endif
 
-    <!-- Body -->
-    <div class="px-7 py-5 space-y-0">
-      <div class="flex py-3.5 border-b border-teal/10">
-        <span class="w-40 text-xs text-mint/40 font-medium uppercase tracking-wider flex-shrink-0 pt-0.5">Subdomain</span>
-        <code id="modal-subdomain" class="text-sm text-teal bg-teal/10 border border-teal/20 px-2.5 py-0.5 rounded-md font-mono"></code>
-      </div>
-      <div class="flex py-3.5 border-b border-teal/10">
-        <span class="w-40 text-xs text-mint/40 font-medium uppercase tracking-wider flex-shrink-0 pt-0.5">Email</span>
-        <span id="modal-email" class="text-sm text-mint/80"></span>
-      </div>
-      <div class="flex py-3.5 border-b border-teal/10">
-        <span class="w-40 text-xs text-mint/40 font-medium uppercase tracking-wider flex-shrink-0 pt-0.5">Contact Person</span>
-        <span id="modal-contact" class="text-sm text-mint/80"></span>
-      </div>
-      <div class="flex py-3.5 border-b border-teal/10">
-        <span class="w-40 text-xs text-mint/40 font-medium uppercase tracking-wider flex-shrink-0 pt-0.5">Plan</span>
-        <span id="modal-plan" class="text-sm font-semibold text-mint/80"></span>
-      </div>
-      <div class="flex py-3.5">
-        <span class="w-40 text-xs text-mint/40 font-medium uppercase tracking-wider flex-shrink-0 pt-0.5">Submitted</span>
-        <span id="modal-submitted" class="text-sm text-mint/80"></span>
-      </div>
-    </div>
+  </div>{{-- /.apr-card --}}
 
-    <!-- Actions -->
-    <div class="px-7 py-5 border-t border-teal/20 flex justify-end gap-3">
-      <button onclick="closeModal()" class="text-sm font-medium text-mint/40 hover:text-mint px-4 py-2 rounded-lg border border-teal/20 hover:border-teal/40 transition-all">
-        Close
+</div>{{-- /.apr-wrap --}}
+
+
+{{-- ══════════════════════════════════════════
+     Detail Modal
+══════════════════════════════════════════ --}}
+<div id="detail-modal" class="apr-modal-overlay" onclick="closeDetailModal()">
+  <div class="apr-modal" style="max-width:520px; border:1px solid rgba(52,91,99,.4);" onclick="event.stopPropagation()">
+
+    <div class="apr-modal-header" style="display:flex; align-items:flex-start; justify-content:space-between;">
+      <div>
+        <div style="font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:rgba(212,236,221,.3); font-weight:600; margin-bottom:4px;">Registration Details</div>
+        <div id="dm-company" style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#D4ECDD;"></div>
+      </div>
+      <button type="button" onclick="closeDetailModal()"
+        style="background:none;border:none;cursor:pointer;color:rgba(212,236,221,.3);margin-top:4px;padding:4px;"
+        onmouseover="this.style.color='#D4ECDD'" onmouseout="this.style.color='rgba(212,236,221,.3)'">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <button onclick="closeModal(); openRejectModal(document.getElementById('modal-company').textContent)" class="btn-reject text-sm font-semibold px-5 py-2 rounded-lg flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </div>
+
+    <div class="apr-modal-body">
+      <div class="apr-detail-row"><span class="apr-detail-key">Subdomain</span><span id="dm-subdomain" class="apr-detail-val" style="font-family:monospace; color:#6fa8b5;"></span></div>
+      <div class="apr-detail-row"><span class="apr-detail-key">Email</span><span id="dm-email" class="apr-detail-val"></span></div>
+      <div class="apr-detail-row"><span class="apr-detail-key">Contact Person</span><span id="dm-contact" class="apr-detail-val"></span></div>
+      <div class="apr-detail-row"><span class="apr-detail-key">Phone</span><span id="dm-phone" class="apr-detail-val"></span></div>
+      <div class="apr-detail-row"><span class="apr-detail-key">Plan</span><span id="dm-plan" class="apr-detail-val"></span></div>
+      <div class="apr-detail-row"><span class="apr-detail-key">Submitted</span><span id="dm-submitted" class="apr-detail-val"></span></div>
+    </div>
+
+    <div class="apr-modal-footer">
+      <button type="button" class="apr-btn-close" onclick="closeDetailModal()">Close</button>
+      <button type="button" class="apr-btn-reject"
+        onclick="closeDetailModal(); openRejectModal(window._dmId, window._dmCompany)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         Reject
       </button>
-      <button onclick="closeModal(); showApproveSuccess(document.getElementById('modal-company').textContent)" class="btn-approve text-sm font-semibold px-5 py-2 rounded-lg flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-        Approve Tenant
-      </button>
+      <form id="dm-approve-form" method="POST" style="display:inline;">
+        @csrf
+        <button type="submit" class="apr-btn-approve">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          Approve Tenant
+        </button>
+      </form>
     </div>
+
   </div>
 </div>
 
-<!-- ── Reject Modal ── -->
-<div id="reject-modal" class="modal-overlay fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center" onclick="closeRejectModal()">
-  <div class="modal-anim bg-[#0e1c28] border border-[#ff4d6d]/30 rounded-2xl w-full max-w-md mx-4 overflow-hidden" onclick="event.stopPropagation()">
-    <div class="px-7 pt-7 pb-5 border-b border-[#ff4d6d]/15">
-      <div class="flex items-center gap-3 mb-1">
-        <div class="w-8 h-8 rounded-full bg-[#ff4d6d]/15 flex items-center justify-center">
-          <svg class="w-4 h-4 text-[#ff7a94]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+
+{{-- ══════════════════════════════════════════
+     Reject Modal
+══════════════════════════════════════════ --}}
+<div id="reject-modal" class="apr-modal-overlay" onclick="closeRejectModal()">
+  <div class="apr-modal" style="max-width:440px; border:1px solid rgba(255,77,109,.25);" onclick="event.stopPropagation()">
+
+    <div class="apr-modal-header" style="border-bottom-color:rgba(255,77,109,.15);">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,77,109,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ff7a94" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </div>
-        <h2 class="font-display text-xl font-bold text-mint">Reject Registration</h2>
+        <div style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#D4ECDD;">Reject Registration</div>
       </div>
-      <p class="text-sm text-mint/40 mt-2">Rejecting <span id="reject-company-name" class="text-mint/70 font-medium"></span>. This action will notify the applicant.</p>
+      <p style="font-size:13px; color:rgba(212,236,221,.4); margin-top:6px;">
+        Rejecting <span id="rm-company" style="color:rgba(212,236,221,.75); font-weight:500;"></span>. The applicant will be notified.
+      </p>
     </div>
 
-    <div class="px-7 py-5">
-      <label class="block text-xs uppercase tracking-widest text-mint/40 font-semibold mb-2">Reason (optional)</label>
-      <textarea id="reject-reason" rows="4" placeholder="Explain why this registration was rejected…" class="w-full bg-abyss border border-teal/20 rounded-xl text-sm text-mint placeholder-mint/20 px-4 py-3 resize-none focus:outline-none focus:border-[#ff4d6d]/50 transition-colors"></textarea>
-    </div>
+    <form id="reject-form" method="POST">
+      @csrf
+      <div class="apr-modal-body">
+        <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:rgba(212,236,221,.4); font-weight:600; margin-bottom:8px;">
+          Reason <span style="color:rgba(212,236,221,.25); text-transform:none; letter-spacing:0; font-weight:400;">(optional)</span>
+        </label>
+        <textarea name="rejection_reason" rows="4"
+          placeholder="Explain why this registration was rejected…"
+          style="width:100%; background:#112031; border:1px solid rgba(52,91,99,.35); border-radius:10px; color:#D4ECDD; font-size:13px; padding:12px 14px; resize:none; outline:none; font-family:'DM Sans',sans-serif; transition:border-color .15s;"
+          onfocus="this.style.borderColor='rgba(255,77,109,.4)'"
+          onblur="this.style.borderColor='rgba(52,91,99,.35)'"></textarea>
+      </div>
 
-    <div class="px-7 pb-6 flex justify-end gap-3">
-      <button onclick="closeRejectModal()" class="text-sm font-medium text-mint/40 hover:text-mint px-4 py-2 rounded-lg border border-teal/20 hover:border-teal/40 transition-all">
-        Cancel
-      </button>
-      <button onclick="confirmReject()" class="text-sm font-semibold px-5 py-2 rounded-lg bg-[#ff4d6d]/15 text-[#ff7a94] border border-[#ff4d6d]/30 hover:bg-[#ff4d6d]/25 transition-all flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        Confirm Rejection
-      </button>
-    </div>
+      <div class="apr-modal-footer" style="border-top-color:rgba(255,77,109,.12);">
+        <button type="button" class="apr-btn-close" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit"
+          style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,77,109,.3);background:rgba(255,77,109,.1);color:#ff7a94;transition:all .15s;"
+          onmouseover="this.style.background='rgba(255,77,109,.2)'"
+          onmouseout="this.style.background='rgba(255,77,109,.1)'">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          Confirm Rejection
+        </button>
+      </div>
+    </form>
+
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast" class="fixed bottom-6 right-6 z-[200] transition-all duration-300 opacity-0 translate-y-2 pointer-events-none">
-  <div id="toast-inner" class="flex items-center gap-3 px-5 py-3.5 rounded-xl border shadow-2xl text-sm font-medium"></div>
+{{-- Toast --}}
+<div id="apr-toast" class="apr-toast">
+  <div id="apr-toast-inner" class="apr-toast-inner"></div>
 </div>
 
+@endsection
+
+@push('scripts')
 <script>
-  // Tab switching
-  function switchTab(tab) {
-    const tabs = ['pending', 'approved', 'rejected', 'all'];
-    tabs.forEach(t => {
-      document.getElementById('tab-' + t).className = t === tab ? 'tab-active px-5 py-3 text-sm font-medium transition-all' : 'tab-inactive px-5 py-3 text-sm font-medium transition-all';
-      document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
-    });
+  window._dmId      = null;
+  window._dmCompany = '';
+
+  const BASE_DOMAIN = '{{ config('app.base_domain', 'yourapp.com') }}';
+
+  function openDetailModal(company, subdomain, email, contact, phone, plan, submitted, id) {
+    window._dmId      = id;
+    window._dmCompany = company;
+
+    document.getElementById('dm-company').textContent   = company;
+    document.getElementById('dm-subdomain').textContent = subdomain + '.' + BASE_DOMAIN;
+    document.getElementById('dm-email').textContent     = email;
+    document.getElementById('dm-contact').textContent   = contact;
+    document.getElementById('dm-phone').textContent     = phone;
+    document.getElementById('dm-plan').textContent      = plan;
+    document.getElementById('dm-submitted').textContent = submitted;
+
+    document.getElementById('dm-approve-form').action =
+      '{{ url('super-admin/approvals') }}/' + id + '/approve';
+
+    document.getElementById('detail-modal').classList.add('open');
   }
 
-  // Detail modal
-  function openModal(company, subdomain, email, contact, plan, submitted) {
-    document.getElementById('modal-company').textContent = company;
-    document.getElementById('modal-subdomain').textContent = subdomain + '.yourapp.com';
-    document.getElementById('modal-email').textContent = email;
-    document.getElementById('modal-contact').textContent = contact;
-    document.getElementById('modal-plan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-    document.getElementById('modal-submitted').textContent = submitted;
-    const m = document.getElementById('detail-modal');
-    m.classList.remove('hidden');
-    m.classList.add('flex');
+  function closeDetailModal() {
+    document.getElementById('detail-modal').classList.remove('open');
   }
 
-  function closeModal() {
-    const m = document.getElementById('detail-modal');
-    m.classList.add('hidden');
-    m.classList.remove('flex');
-  }
+  function openRejectModal(id, company) {
+    document.getElementById('rm-company').textContent = company;
+    document.getElementById('reject-form').action     =
+      '{{ url('super-admin/approvals') }}/' + id + '/reject';
 
-  // Reject modal
-  let rejectingCompany = '';
-  function openRejectModal(company) {
-    rejectingCompany = company;
-    document.getElementById('reject-company-name').textContent = company;
-    document.getElementById('reject-reason').value = '';
-    const m = document.getElementById('reject-modal');
-    m.classList.remove('hidden');
-    m.classList.add('flex');
+    document.getElementById('reject-modal').classList.add('open');
   }
 
   function closeRejectModal() {
-    const m = document.getElementById('reject-modal');
-    m.classList.add('hidden');
-    m.classList.remove('flex');
+    document.getElementById('reject-modal').classList.remove('open');
   }
 
-  function confirmReject() {
-    closeRejectModal();
-    showToast(`"${rejectingCompany}" registration rejected.`, 'error');
-  }
+  // Show session flash messages as toasts
+  document.addEventListener('DOMContentLoaded', function () {
+    @if(session('success'))
+      showToast(@json(session('success')), 'success');
+    @endif
+    @if(session('info'))
+      showToast(@json(session('info')), 'error');
+    @endif
+  });
 
-  // Approve
-  function approveRow(btn, company) {
-    showApproveSuccess(company);
-  }
-
-  function showApproveSuccess(company) {
-    showToast(`"${company}" approved and provisioned successfully!`, 'success');
-  }
-
-  // Toast
   function showToast(msg, type) {
-    const toast = document.getElementById('toast');
-    const inner = document.getElementById('toast-inner');
-    if (type === 'success') {
-      inner.className = 'flex items-center gap-3 px-5 py-3.5 rounded-xl border shadow-2xl text-sm font-medium bg-[#0e1c28] border-[#2dd4a0]/30 text-[#2dd4a0]';
-      inner.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>${msg}`;
-    } else {
-      inner.className = 'flex items-center gap-3 px-5 py-3.5 rounded-xl border shadow-2xl text-sm font-medium bg-[#0e1c28] border-[#ff4d6d]/30 text-[#ff7a94]';
-      inner.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>${msg}`;
-    }
-    toast.classList.remove('opacity-0', 'translate-y-2');
-    toast.classList.add('opacity-100', 'translate-y-0');
-    setTimeout(() => {
-      toast.classList.add('opacity-0', 'translate-y-2');
-      toast.classList.remove('opacity-100', 'translate-y-0');
-    }, 3500);
+    const toast = document.getElementById('apr-toast');
+    const inner = document.getElementById('apr-toast-inner');
+    inner.className = 'apr-toast-inner ' + (type === 'success' ? 'apr-toast-success' : 'apr-toast-error');
+    const icon = type === 'success'
+      ? '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+      : '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+    inner.innerHTML = icon + msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3800);
   }
 </script>
-</body>
-</html>
+@endpush

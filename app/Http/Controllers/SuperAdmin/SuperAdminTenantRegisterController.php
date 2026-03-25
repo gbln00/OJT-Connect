@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TenantRegistration;
@@ -23,7 +23,7 @@ class SuperAdminTenantRegisterController extends Controller
             'subdomain'      => ['required', 'alpha_dash', 'min:3', 'max:30', 'unique:tenant_registrations,subdomain'],
             'contact_person' => ['required', 'string', 'max:255'],
             'phone'          => ['nullable', 'string', 'max:20'],
-            'plan'           => ['required', 'in:basic,pro'],
+            'plan'           => ['required', 'in:basic,standard,premium'],
         ]);
 
         TenantRegistration::create($request->only([
