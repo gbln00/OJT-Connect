@@ -17,7 +17,7 @@ class SuperAdminTenantApprovalController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('superadmin.tenants.pending', compact('registrations'));
+        return view('super_admin.approvals.pending', compact('registrations'));
     }
 
     // Approve a registration → actually provision the tenant

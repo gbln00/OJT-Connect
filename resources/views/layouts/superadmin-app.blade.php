@@ -82,6 +82,7 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
+            overflow-y: auto;
         }
 
         .nav-label {
@@ -104,6 +105,7 @@
             font-size: 14px;
             font-weight: 500;
             transition: all .15s;
+            position: relative;
         }
 
         .nav-link:hover { background: var(--border); color: var(--text); }
@@ -114,6 +116,24 @@
         }
 
         .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* ── Badge pill on nav item ── */
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+            padding: 3px 6px;
+            border-radius: 20px;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .nav-badge.muted {
+            background: var(--border);
+            color: var(--muted);
+        }
 
         .sidebar-footer {
             padding: 16px 12px;
@@ -200,6 +220,7 @@
 
         .flash-success { background: rgba(45,212,160,.08); border-color: rgba(45,212,160,.25); color: var(--success); }
         .flash-error   { background: rgba(255,77,109,.08); border-color: rgba(255,77,109,.25); color: var(--danger); }
+        .flash-info    { background: rgba(108,99,255,.08); border-color: rgba(108,99,255,.25); color: #a09aff; }
 
         /* ── Cards ── */
         .card {
@@ -400,6 +421,8 @@
     </div>
 
     <nav class="sidebar-nav">
+
+        {{-- Overview --}}
         <div class="nav-label">Overview</div>
         <a href="{{ route('super_admin.dashboard') }}"
            class="nav-link {{ request()->routeIs('super_admin.dashboard') ? 'active' : '' }}">
@@ -409,7 +432,9 @@
             Dashboard
         </a>
 
+        {{-- Management --}}
         <div class="nav-label">Management</div>
+
         <a href="{{ route('super_admin.tenants.index') }}"
            class="nav-link {{ request()->routeIs('super_admin.tenants.*') ? 'active' : '' }}">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -417,6 +442,19 @@
             </svg>
             Tenants
         </a>
+
+        <a href="{{ route('super_admin.approvals.pending') }}"
+           class="nav-link {{ request()->routeIs('super_admin.approvals.*') ? 'active' : '' }}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Approvals
+            @php $pendingCount = \App\Models\TenantRegistration::where('status', 'pending')->count(); @endphp
+            @if($pendingCount > 0)
+                <span class="nav-badge">{{ $pendingCount }}</span>
+            @endif
+        </a>
+
     </nav>
 
     <div class="sidebar-footer">
@@ -457,6 +495,13 @@
             <div class="flash flash-error">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 {{ session('error') }}
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="flash flash-info">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ session('info') }}
             </div>
         @endif
 
