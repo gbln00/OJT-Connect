@@ -53,7 +53,7 @@
                   <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
                     <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your workspace URL</p>
                     <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
-                      {{ $registration->subdomain }}.{{ config('app.base_domain', 'yourapp.com') }}
+                      {{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com') }}
                     </p>
                   </td>
                 </tr>
@@ -63,7 +63,7 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 2rem;">
                 <tr>
                   <td align="center">
-                    <a href="https://{{ $registration->subdomain }}.{{ config('app.base_domain', 'yourapp.com') }}"
+                    <a href="https://{{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com') }}"
                        style="display:inline-block;background:#8C0E03;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:0.75rem 2rem;border-radius:6px;letter-spacing:0.3px;">
                       Access Your Workspace
                     </a>
@@ -91,7 +91,7 @@
           <tr>
             <td style="background:#0E1126;padding:1.5rem 2.5rem;text-align:center;">
               <p style="color:#ABABAB;font-size:13px;margin:0 0 0.25rem;">
-                Need help? Contact us at <span style="color:#ffffff;">support@{{ config('app.base_domain', 'yourapp.com') }}</span>
+                Need help? Contact us at <span style="color:#ffffff;">support@{{ config('app.base_domain', 'ojtconnect.com') }}</span>
               </p>
               <p style="color:#555a6a;font-size:12px;margin:0.5rem 0 0;">— The {{ config('app.name') }} Team</p>
             </td>
