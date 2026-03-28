@@ -53,6 +53,18 @@
                   <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
                     <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your workspace URL</p>
                     <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
+                      Your login credentials:
+                            Email: {{ $registration->email }}
+                            Password: Admin@1234
+
+                            Please change your password after your first login.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
+                    <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your workspace URL</p>
+                    <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
                       {{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com') }}
                     </p>
                   </td>

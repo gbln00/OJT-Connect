@@ -23,4 +23,6 @@ class TenantApproved extends Mailable
         return $this->subject('Your Account Has Been Approved!')
                     ->view('emails.tenant_approved');
     }
+
+    public string $defaultPassword = 'password';
 }

@@ -14,14 +14,14 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        //  User::firstOrCreate(
-        //     ['email' => 'admin@ojtconnect.edu'],
-        //     [
-        //         'name'      => 'System Admin',
-        //         'password'  => Hash::make('Admin@1234'),
-        //         'role'      => 'admin',
-        //         'is_active' => true,
-        //     ]
-        // );
+         User::firstOrCreate(
+            ['email' => 'admin@ojtconnect.edu'],
+            [
+                'name'      => 'System Admin',
+                'password'  => Hash::make('password'),
+                'role'      => 'admin',
+                'is_active' => true,
+            ]
+        );
     }
 }

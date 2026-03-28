@@ -60,13 +60,12 @@ class SuperAdminTenantManagementController extends Controller
                 '--force'   => true,
             ]);
 
-            // Create the tenant's admin user after migrations run
-            \App\Models\User::create([
-                'name'     => $data['admin_name'],
-                'email'    => $data['admin_email'],
-                'password' => \Illuminate\Support\Facades\Hash::make($data['admin_password']),
-                'role'     => 'admin',
-            ]);
+            // Seed the default admin
+            (new \Database\Seeders\TenantAdminSeeder)->run(
+                name:     $data['admin_name'],
+                email:    $data['admin_email'],
+                password: $data['admin_password'],
+            );
 
             // 🔔 Notification
             SuperAdminNotification::notify(

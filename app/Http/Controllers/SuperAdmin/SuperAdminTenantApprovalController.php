@@ -39,6 +39,21 @@ class SuperAdminTenantApprovalController extends Controller
 
         $registration->update(['status' => 'approved']);
 
+         $tenant->run(function () use ($registration) {
+            // Run migrations
+            \Artisan::call('tenants:migrate', [
+                '--tenants' => [tenant('id')],
+                '--force'   => true,
+            ]);
+
+            // Seed the default admin using the registration's contact info
+            (new \Database\Seeders\TenantAdminSeeder)->run(
+                name:     $registration->contact_person,
+                email:    $registration->email,
+                password: 'password', // default password
+            );
+        });
+
         Mail::to($registration->email)->send(new TenantApproved($registration));
 
         // 🔔 Notification
