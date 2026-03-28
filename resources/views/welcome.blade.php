@@ -412,7 +412,7 @@
                 </li>
                 @endforeach
             </ul>
-            <a href="#register" class="block w-full text-center py-3 btn-ghost font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
+            <a href="{{ route('tenant.register') }}" class="block w-full text-center py-3 btn-ghost font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
         </div>
 
         <div class="relative p-8 bg-[#0E1126] border-t-2 border-t-[#8C0E03] hover:bg-[#0E1126]/80 transition-colors"
@@ -431,7 +431,7 @@
                 </li>
                 @endforeach
             </ul>
-            <a href="#register" class="block w-full text-center py-3 btn-crimson font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
+            <a href="{{ route('tenant.register') }}" class="block w-full text-center py-3 btn-crimson font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
         </div>
 
         <div class="relative p-8 bg-[#0D0D0D] hover:bg-[#0E1126]/40 transition-colors">
@@ -445,7 +445,7 @@
                 </li>
                 @endforeach
             </ul>
-            <a href="#register" class="block w-full text-center py-3 btn-ghost font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
+            <a href="{{ route('tenant.register') }}" class="block w-full text-center py-3 btn-ghost font-['Barlow_Condensed'] font-bold text-[13px] tracking-[0.12em] uppercase">Get started</a>
         </div>
     </div>
 
