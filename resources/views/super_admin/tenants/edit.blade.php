@@ -37,7 +37,7 @@ $currentPlan   = $tenant->plan ?? '';
 
 $planColors = [
     'basic'   => 'rgba(80,150,220,0.8)',
-    'pro'     => 'rgba(200,100,90,0.9)',
+    'standard'     => 'rgba(200,100,90,0.9)',
     'premium' => 'rgba(210,170,70,0.9)',
 ];
 @endphp
@@ -143,7 +143,7 @@ $planColors = [
                                     {{ old('plan', $currentPlan) === '' ? 'selected' : '' }}>
                                 — None —
                             </option>
-                            @foreach(['basic' => 'Basic', 'pro' => 'Pro', 'premium' => 'Premium'] as $value => $label)
+                            @foreach(['basic' => 'Basic', 'standard' => 'Standard', 'premium' => 'Premium'] as $value => $label)
                                 <option value="{{ $value }}"
                                         style="background:#0D0D0D;"
                                         {{ old('plan', $currentPlan) === $value ? 'selected' : '' }}>
@@ -239,7 +239,7 @@ $planColors = [
     const planConfigs = {
         '':        { text: '',          color: '' },
         basic:     { text: 'Basic plan selected',   color: 'rgba(100,170,240,0.7)' },
-        pro:       { text: 'Pro plan selected',     color: 'rgba(200,100,90,0.8)'  },
+        standard:  { text: 'Standard plan selected', color: 'rgba(200,100,90,0.8)'  },
         premium:   { text: 'Premium plan selected', color: 'rgba(210,170,70,0.8)'  },
     };
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use App\Models\SuperAdminNotification;
 
 class SuperAdminTenantManagementController extends Controller
 {
@@ -66,6 +67,16 @@ class SuperAdminTenantManagementController extends Controller
                 'password' => \Illuminate\Support\Facades\Hash::make($data['admin_password']),
                 'role'     => 'admin',
             ]);
+
+            // 🔔 Notification
+            SuperAdminNotification::notify(
+                type:    'tenant',
+                title:   'New Tenant Created',
+                message: "Tenant \"{$tenant->id}\" was manually created by super admin.",
+                icon:    'plus',
+                link:    route('super_admin.tenants.show', $tenant),
+            );
+
         });
 
         return redirect()
@@ -127,6 +138,20 @@ class SuperAdminTenantManagementController extends Controller
             'status' => $data['status'],
             'plan'   => $data['plan'] ?? null,
         ]);
+
+        // 🔔 Notification if status changed
+        $oldStatus = $tenant->getOriginal('status');
+        $newStatus = $data['status'];
+
+        if ($oldStatus !== $newStatus) {
+            SuperAdminNotification::notify(
+                type:    'status',
+                title:   'Tenant ' . ($newStatus === 'active' ? 'Activated' : 'Deactivated'),
+                message: "Tenant \"{$tenant->id}\" was " . ($newStatus === 'active' ? 'activated' : 'deactivated') . ".",
+                icon:    'toggle',
+                link:    route('super_admin.tenants.show', $tenant),
+            );
+        }
 
         return redirect()
             ->route('super_admin.tenants.index')

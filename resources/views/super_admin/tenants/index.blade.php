@@ -22,7 +22,7 @@
 @php
     $planColors = [
         'basic'   => ['border'=>'rgba(80,150,220,0.35)',  'bg'=>'rgba(80,150,220,0.08)',  'color'=>'rgba(100,170,240,0.8)'],
-        'pro'     => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)'],
+        'standard'     => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)'],
         'premium' => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)'],
     ];
 @endphp
@@ -61,7 +61,7 @@
 
         {{-- Plan legend --}}
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
-            @foreach(['basic'=>'Basic','pro'=>'Pro','premium'=>'Premium'] as $key => $label)
+            @foreach(['basic'=>'Basic','standard'=>'Standard','premium'=>'Premium'] as $key => $label)
             @php $c = $planColors[$key]; @endphp
             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
                          border:1px solid {{ $c['border'] }};background:{{ $c['bg'] }};

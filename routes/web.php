@@ -9,6 +9,8 @@ use App\Http\Controllers\SuperAdmin\SuperAdminTenantManagementController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as TenantApprovalController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantManualController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
+use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
+
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
@@ -74,7 +76,14 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
-        });
+            // Notifications
+            Route::get('notifications',                [SuperAdminNotificationController::class, 'index'])       ->name('notifications.index');
+            Route::post('notifications/mark-all-read', [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+            Route::post('notifications/clear-read',    [SuperAdminNotificationController::class, 'clearRead'])  ->name('notifications.clearRead');
+            Route::post('notifications/{notification}/read', [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
+            Route::delete('notifications/{notification}',    [SuperAdminNotificationController::class, 'destroy'])  ->name('notifications.destroy');
+
+            });
 
     });
 }

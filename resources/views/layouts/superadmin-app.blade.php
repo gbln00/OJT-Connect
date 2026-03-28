@@ -441,9 +441,114 @@
             border: 1px solid;
             margin-bottom: 20px;
         }
+        
         .flash-success { background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.2); color: #4ade80; }
         .flash-error   { background: var(--crimson-dim); border-color: rgba(140,14,3,0.25); color: rgba(140,14,3,0.9); }
         .flash-info    { background: rgba(91,143,185,0.07); border-color: rgba(91,143,185,0.2); color: #5b8fb9; }
+
+        /* ── Notification Bell ── */
+        .notif-bell {
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: rgba(171,171,171,0.4);
+            cursor: pointer;
+            transition: all .13s;
+        }
+        .notif-bell:hover { background: var(--ash-ghost); color: var(--ash); border-color: var(--border2); }
+
+        .notif-count {
+            position: absolute;
+            top: -5px; right: -5px;
+            min-width: 16px; height: 16px;
+            padding: 0 4px;
+            background: var(--crimson);
+            color: #fff;
+            font-family: 'DM Mono', monospace;
+            font-size: 9px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px); right: 0;
+            width: 320px;
+            background: var(--night2);
+            border: 1px solid var(--border2);
+            box-shadow: 0 16px 40px rgba(0,0,0,.5);
+            z-index: 400;
+        }
+        .notif-dropdown.open { display: block; }
+
+        .notif-dd-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .notif-dd-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: rgba(171,171,171,0.5);
+        }
+        .notif-dd-mark-all {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+            color: rgba(140,14,3,0.7);
+            background: none; border: none; cursor: pointer;
+            transition: color .15s; padding: 0;
+        }
+        .notif-dd-mark-all:hover { color: var(--crimson); }
+
+        .notif-list { max-height: 340px; overflow-y: auto; }
+
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background .12s;
+            text-decoration: none;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: var(--ash-ghost); }
+        .notif-item.unread { background: rgba(140,14,3,0.04); border-left: 2px solid rgba(140,14,3,0.5); padding-left: 14px; }
+        .notif-item.unread:hover { background: rgba(140,14,3,0.07); }
+
+        .notif-icon-wrap {
+            width: 28px; height: 28px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid;
+            margin-top: 1px;
+        }
+        .notif-title { font-size: 12px; font-weight: 600; color: rgba(171,171,171,0.8); line-height: 1.3; }
+        .notif-msg   { font-size: 11px; color: rgba(171,171,171,0.4); font-family: 'DM Mono', monospace; margin-top:3px; line-height:1.4; }
+        .notif-time  { font-size: 10px; color: rgba(171,171,171,0.25); font-family: 'DM Mono', monospace; margin-top:4px; }
+
+        .notif-dd-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .notif-dd-footer a {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+            color: rgba(171,171,171,0.3);
+            text-decoration: none;
+            transition: color .15s;
+        }
+        .notif-dd-footer a:hover { color: rgba(171,171,171,0.7); }
+
+        .notif-empty {
+            padding: 32px 16px;
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px; color: rgba(171,171,171,0.2);
+        }
 
         /* ═══ KEYFRAMES ═══ */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -507,6 +612,17 @@
             @endif
         </a>
 
+        <a href="{{ route('super_admin.notifications.index') }}"
+        class="nav-item {{ request()->routeIs('super_admin.notifications.*') ? 'active' : '' }}">
+            <svg class="nav-item-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.437L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span style="flex:1;">Notifications</span>
+            @if($notifUnread ?? 0 > 0)
+                <span class="nav-badge">{{ $notifUnread }}</span>
+            @endif
+        </a>
+
     </nav>
 
     <div class="sidebar-footer">
@@ -543,6 +659,82 @@
             @yield('topbar-actions')
 
             <div class="topbar-divider"></div>
+              {{-- 🔔 Notification Bell --}}
+            @php
+                $notifUnread  = \App\Models\SuperAdminNotification::unread()->count();
+                $notifPreview = \App\Models\SuperAdminNotification::latest()->take(6)->get();
+
+                $notifIcons = [
+                    'bell'   => ['svg' => '<path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.437L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>', 'color' => 'rgba(171,171,171,0.5)', 'border' => 'var(--border2)', 'bg' => 'transparent'],
+                    'check'  => ['svg' => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>',                                   'color' => 'rgba(74,222,128,0.8)',  'border' => 'rgba(74,222,128,0.2)',  'bg' => 'rgba(74,222,128,0.06)'],
+                    'x'      => ['svg' => '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>',                            'color' => 'rgba(252,165,165,0.8)', 'border' => 'rgba(239,68,68,0.2)',   'bg' => 'rgba(239,68,68,0.06)'],
+                    'plus'   => ['svg' => '<line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>',                              'color' => 'rgba(100,170,240,0.8)', 'border' => 'rgba(80,150,220,0.2)',  'bg' => 'rgba(80,150,220,0.06)'],
+                    'toggle' => ['svg' => '<path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>', 'color' => 'rgba(210,170,70,0.8)',  'border' => 'rgba(160,120,40,0.2)', 'bg' => 'rgba(160,120,40,0.06)'],
+                ];
+            @endphp
+
+            <div style="position:relative;" id="notif-wrapper">
+                <button class="notif-bell" id="notif-bell-btn" onclick="toggleNotifDropdown()" aria-label="Notifications">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.437L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    @if($notifUnread > 0)
+                        <span class="notif-count">{{ $notifUnread > 99 ? '99+' : $notifUnread }}</span>
+                    @endif
+                </button>
+
+                <div class="notif-dropdown" id="notif-dropdown">
+                    <div class="notif-dd-header">
+                        <span class="notif-dd-title">
+                            Notifications
+                            @if($notifUnread > 0)
+                                <span style="color:rgba(140,14,3,0.7);margin-left:4px;">({{ $notifUnread }})</span>
+                            @endif
+                        </span>
+                        @if($notifUnread > 0)
+                            <form method="POST" action="{{ route('super_admin.notifications.markAllRead') }}" style="margin:0;">
+                                @csrf
+                                <button type="submit" class="notif-dd-mark-all">Mark all read</button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="notif-list">
+                        @forelse($notifPreview as $notif)
+                        @php $ic = $notifIcons[$notif->icon] ?? $notifIcons['bell']; @endphp
+                        <a href="{{ $notif->link ?? route('super_admin.notifications.index') }}"
+                        class="notif-item {{ !$notif->is_read ? 'unread' : '' }}"
+                        onclick="markRead(event, {{ $notif->id }}, '{{ $notif->link ?? route('super_admin.notifications.index') }}')">
+                            <div class="notif-icon-wrap"
+                                style="color:{{ $ic['color'] }};border-color:{{ $ic['border'] }};background:{{ $ic['bg'] }};">
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    {!! $ic['svg'] !!}
+                                </svg>
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div class="notif-title">{{ $notif->title }}</div>
+                                <div class="notif-msg">{{ Str::limit($notif->message, 60) }}</div>
+                                <div class="notif-time">{{ $notif->created_at->diffForHumans() }}</div>
+                            </div>
+                            @if(!$notif->is_read)
+                                <span style="width:6px;height:6px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:4px;"></span>
+                            @endif
+                        </a>
+                        @empty
+                            <div class="notif-empty">// No notifications yet</div>
+                        @endforelse
+                    </div>
+
+                    @if($notifPreview->count() > 0)
+                    <div class="notif-dd-footer">
+                        <a href="{{ route('super_admin.notifications.index') }}">View all notifications</a>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="topbar-divider"></div>
+
 
             {{-- User dropdown --}}
             <div class="topbar-user" id="topbar-user-btn" onclick="toggleDropdown()">
@@ -625,6 +817,35 @@
         if (btn) btn.style.display = e.matches ? 'flex' : 'none';
     }
     mq.addEventListener('change', handleMq); handleMq(mq);
+</script>
+
+<script>
+    /* ── Notification bell ── */
+    function toggleNotifDropdown() {
+        document.getElementById('notif-dropdown').classList.toggle('open');
+        // Close user dropdown if open
+        document.getElementById('user-dropdown').classList.remove('open');
+    }
+
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('notif-wrapper');
+        const dd      = document.getElementById('notif-dropdown');
+        if (wrapper && dd && !wrapper.contains(e.target)) {
+            dd.classList.remove('open');
+        }
+    });
+
+    function markRead(e, id, link) {
+        e.preventDefault();
+        fetch('{{ url('super-admin/notifications') }}/' + id + '/read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json',
+            },
+        }).then(() => { window.location.href = link; });
+    }
 </script>
 
 @stack('scripts')
