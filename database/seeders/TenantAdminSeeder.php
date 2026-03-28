@@ -13,12 +13,14 @@ class TenantAdminSeeder extends Seeder
         string $email,
         string $password
     ): void {
-        User::create([
-            'name'      => $name,
-            'email'     => $email,
-            'password'  => Hash::make($password),
-            'role'      => 'admin',
-            'is_active' => true,
-        ]);
+        User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name'      => $name,
+                'password'  => Hash::make($password),
+                'role'      => 'admin',
+                'is_active' => true,
+            ]
+        );
     }
 }
