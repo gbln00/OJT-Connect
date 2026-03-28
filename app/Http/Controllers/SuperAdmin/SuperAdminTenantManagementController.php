@@ -16,9 +16,15 @@ class SuperAdminTenantManagementController extends Controller
      */
     public function index()
     {
-        $tenants = Tenant::with('domains')->latest()->paginate(15);
+        $tenants       = Tenant::with('domains')->latest()->paginate(15);
+        $totalCount    = Tenant::count();
+        $activeCount   = Tenant::where('status', 'active')->orWhereNull('status')->count();
+        $inactiveCount = Tenant::where('status', 'inactive')->count();
+        $domainCount   = \Stancl\Tenancy\Database\Models\Domain::count();
 
-        return view('super_admin.tenants.index', compact('tenants'));
+        return view('super_admin.tenants.index', compact(
+            'tenants', 'totalCount', 'activeCount', 'inactiveCount', 'domainCount'
+        ));
     }
 
     /**
@@ -103,14 +109,24 @@ class SuperAdminTenantManagementController extends Controller
                 'max:255',
                 Rule::unique('domains', 'domain')->ignore($currentDomain, 'domain'),
             ],
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+            'plan'   => ['nullable', 'string', Rule::in(['basic', 'pro', 'premium'])],
         ]);
 
         // Update or create the primary domain
-        if ($tenant->domains->first()) {
-            $tenant->domains->first()->update(['domain' => $data['domain']]);
-        } else {
-            $tenant->domains()->create(['domain' => $data['domain']]);
+        // Only update domain if one was actually submitted
+        if (!empty($data['domain'])) {
+            if ($tenant->domains->first()) {
+                $tenant->domains->first()->update(['domain' => $data['domain']]);
+            } else {
+                $tenant->domains()->create(['domain' => $data['domain']]);
+            }
         }
+        // Update tenant meta columns
+        $tenant->update([
+            'status' => $data['status'],
+            'plan'   => $data['plan'] ?? null,
+        ]);
 
         return redirect()
             ->route('super_admin.tenants.index')

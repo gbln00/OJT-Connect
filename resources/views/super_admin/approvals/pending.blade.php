@@ -1,445 +1,450 @@
 @extends('layouts.superadmin-app')
-
 @section('title', 'Tenant Approvals')
 @section('page-title', 'Tenant Approvals')
 
-@push('styles')
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-<style>
-  .apr-wrap { font-family: 'DM Sans', sans-serif; }
-
-  .apr-stat {
-    background: #0e1c28;
-    border: 1px solid rgba(52,91,99,.35);
-    border-radius: 14px;
-    padding: 20px 24px;
-    animation: aprCardIn .35s cubic-bezier(.22,.68,0,1.2) both;
-  }
-  @keyframes aprCardIn {
-    from { opacity: 0; transform: translateY(14px) scale(.98); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  .apr-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: rgba(212,236,221,.4); font-weight: 600; margin-bottom: 10px; }
-  .apr-stat-value { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #D4ECDD; line-height: 1; }
-  .apr-stat-sub   { font-size: 12px; color: rgba(212,236,221,.35); margin-top: 5px; }
-
-  .apr-tabs { display: flex; border-bottom: 1px solid rgba(52,91,99,.35); margin-bottom: 20px; }
-  .apr-tab {
-    padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer;
-    border-bottom: 2px solid transparent; color: rgba(212,236,221,.4);
-    background: none; border-top: none; border-left: none; border-right: none;
-    transition: all .15s; text-decoration: none; display: inline-block;
-  }
-  .apr-tab:hover  { color: rgba(212,236,221,.75); }
-  .apr-tab.active { color: #D4ECDD; border-bottom-color: #345B63; }
-  .apr-tab-badge  {
-    display: inline-block; margin-left: 6px;
-    background: rgba(52,91,99,.5); color: #D4ECDD;
-    font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px;
-  }
-
-  .apr-card {
-    background: #0e1c28;
-    border: 1px solid rgba(52,91,99,.35);
-    border-radius: 16px;
-    overflow: hidden;
-    animation: aprCardIn .35s .2s cubic-bezier(.22,.68,0,1.2) both;
-  }
-
-  .apr-table { width: 100%; border-collapse: collapse; }
-  .apr-table th {
-    text-align: left; font-size: 10px; text-transform: uppercase;
-    letter-spacing: .1em; color: rgba(212,236,221,.3); font-weight: 600;
-    padding: 12px 16px; border-bottom: 1px solid rgba(52,91,99,.3);
-    background: none;
-  }
-  .apr-table td {
-    padding: 16px; font-size: 14px;
-    border-bottom: 1px solid rgba(52,91,99,.15);
-    vertical-align: middle; color: #D4ECDD;
-    background: none;
-  }
-  .apr-table tbody tr:last-child td { border-bottom: none; }
-  .apr-table tbody tr { transition: background .12s, transform .12s; cursor: pointer; }
-  .apr-table tbody tr:hover td { background: rgba(212,236,221,.03); }
-  .apr-table tbody tr:hover { transform: translateX(2px); }
-
-  .apr-avatar {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(52,91,99,.5);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif; font-weight: 700;
-    font-size: 15px; color: #D4ECDD; flex-shrink: 0;
-  }
-
-  .apr-code {
-    font-family: monospace; font-size: 12px;
-    background: rgba(52,91,99,.2); border: 1px solid rgba(52,91,99,.35);
-    color: #6fa8b5; padding: 3px 8px; border-radius: 6px;
-  }
-
-  .apr-badge-pending  { background: rgba(212,236,221,.1);  color: #a8d5bc; border: 1px solid rgba(212,236,221,.2); font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
-  .apr-badge-pro      { background: rgba(160,154,255,.1);  color: #a09aff; border: 1px solid rgba(160,154,255,.2); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-block; }
-  .apr-badge-basic    { background: rgba(212,236,221,.06); color: rgba(212,236,221,.5); border: 1px solid rgba(212,236,221,.15); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-block; }
-
-  .apr-btn-approve {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: linear-gradient(135deg, #345B63, #2a4a51);
-    color: #D4ECDD; font-size: 12px; font-weight: 600;
-    padding: 6px 14px; border-radius: 8px; border: none; cursor: pointer;
-    transition: all .2s; white-space: nowrap;
-  }
-  .apr-btn-approve:hover {
-    background: linear-gradient(135deg, #3d6b74, #345B63);
-    box-shadow: 0 0 16px rgba(52,91,99,.5);
-    transform: translateY(-1px);
-  }
-
-  .apr-btn-reject {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: transparent; color: #ff7a94;
-    border: 1px solid rgba(255,77,109,.3);
-    font-size: 12px; font-weight: 600;
-    padding: 6px 14px; border-radius: 8px; cursor: pointer;
-    transition: all .2s; white-space: nowrap;
-  }
-  .apr-btn-reject:hover { background: rgba(255,77,109,.1); border-color: rgba(255,77,109,.6); }
-
-  .apr-empty { text-align: center; padding: 64px 24px; color: rgba(212,236,221,.35); }
-  .apr-empty-icon { font-size: 42px; margin-bottom: 14px; opacity: .35; }
-  .apr-empty-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #D4ECDD; margin-bottom: 6px; }
-
-  .apr-pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid rgba(52,91,99,.25); }
-  .apr-pagination-info { font-size: 12px; color: rgba(212,236,221,.3); }
-
-  /* Override Laravel's default pagination to match the design */
-  .apr-pagination nav { display: flex; gap: 0; }
-  .apr-pagination nav > div:first-child { display: none; } /* hide "Showing X to Y" text from Laravel since we show our own */
-  .apr-pagination nav svg { display: none; }
-  .apr-pagination .pagination { display: flex; gap: 6px; align-items: center; margin: 0; }
-  .apr-pagination .page-item .page-link {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: 7px;
-    font-size: 13px; text-decoration: none;
-    border: 1px solid rgba(52,91,99,.35) !important; color: rgba(212,236,221,.4);
-    background: transparent; transition: all .15s;
-  }
-  .apr-pagination .page-item.active .page-link {
-    background: #345B63 !important; border-color: #345B63 !important; color: #D4ECDD !important;
-  }
-  .apr-pagination .page-item .page-link:hover { border-color: #345B63 !important; color: #D4ECDD; }
-  .apr-pagination .page-item.disabled .page-link { opacity: .35; cursor: not-allowed; }
-
-  /* Modals */
-  .apr-modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.65);
-    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    z-index: 300; align-items: center; justify-content: center;
-  }
-  .apr-modal-overlay.open { display: flex; }
-
-  .apr-modal {
-    background: #0e1c28; border-radius: 18px; width: 100%; margin: 16px;
-    overflow: hidden; animation: aprFadeIn .2s ease;
-  }
-  @keyframes aprFadeIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
-
-  .apr-modal-header { padding: 24px 28px 20px; border-bottom: 1px solid rgba(52,91,99,.25); }
-  .apr-modal-body   { padding: 20px 28px; }
-  .apr-modal-footer { padding: 16px 28px; border-top: 1px solid rgba(52,91,99,.25); display: flex; justify-content: flex-end; gap: 10px; }
-
-  .apr-detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid rgba(52,91,99,.15); font-size: 14px; }
-  .apr-detail-row:last-child { border-bottom: none; }
-  .apr-detail-key { width: 150px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgba(212,236,221,.35); font-weight: 600; flex-shrink: 0; padding-top: 2px; }
-  .apr-detail-val { color: #D4ECDD; font-weight: 500; word-break: break-all; }
-
-  .apr-btn-close {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 13px; font-weight: 500; color: rgba(212,236,221,.4);
-    padding: 7px 16px; border-radius: 8px; cursor: pointer;
-    border: 1px solid rgba(52,91,99,.35); background: transparent;
-    transition: all .15s;
-  }
-  .apr-btn-close:hover { color: #D4ECDD; border-color: rgba(52,91,99,.7); }
-
-  /* Toast */
-  .apr-toast {
-    position: fixed; bottom: 24px; right: 24px; z-index: 400;
-    transition: all .3s; opacity: 0; transform: translateY(8px); pointer-events: none;
-  }
-  .apr-toast.show { opacity: 1; transform: translateY(0); }
-  .apr-toast-inner {
-    display: flex; align-items: center; gap: 10px;
-    padding: 13px 20px; border-radius: 12px; border: 1px solid;
-    font-size: 13px; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-  }
-  .apr-toast-success { background: #0e1c28; border-color: rgba(45,212,160,.3); color: #2dd4a0; }
-  .apr-toast-error   { background: #0e1c28; border-color: rgba(255,77,109,.3); color: #ff7a94; }
-</style>
-@endpush
-
 @section('content')
-<div class="apr-wrap">
 
-  {{-- ── Stats ── --}}
-  <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:28px;">
-    <div class="apr-stat" style="animation-delay:.04s">
-      <div class="apr-stat-label">Pending</div>
-      <div class="apr-stat-value">{{ $registrations->total() }}</div>
-      <div class="apr-stat-sub">Awaiting review</div>
-    </div>
-    <div class="apr-stat" style="animation-delay:.08s">
-      <div class="apr-stat-label">Approved</div>
-      <div class="apr-stat-value" style="color:#2dd4a0;">{{ \App\Models\TenantRegistration::where('status','approved')->count() }}</div>
-      <div class="apr-stat-sub">All time</div>
-    </div>
-    <div class="apr-stat" style="animation-delay:.12s">
-      <div class="apr-stat-label">Rejected</div>
-      <div class="apr-stat-value" style="color:#ff7a94;">{{ \App\Models\TenantRegistration::where('status','rejected')->count() }}</div>
-      <div class="apr-stat-sub">All time</div>
-    </div>
-    <div class="apr-stat" style="animation-delay:.16s">
-      <div class="apr-stat-label">Total Submitted</div>
-      <div class="apr-stat-value">{{ \App\Models\TenantRegistration::count() }}</div>
-      <div class="apr-stat-sub">Since launch</div>
-    </div>
-  </div>
+@php
+$planColors = [
+    'basic'   => ['border'=>'rgba(80,150,220,0.35)',  'bg'=>'rgba(80,150,220,0.08)',  'color'=>'rgba(100,170,240,0.8)'],
+    'pro'     => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)'],
+    'premium' => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)'],
+];
 
-  {{-- ── Tabs ── --}}
-  <div class="apr-tabs">
-    <span class="apr-tab active">
-      Pending
-      <span class="apr-tab-badge">{{ $registrations->total() }}</span>
-    </span>
-  </div>
+$pendingCount  = \App\Models\TenantRegistration::where('status','pending')->count();
+$approvedCount = \App\Models\TenantRegistration::where('status','approved')->count();
+$rejectedCount = \App\Models\TenantRegistration::where('status','rejected')->count();
+$totalCount    = \App\Models\TenantRegistration::count();
+@endphp
 
-  {{-- ── Table card ── --}}
-  <div class="apr-card">
+{{-- ── Stat Strip ── --}}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(171,171,171,0.06);margin-bottom:1px;">
+    @foreach([
+        [$pendingCount,  'Pending',        'rgba(210,170,70,0.9)'],
+        [$approvedCount, 'Approved',       'rgba(34,197,94,0.85)'],
+        [$rejectedCount, 'Rejected',       'rgba(239,68,68,0.75)'],
+        [$totalCount,    'Total Submitted','#fff'],
+    ] as [$val, $label, $color])
+    <div style="background:#0E1126;padding:18px 22px;transition:background 0.2s;"
+         onmouseover="this.style.background='rgba(14,17,38,0.8)'"
+         onmouseout="this.style.background='#0E1126'">
+        <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:{{ $color }};line-height:1;letter-spacing:-0.02em;">{{ $val }}</div>
+        <div style="font-size:10px;color:rgba(171,171,171,0.3);letter-spacing:0.18em;text-transform:uppercase;font-family:monospace;margin-top:6px;">{{ $label }}</div>
+    </div>
+    @endforeach
+</div>
+
+{{-- ── Main Card ── --}}
+<div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:24px;">
+
+    {{-- Header --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(171,171,171,0.06);">
+        <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                <div style="width:20px;height:2px;background:#8C0E03;flex-shrink:0;"></div>
+                <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;">Pending Registrations</span>
+            </div>
+            <div style="font-size:12px;color:rgba(171,171,171,0.35);margin-top:2px;font-family:monospace;">
+                // {{ $pendingCount }} registration{{ $pendingCount !== 1 ? 's' : '' }} awaiting review
+            </div>
+        </div>
+
+        {{-- Plan legend --}}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+            @foreach(['basic'=>'Basic','pro'=>'Pro','premium'=>'Premium'] as $key => $lbl)
+            @php $c = $planColors[$key]; @endphp
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+                         border:1px solid {{ $c['border'] }};background:{{ $c['bg'] }};
+                         font-size:10px;color:{{ $c['color'] }};font-family:monospace;letter-spacing:0.1em;text-transform:uppercase;">
+                {{ $lbl }}
+            </span>
+            @endforeach
+        </div>
+    </div>
 
     @if($registrations->isEmpty())
-      <div class="apr-empty">
-        <div class="apr-empty-icon">🎉</div>
-        <div class="apr-empty-title">All caught up!</div>
-        <div style="font-size:14px;">No pending registrations at the moment.</div>
-      </div>
-    @else
-      <div style="overflow-x:auto;">
-        <table class="apr-table">
-          <thead>
-            <tr>
-              <th style="padding-left:24px;">Company</th>
-              <th>Contact</th>
-              <th>Subdomain</th>
-              <th>Plan</th>
-              <th>Submitted</th>
-              <th>Status</th>
-              <th style="text-align:right; padding-right:24px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($registrations as $reg)
-            <tr onclick="openDetailModal(
-                  '{{ addslashes($reg->company_name) }}',
-                  '{{ addslashes($reg->subdomain) }}',
-                  '{{ addslashes($reg->email) }}',
-                  '{{ addslashes($reg->contact_person) }}',
-                  '{{ addslashes($reg->phone ?? '—') }}',
-                  '{{ ucfirst($reg->plan) }}',
-                  '{{ $reg->created_at->diffForHumans() }}',
-                  {{ $reg->id }}
-                )">
-              <td style="padding-left:24px;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <div class="apr-avatar">{{ strtoupper(substr($reg->company_name, 0, 1)) }}</div>
-                  <div>
-                    <div style="font-weight:600;">{{ $reg->company_name }}</div>
-                    <div style="font-size:12px; color:rgba(212,236,221,.4); margin-top:2px;">{{ $reg->email }}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div style="color:rgba(212,236,221,.8);">{{ $reg->contact_person }}</div>
-                @if($reg->phone)
-                  <div style="font-size:12px; color:rgba(212,236,221,.4); margin-top:2px;">{{ $reg->phone }}</div>
-                @endif
-              </td>
-              <td><span class="apr-code">{{ $reg->subdomain }}</span></td>
-              <td>
-                    @if($reg->plan === 'premium')
-                        <span class="apr-badge-pro">Premium</span>
-                    @elseif($reg->plan === 'standard')
-                        <span class="apr-badge-standard">Standard</span>
-                    @else
-                        <span class="apr-badge-basic">Basic</span>
-                    @endif
-                </td>
-              <td style="color:rgba(212,236,221,.45); font-size:13px;">{{ $reg->created_at->diffForHumans() }}</td>
-              <td><span class="apr-badge-pending">Pending</span></td>
-              <td style="text-align:right; padding-right:24px;">
-                <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
-
-                  {{-- Approve --}}
-                  <form method="POST"
-                        action="{{ route('super_admin.approvals.approve', $reg) }}"
-                        onsubmit="event.stopPropagation();"
-                        onclick="event.stopPropagation();">
-                    @csrf
-                    <button type="submit" class="apr-btn-approve">
-                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                      Approve
-                    </button>
-                  </form>
-
-                  {{-- Reject --}}
-                  <button type="button"
-                          class="apr-btn-reject"
-                          onclick="event.stopPropagation(); openRejectModal({{ $reg->id }}, '{{ addslashes($reg->company_name) }}')">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    Reject
-                  </button>
-
-                </div>
-              </td>
-            </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-
-      {{-- Pagination --}}
-      @if($registrations->hasPages())
-      <div class="apr-pagination">
-        <span class="apr-pagination-info">
-          Showing {{ $registrations->firstItem() }}–{{ $registrations->lastItem() }} of {{ $registrations->total() }} pending
-        </span>
-        <div>
-          {{ $registrations->links() }}
+        {{-- Empty state --}}
+        <div style="text-align:center;padding:80px 20px;">
+            <div style="width:56px;height:56px;border:1px solid rgba(171,171,171,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                <svg width="22" height="22" fill="none" stroke="rgba(171,171,171,0.25)" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;">All caught up</div>
+            <div style="font-size:13px;color:rgba(171,171,171,0.35);font-family:monospace;">// No pending registrations at the moment.</div>
         </div>
-      </div>
-      @endif
+    @else
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;min-width:820px;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(171,171,171,0.08);">
+                        @foreach(['Institution', 'Contact', 'Subdomain', 'Plan', 'Submitted', 'Actions'] as $th)
+                        <th style="font-family:monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+                                   color:rgba(171,171,171,0.28);font-weight:600;padding:0 14px 12px 0;text-align:left;
+                                   {{ $loop->last ? 'text-align:right;padding-right:0;' : '' }}">
+                            {{ $th }}
+                        </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($registrations as $reg)
+                    @php
+                        $pc = $planColors[$reg->plan] ?? ['border'=>'rgba(171,171,171,0.12)','bg'=>'transparent','color'=>'rgba(171,171,171,0.3)'];
+                    @endphp
+                    <tr style="border-bottom:1px solid rgba(171,171,171,0.05);transition:background 0.15s;cursor:pointer;"
+                        onmouseover="this.style.background='rgba(171,171,171,0.018)'"
+                        onmouseout="this.style.background='transparent'"
+                        onclick="openDetailModal(
+                            '{{ addslashes($reg->company_name) }}',
+                            '{{ addslashes($reg->subdomain) }}',
+                            '{{ addslashes($reg->email) }}',
+                            '{{ addslashes($reg->contact_person) }}',
+                            '{{ addslashes($reg->phone ?? '—') }}',
+                            '{{ ucfirst($reg->plan) }}',
+                            '{{ $reg->created_at->diffForHumans() }}',
+                            {{ $reg->id }}
+                        )">
+
+                        {{-- Institution --}}
+                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:2px;height:36px;background:#8C0E03;flex-shrink:0;"></div>
+                                <div style="width:34px;height:34px;background:rgba(140,14,3,0.12);border:1px solid rgba(140,14,3,0.25);
+                                            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:14px;color:rgba(200,100,90,0.9);">
+                                        {{ strtoupper(substr($reg->company_name, 0, 1)) }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:#fff;letter-spacing:0.05em;line-height:1.2;">
+                                        {{ $reg->company_name }}
+                                    </div>
+                                    <div style="font-size:11px;color:rgba(171,171,171,0.3);font-family:monospace;margin-top:2px;">
+                                        {{ $reg->email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- Contact --}}
+                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                            <div style="font-size:13px;color:rgba(171,171,171,0.7);">{{ $reg->contact_person }}</div>
+                            @if($reg->phone)
+                            <div style="font-size:11px;color:rgba(171,171,171,0.3);font-family:monospace;margin-top:2px;">{{ $reg->phone }}</div>
+                            @endif
+                        </td>
+
+                        {{-- Subdomain --}}
+                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                            <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+                                         border:1px solid rgba(140,14,3,0.35);background:rgba(140,14,3,0.08);
+                                         font-size:11px;color:rgba(200,100,90,0.85);font-family:monospace;letter-spacing:0.04em;">
+                                <span style="width:4px;height:4px;background:#8C0E03;flex-shrink:0;display:inline-block;border-radius:50%;"></span>
+                                {{ $reg->subdomain }}.ojtconnect.com
+                            </span>
+                        </td>
+
+                        {{-- Plan --}}
+                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                            <span style="display:inline-flex;align-items:center;padding:3px 10px;
+                                         border:1px solid {{ $pc['border'] }};background:{{ $pc['bg'] }};
+                                         font-size:10px;color:{{ $pc['color'] }};font-family:monospace;
+                                         letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">
+                                {{ ucfirst($reg->plan) }}
+                            </span>
+                        </td>
+
+                        {{-- Submitted --}}
+                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                            <div style="font-size:12px;color:rgba(171,171,171,0.35);font-family:monospace;">
+                                {{ $reg->created_at->format('M d, Y') }}
+                            </div>
+                            <div style="font-size:10px;color:rgba(171,171,171,0.2);font-family:monospace;margin-top:2px;">
+                                {{ $reg->created_at->diffForHumans() }}
+                            </div>
+                        </td>
+
+                        {{-- Actions --}}
+                        <td style="padding:15px 0;vertical-align:middle;text-align:right;">
+                            <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;"
+                                 onclick="event.stopPropagation()">
+
+                                {{-- Approve --}}
+                                <form method="POST" action="{{ route('super_admin.approvals.approve', $reg) }}" style="margin:0;">
+                                    @csrf
+                                    <button type="submit"
+                                            title="Approve"
+                                            style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
+                                                   border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);
+                                                   color:rgba(74,222,128,0.85);font-size:11px;font-weight:700;
+                                                   letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+                                                   font-family:'Barlow Condensed',sans-serif;
+                                                   transition:border-color 0.2s,background 0.2s,color 0.2s;"
+                                            onmouseover="this.style.borderColor='rgba(34,197,94,0.5)';this.style.background='rgba(34,197,94,0.12)';this.style.color='rgba(74,222,128,1)'"
+                                            onmouseout="this.style.borderColor='rgba(34,197,94,0.25)';this.style.background='rgba(34,197,94,0.06)';this.style.color='rgba(74,222,128,0.85)'">
+                                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        Approve
+                                    </button>
+                                </form>
+
+                                {{-- Reject --}}
+                                <button type="button"
+                                        title="Reject"
+                                        onclick="openRejectModal({{ $reg->id }}, '{{ addslashes($reg->company_name) }}')"
+                                        style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
+                                               border:1px solid rgba(239,68,68,0.2);background:transparent;
+                                               color:rgba(252,165,165,0.6);font-size:11px;font-weight:700;
+                                               letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+                                               font-family:'Barlow Condensed',sans-serif;
+                                               transition:border-color 0.2s,background 0.2s,color 0.2s;"
+                                        onmouseover="this.style.borderColor='rgba(239,68,68,0.5)';this.style.background='rgba(239,68,68,0.08)';this.style.color='rgba(252,165,165,0.95)'"
+                                        onmouseout="this.style.borderColor='rgba(239,68,68,0.2)';this.style.background='transparent';this.style.color='rgba(252,165,165,0.6)'">
+                                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    Reject
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if($registrations->hasPages())
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(171,171,171,0.06);
+                    display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:12px;color:rgba(171,171,171,0.3);font-family:monospace;">
+                // Showing {{ $registrations->firstItem() }}–{{ $registrations->lastItem() }} of {{ $registrations->total() }}
+            </span>
+            <div>{{ $registrations->links() }}</div>
+        </div>
+        @endif
     @endif
+</div>
 
-  </div>{{-- /.apr-card --}}
-
-</div>{{-- /.apr-wrap --}}
-
-
-{{-- ══════════════════════════════════════════
-     Detail Modal
-══════════════════════════════════════════ --}}
-<div id="detail-modal" class="apr-modal-overlay" onclick="closeDetailModal()">
-  <div class="apr-modal" style="max-width:520px; border:1px solid rgba(52,91,99,.4);" onclick="event.stopPropagation()">
-
-    <div class="apr-modal-header" style="display:flex; align-items:flex-start; justify-content:space-between;">
-      <div>
-        <div style="font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:rgba(212,236,221,.3); font-weight:600; margin-bottom:4px;">Registration Details</div>
-        <div id="dm-company" style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#D4ECDD;"></div>
-      </div>
-      <button type="button" onclick="closeDetailModal()"
-        style="background:none;border:none;cursor:pointer;color:rgba(212,236,221,.3);margin-top:4px;padding:4px;"
-        onmouseover="this.style.color='#D4ECDD'" onmouseout="this.style.color='rgba(212,236,221,.3)'">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-
-    <div class="apr-modal-body">
-      <div class="apr-detail-row"><span class="apr-detail-key">Subdomain</span><span id="dm-subdomain" class="apr-detail-val" style="font-family:monospace; color:#6fa8b5;"></span></div>
-      <div class="apr-detail-row"><span class="apr-detail-key">Email</span><span id="dm-email" class="apr-detail-val"></span></div>
-      <div class="apr-detail-row"><span class="apr-detail-key">Contact Person</span><span id="dm-contact" class="apr-detail-val"></span></div>
-      <div class="apr-detail-row"><span class="apr-detail-key">Phone</span><span id="dm-phone" class="apr-detail-val"></span></div>
-      <div class="apr-detail-row"><span class="apr-detail-key">Plan</span><span id="dm-plan" class="apr-detail-val"></span></div>
-      <div class="apr-detail-row"><span class="apr-detail-key">Submitted</span><span id="dm-submitted" class="apr-detail-val"></span></div>
-    </div>
-
-    <div class="apr-modal-footer">
-      <button type="button" class="apr-btn-close" onclick="closeDetailModal()">Close</button>
-      <button type="button" class="apr-btn-reject"
-        onclick="closeDetailModal(); openRejectModal(window._dmId, window._dmCompany)">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        Reject
-      </button>
-      <form id="dm-approve-form" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit" class="apr-btn-approve">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-          Approve Tenant
-        </button>
-      </form>
-    </div>
-
-  </div>
+{{-- Info strip --}}
+<div style="margin-top:8px;padding:14px 20px;border:1px solid rgba(140,14,3,0.15);background:rgba(140,14,3,0.03);
+            font-size:12px;color:rgba(171,171,171,0.35);line-height:1.7;font-family:monospace;">
+    <span style="color:rgba(200,90,80,0.6);font-weight:700;">// note:</span>
+    Approving a registration provisions an isolated database, runs all tenant migrations, and seeds the admin account automatically.
+    Rejection notifies the applicant with an optional reason.
 </div>
 
 
-{{-- ══════════════════════════════════════════
-     Reject Modal
-══════════════════════════════════════════ --}}
-<div id="reject-modal" class="apr-modal-overlay" onclick="closeRejectModal()">
-  <div class="apr-modal" style="max-width:440px; border:1px solid rgba(255,77,109,.25);" onclick="event.stopPropagation()">
+{{-- ══ Detail Modal ══ --}}
+<div id="detail-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(13,13,13,0.88);z-index:999;
+            align-items:center;justify-content:center;backdrop-filter:blur(2px);"
+     onclick="closeDetailModal()">
+    <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.1);border-top:2px solid #8C0E03;
+                width:100%;max-width:500px;margin:0 20px;"
+         onclick="event.stopPropagation()">
 
-    <div class="apr-modal-header" style="border-bottom-color:rgba(255,77,109,.15);">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-        <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,77,109,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ff7a94" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        {{-- Header --}}
+        <div style="padding:24px 28px 20px;border-bottom:1px solid rgba(171,171,171,0.06);
+                    display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+            <div>
+                <div style="font-size:10px;color:rgba(171,171,171,0.3);letter-spacing:0.16em;text-transform:uppercase;font-family:monospace;margin-bottom:6px;">
+                    Registration Details
+                </div>
+                <div id="dm-company"
+                     style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;line-height:1.2;">
+                </div>
+            </div>
+            <button onclick="closeDetailModal()"
+                    style="background:none;border:none;cursor:pointer;color:rgba(171,171,171,0.3);padding:4px;flex-shrink:0;
+                           transition:color 0.2s;"
+                    onmouseover="this.style.color='rgba(171,171,171,0.8)'"
+                    onmouseout="this.style.color='rgba(171,171,171,0.3)'">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
-        <div style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#D4ECDD;">Reject Registration</div>
-      </div>
-      <p style="font-size:13px; color:rgba(212,236,221,.4); margin-top:6px;">
-        Rejecting <span id="rm-company" style="color:rgba(212,236,221,.75); font-weight:500;"></span>. The applicant will be notified.
-      </p>
+
+        {{-- Body --}}
+        <div style="padding:4px 28px;">
+            @foreach([
+                ['dm-subdomain', 'Subdomain'],
+                ['dm-email',     'Email'],
+                ['dm-contact',   'Contact Person'],
+                ['dm-phone',     'Phone'],
+                ['dm-plan',      'Plan'],
+                ['dm-submitted', 'Submitted'],
+            ] as [$id, $label])
+            <div style="display:flex;align-items:center;justify-content:space-between;
+                        padding:12px 0;border-bottom:1px solid rgba(171,171,171,0.05);">
+                <span style="font-size:10px;color:rgba(171,171,171,0.28);letter-spacing:0.16em;
+                             text-transform:uppercase;font-family:monospace;">{{ $label }}</span>
+                <span id="{{ $id }}"
+                      style="font-size:13px;color:rgba(171,171,171,0.8);font-family:monospace;
+                             text-align:right;max-width:280px;word-break:break-all;">
+                </span>
+            </div>
+            @endforeach
+        </div>
+
+        {{-- Footer --}}
+        <div style="padding:20px 28px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid rgba(171,171,171,0.06);">
+            <button onclick="closeDetailModal()"
+                    style="padding:8px 18px;border:1px solid rgba(171,171,171,0.15);background:transparent;
+                           color:rgba(171,171,171,0.5);font-size:12px;font-weight:700;letter-spacing:0.1em;
+                           text-transform:uppercase;cursor:pointer;font-family:'Barlow Condensed',sans-serif;
+                           transition:border-color 0.2s,color 0.2s;"
+                    onmouseover="this.style.borderColor='rgba(171,171,171,0.3)';this.style.color='rgba(171,171,171,0.85)'"
+                    onmouseout="this.style.borderColor='rgba(171,171,171,0.15)';this.style.color='rgba(171,171,171,0.5)'">
+                Close
+            </button>
+            <button type="button"
+                    onclick="closeDetailModal(); openRejectModal(window._dmId, window._dmCompany)"
+                    style="display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+                           border:1px solid rgba(239,68,68,0.2);background:transparent;
+                           color:rgba(252,165,165,0.6);font-size:12px;font-weight:700;
+                           letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+                           font-family:'Barlow Condensed',sans-serif;transition:border-color 0.2s,background 0.2s,color 0.2s;"
+                    onmouseover="this.style.borderColor='rgba(239,68,68,0.5)';this.style.background='rgba(239,68,68,0.08)';this.style.color='rgba(252,165,165,0.95)'"
+                    onmouseout="this.style.borderColor='rgba(239,68,68,0.2)';this.style.background='transparent';this.style.color='rgba(252,165,165,0.6)'">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Reject
+            </button>
+            <form id="dm-approve-form" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+                               border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);
+                               color:rgba(74,222,128,0.85);font-size:12px;font-weight:700;
+                               letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+                               font-family:'Barlow Condensed',sans-serif;transition:border-color 0.2s,background 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(34,197,94,0.5)';this.style.background='rgba(34,197,94,0.12)'"
+                        onmouseout="this.style.borderColor='rgba(34,197,94,0.25)';this.style.background='rgba(34,197,94,0.06)'">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Approve Tenant
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <form id="reject-form" method="POST">
-      @csrf
-      <div class="apr-modal-body">
-        <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:rgba(212,236,221,.4); font-weight:600; margin-bottom:8px;">
-          Reason <span style="color:rgba(212,236,221,.25); text-transform:none; letter-spacing:0; font-weight:400;">(optional)</span>
-        </label>
-        <textarea name="rejection_reason" rows="4"
-          placeholder="Explain why this registration was rejected…"
-          style="width:100%; background:#112031; border:1px solid rgba(52,91,99,.35); border-radius:10px; color:#D4ECDD; font-size:13px; padding:12px 14px; resize:none; outline:none; font-family:'DM Sans',sans-serif; transition:border-color .15s;"
-          onfocus="this.style.borderColor='rgba(255,77,109,.4)'"
-          onblur="this.style.borderColor='rgba(52,91,99,.35)'"></textarea>
-      </div>
 
-      <div class="apr-modal-footer" style="border-top-color:rgba(255,77,109,.12);">
-        <button type="button" class="apr-btn-close" onclick="closeRejectModal()">Cancel</button>
-        <button type="submit"
-          style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,77,109,.3);background:rgba(255,77,109,.1);color:#ff7a94;transition:all .15s;"
-          onmouseover="this.style.background='rgba(255,77,109,.2)'"
-          onmouseout="this.style.background='rgba(255,77,109,.1)'">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-          Confirm Rejection
-        </button>
-      </div>
-    </form>
+{{-- ══ Reject Modal ══ --}}
+<div id="reject-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(13,13,13,0.88);z-index:999;
+            align-items:center;justify-content:center;backdrop-filter:blur(2px);"
+     onclick="closeRejectModal()">
+    <div style="background:#0E1126;border:1px solid rgba(239,68,68,0.2);border-top:2px solid rgba(239,68,68,0.6);
+                width:100%;max-width:440px;margin:0 20px;"
+         onclick="event.stopPropagation()">
 
-  </div>
+        {{-- Header --}}
+        <div style="padding:24px 28px 20px;border-bottom:1px solid rgba(239,68,68,0.08);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <div style="width:20px;height:2px;background:rgba(239,68,68,0.6);flex-shrink:0;"></div>
+                <span style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;">
+                    Reject Registration
+                </span>
+            </div>
+            <div style="font-size:13px;color:rgba(171,171,171,0.4);font-family:monospace;line-height:1.6;">
+                // Rejecting <span id="rm-company" style="color:rgba(252,165,165,0.7);"></span>.
+                The applicant will be notified.
+            </div>
+        </div>
+
+        <form id="reject-form" method="POST">
+            @csrf
+            {{-- Body --}}
+            <div style="padding:24px 28px;">
+                <label style="display:block;font-size:10px;color:rgba(171,171,171,0.4);letter-spacing:0.18em;
+                              text-transform:uppercase;font-family:monospace;margin-bottom:8px;">
+                    Reason
+                    <span style="text-transform:none;letter-spacing:0;color:rgba(171,171,171,0.2);font-size:10px;">
+                        (optional)
+                    </span>
+                </label>
+                <textarea name="rejection_reason" rows="4"
+                          placeholder="Explain why this registration was rejected…"
+                          style="width:100%;padding:10px 14px;background:#0D0D0D;border:1px solid rgba(171,171,171,0.12);
+                                 color:#fff;font-size:13px;font-family:'Barlow',sans-serif;outline:none;resize:none;
+                                 transition:border-color 0.2s,box-shadow 0.2s;box-sizing:border-box;line-height:1.6;"
+                          onfocus="this.style.borderColor='rgba(239,68,68,0.4)';this.style.boxShadow='0 0 0 3px rgba(239,68,68,0.08)'"
+                          onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                </textarea>
+            </div>
+
+            {{-- Footer --}}
+            <div style="padding:16px 28px;border-top:1px solid rgba(239,68,68,0.08);
+                        display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" onclick="closeRejectModal()"
+                        style="padding:8px 18px;border:1px solid rgba(171,171,171,0.15);background:transparent;
+                               color:rgba(171,171,171,0.5);font-size:12px;font-weight:700;letter-spacing:0.1em;
+                               text-transform:uppercase;cursor:pointer;font-family:'Barlow Condensed',sans-serif;
+                               transition:border-color 0.2s,color 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(171,171,171,0.3)';this.style.color='rgba(171,171,171,0.85)'"
+                        onmouseout="this.style.borderColor='rgba(171,171,171,0.15)';this.style.color='rgba(171,171,171,0.5)'">
+                    Cancel
+                </button>
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;
+                               border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.1);
+                               color:rgba(252,165,165,0.9);font-size:12px;font-weight:700;
+                               letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+                               font-family:'Barlow Condensed',sans-serif;transition:background 0.2s,border-color 0.2s;"
+                        onmouseover="this.style.background='rgba(239,68,68,0.2)';this.style.borderColor='rgba(239,68,68,0.6)'"
+                        onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.borderColor='rgba(239,68,68,0.4)'">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Confirm Rejection
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {{-- Toast --}}
-<div id="apr-toast" class="apr-toast">
-  <div id="apr-toast-inner" class="apr-toast-inner"></div>
+<div id="apr-toast"
+     style="position:fixed;bottom:24px;right:24px;z-index:1000;
+            transition:opacity 0.3s,transform 0.3s;opacity:0;transform:translateY(8px);pointer-events:none;">
+    <div id="apr-toast-inner"
+         style="display:flex;align-items:center;gap:10px;padding:12px 20px;
+                border:1px solid;font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;
+                letter-spacing:0.05em;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    </div>
 </div>
+
+<style>
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+#detail-modal[style*="flex"],
+#reject-modal[style*="flex"] {
+    animation: fadeUp 0.2s cubic-bezier(.22,.61,.36,1) both;
+}
+</style>
 
 @endsection
 
 @push('scripts')
 <script>
-  window._dmId      = null;
-  window._dmCompany = '';
+window._dmId      = null;
+window._dmCompany = '';
 
-  const BASE_DOMAIN = '{{ config('app.base_domain', 'yourapp.com') }}';
-
-  function openDetailModal(company, subdomain, email, contact, phone, plan, submitted, id) {
+function openDetailModal(company, subdomain, email, contact, phone, plan, submitted, id) {
     window._dmId      = id;
     window._dmCompany = company;
 
     document.getElementById('dm-company').textContent   = company;
-    document.getElementById('dm-subdomain').textContent = subdomain + '.' + BASE_DOMAIN;
+    document.getElementById('dm-subdomain').textContent = subdomain + '.ojtconnect.com';
     document.getElementById('dm-email').textContent     = email;
     document.getElementById('dm-contact').textContent   = contact;
     document.getElementById('dm-phone').textContent     = phone;
@@ -447,47 +452,68 @@
     document.getElementById('dm-submitted').textContent = submitted;
 
     document.getElementById('dm-approve-form').action =
-      '{{ url('super-admin/approvals') }}/' + id + '/approve';
+        '{{ url('super-admin/approvals') }}/' + id + '/approve';
 
-    document.getElementById('detail-modal').classList.add('open');
-  }
+    const modal = document.getElementById('detail-modal');
+    modal.style.display = 'flex';
+}
 
-  function closeDetailModal() {
-    document.getElementById('detail-modal').classList.remove('open');
-  }
+function closeDetailModal() {
+    document.getElementById('detail-modal').style.display = 'none';
+}
 
-  function openRejectModal(id, company) {
+function openRejectModal(id, company) {
     document.getElementById('rm-company').textContent = company;
     document.getElementById('reject-form').action     =
-      '{{ url('super-admin/approvals') }}/' + id + '/reject';
+        '{{ url('super-admin/approvals') }}/' + id + '/reject';
 
-    document.getElementById('reject-modal').classList.add('open');
-  }
+    const modal = document.getElementById('reject-modal');
+    modal.style.display = 'flex';
+}
 
-  function closeRejectModal() {
-    document.getElementById('reject-modal').classList.remove('open');
-  }
+function closeRejectModal() {
+    document.getElementById('reject-modal').style.display = 'none';
+}
 
-  // Show session flash messages as toasts
-  document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     @if(session('success'))
-      showToast(@json(session('success')), 'success');
+        showToast(@json(session('success')), 'success');
+    @endif
+    @if(session('error'))
+        showToast(@json(session('error')), 'error');
     @endif
     @if(session('info'))
-      showToast(@json(session('info')), 'error');
+        showToast(@json(session('info')), 'info');
     @endif
-  });
+});
 
-  function showToast(msg, type) {
-    const toast = document.getElementById('apr-toast');
+function showToast(msg, type) {
     const inner = document.getElementById('apr-toast-inner');
-    inner.className = 'apr-toast-inner ' + (type === 'success' ? 'apr-toast-success' : 'apr-toast-error');
-    const icon = type === 'success'
-      ? '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
-      : '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
-    inner.innerHTML = icon + msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3800);
-  }
+    const toast  = document.getElementById('apr-toast');
+
+    const styles = {
+        success: { bg:'#0E1126', border:'rgba(34,197,94,0.3)',   color:'rgba(74,222,128,0.9)' },
+        error:   { bg:'#0E1126', border:'rgba(239,68,68,0.3)',   color:'rgba(252,165,165,0.9)' },
+        info:    { bg:'#0E1126', border:'rgba(171,171,171,0.2)', color:'rgba(171,171,171,0.7)' },
+    };
+    const icons = {
+        success: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+        error:   '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',
+        info:    '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    };
+
+    const s = styles[type] || styles.info;
+    inner.style.background   = s.bg;
+    inner.style.borderColor  = s.border;
+    inner.style.color        = s.color;
+    inner.innerHTML          = (icons[type] || '') + msg;
+
+    toast.style.opacity   = '1';
+    toast.style.transform = 'translateY(0)';
+    setTimeout(() => {
+        toast.style.opacity   = '0';
+        toast.style.transform = 'translateY(8px)';
+    }, 3800);
+}
 </script>
 @endpush
