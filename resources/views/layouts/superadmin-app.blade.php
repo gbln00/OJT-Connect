@@ -31,7 +31,7 @@
             --crimson-dim: rgba(140,14,3,0.12);
             --crimson-glow:rgba(140,14,3,0.08);
             --sb-w:        228px;
-            --topbar-h:    52px;
+            --topbar-h:    63px;
         }
 
         body {
@@ -246,9 +246,10 @@
         .topbar {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 0 24px;
+            gap: 14px;
+            padding: 0 28px;
             height: var(--topbar-h);
+            min-height: var(--topbar-h);
             background: rgba(14,17,38,0.8);
             border-bottom: 1px solid var(--border);
             position: sticky; top: 0; z-index: 100;
@@ -346,7 +347,7 @@
         ═══════════════════════════ */
         .main-content {
             flex: 1;
-            padding: 24px 26px;
+            padding: 36px 26px;
             animation: fadeUp .3s ease both;
         }
 
@@ -556,6 +557,7 @@
                         <div class="dropdown-header-name">{{ auth()->user()->name }}</div>
                         <div class="dropdown-header-role">Super Admin</div>
                     </div>
+                    
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}" id="sa-logout-form">@csrf</form>
                     <a href="#" class="dropdown-item danger"

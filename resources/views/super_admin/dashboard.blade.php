@@ -2,17 +2,6 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
-@section('topbar-actions')
-    <a href="{{ route('super_admin.tenants.create') }}"
-       style="display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:var(--crimson);color:rgba(255,255,255,.9);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:none;transition:background .2s,transform .15s,box-shadow .2s;"
-       onmouseover="this.style.background='#a81004';this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(140,14,3,.35)'"
-       onmouseout="this.style.background='var(--crimson)';this.style.transform='none';this.style.boxShadow='none'">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        New Tenant
-    </a>
-@endsection
 
 @php
     $pendingCount  = \App\Models\TenantRegistration::where('status','pending')->count();

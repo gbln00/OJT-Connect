@@ -3,8 +3,11 @@
 @section('page-title', 'Create Tenant')
 
 @section('topbar-actions')
-    <a href="{{ route('super_admin.tenants.index') }}" class="btn btn-ghost">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <a href="{{ route('super_admin.tenants.index') }}"
+       style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(171,171,171,0.15);
+              background:transparent;color:rgba(171,171,171,0.6);font-size:12px;font-weight:700;
+              letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;font-family:'Barlow Condensed',sans-serif;">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
         </svg>
         Back to Tenants
@@ -13,12 +16,27 @@
 
 @section('content')
 
-<div style="max-width: 560px;">
-    <div class="card">
-        <div style="margin-bottom: 24px;">
-            <div class="section-title">New Tenant</div>
-            <div style="font-size:13px; color:var(--muted); margin-top:4px; line-height:1.6;">
-                Each tenant gets an isolated database. A migration will run automatically after creation.
+@php
+$inputStyle = "width:100%;padding:10px 14px;background:#0D0D0D;border:1px solid rgba(171,171,171,0.12);
+               color:#fff;font-size:14px;font-family:'Barlow',sans-serif;outline:none;
+               transition:border-color 0.2s,box-shadow 0.2s;";
+$labelStyle = "display:block;font-size:10px;color:rgba(171,171,171,0.4);letter-spacing:0.18em;
+               text-transform:uppercase;font-family:monospace;margin-bottom:8px;";
+$hintStyle  = "font-size:12px;color:rgba(171,171,171,0.25);margin-top:6px;font-family:monospace;line-height:1.5;";
+$errorStyle = "font-size:12px;color:rgba(220,100,90,0.8);margin-top:6px;font-family:monospace;";
+@endphp
+
+<div style="max-width:560px;display:flex;flex-direction:column;gap:12px;">
+
+    <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:28px;">
+
+        <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(171,171,171,0.06);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <div style="width:20px;height:2px;background:#8C0E03;flex-shrink:0;"></div>
+                <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;">New Tenant</span>
+            </div>
+            <div style="font-size:12px;color:rgba(171,171,171,0.3);font-family:monospace;line-height:1.6;">
+                // Each tenant gets an isolated database. Migrations run automatically on creation.
             </div>
         </div>
 
@@ -26,118 +44,107 @@
             @csrf
 
             {{-- Tenant Identity --}}
-            <div class="form-group">
-                <label for="id">Tenant ID</label>
-                <input
-                    type="text"
-                    id="id"
-                    name="id"
-                    value="{{ old('id') }}"
-                    placeholder="e.g. university-of-manila"
-                    autocomplete="off"
-                    autofocus
-                >
-                <div class="input-hint">Lowercase letters, numbers, and hyphens only. This cannot be changed later.</div>
-                @error('id')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+            <div style="margin-bottom:18px;">
+                <label style="{{ $labelStyle }}">Tenant ID</label>
+                <input type="text" name="id" value="{{ old('id') }}"
+                       placeholder="e.g. university-of-manila"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                <div style="{{ $hintStyle }}">// Lowercase letters, numbers, and hyphens only. Cannot be changed later.</div>
+                @error('id')<div style="{{ $errorStyle }}">{{ $message }}</div>@enderror
             </div>
 
-            <div class="form-group">
-                <label for="domain">Domain</label>
-                <input
-                    type="text"
-                    id="domain"
-                    name="domain"
-                    value="{{ old('domain') }}"
-                    placeholder="e.g. university-of-manila.ojthub.com"
-                    autocomplete="off"
-                >
-                <div class="input-hint">The full subdomain or domain this tenant will be served on.</div>
-                @error('domain')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+            <div style="margin-bottom:24px;">
+                <label style="{{ $labelStyle }}">Domain</label>
+                <input type="text" name="domain" value="{{ old('domain') }}"
+                       placeholder="e.g. university-of-manila.ojthub.com"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                <div style="{{ $hintStyle }}">// Full subdomain or domain this tenant will be served on.</div>
+                @error('domain')<div style="{{ $errorStyle }}">{{ $message }}</div>@enderror
             </div>
 
-            <hr class="divider">
+            <div style="height:1px;background:rgba(171,171,171,0.06);margin-bottom:20px;"></div>
 
-            {{-- Admin Credentials --}}
-            <div style="margin-bottom: 16px;">
-                <div style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px;">Admin Account</div>
-                <div style="font-size:12px; color:var(--muted); line-height:1.6;">
-                    This account will be created inside the tenant's database and used to log in to their dashboard.
+            {{-- Admin Account --}}
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;color:rgba(140,14,3,0.8);letter-spacing:0.18em;text-transform:uppercase;font-family:monospace;font-weight:700;">Admin Account</div>
+                <div style="font-size:12px;color:rgba(171,171,171,0.25);font-family:monospace;margin-top:4px;">
+                    // Seeded into the tenant's database. Used to log in to their dashboard.
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="admin_name">Admin Name</label>
-                <input
-                    type="text"
-                    id="admin_name"
-                    name="admin_name"
-                    value="{{ old('admin_name') }}"
-                    placeholder="e.g. Juan dela Cruz"
-                    autocomplete="off"
-                >
-                @error('admin_name')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+            <div style="margin-bottom:18px;">
+                <label style="{{ $labelStyle }}">Admin Name</label>
+                <input type="text" name="admin_name" value="{{ old('admin_name') }}"
+                       placeholder="e.g. Juan dela Cruz"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                @error('admin_name')<div style="{{ $errorStyle }}">{{ $message }}</div>@enderror
             </div>
 
-            <div class="form-group">
-                <label for="admin_email">Admin Email</label>
-                <input
-                    type="email"
-                    id="admin_email"
-                    name="admin_email"
-                    value="{{ old('admin_email') }}"
-                    placeholder="e.g. admin@university-of-manila.com"
-                    autocomplete="off"
-                >
-                @error('admin_email')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+            <div style="margin-bottom:18px;">
+                <label style="{{ $labelStyle }}">Admin Email</label>
+                <input type="email" name="admin_email" value="{{ old('admin_email') }}"
+                       placeholder="e.g. admin@university-of-manila.com"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                @error('admin_email')<div style="{{ $errorStyle }}">{{ $message }}</div>@enderror
             </div>
 
-            <div class="form-group">
-                <label for="admin_password">Admin Password</label>
-                <input
-                    type="password"
-                    id="admin_password"
-                    name="admin_password"
-                    placeholder="Minimum 8 characters"
-                    autocomplete="new-password"
-                >
-                @error('admin_password')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+            <div style="margin-bottom:18px;">
+                <label style="{{ $labelStyle }}">Admin Password</label>
+                <input type="password" name="admin_password"
+                       placeholder="Minimum 8 characters"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
+                @error('admin_password')<div style="{{ $errorStyle }}">{{ $message }}</div>@enderror
             </div>
 
-            <div class="form-group">
-                <label for="admin_password_confirmation">Confirm Password</label>
-                <input
-                    type="password"
-                    id="admin_password_confirmation"
-                    name="admin_password_confirmation"
-                    placeholder="Re-enter the password"
-                    autocomplete="new-password"
-                >
+            <div style="margin-bottom:28px;">
+                <label style="{{ $labelStyle }}">Confirm Password</label>
+                <input type="password" name="admin_password_confirmation"
+                       placeholder="Re-enter the password"
+                       style="{{ $inputStyle }}"
+                       onfocus="this.style.borderColor='rgba(140,14,3,0.7)';this.style.boxShadow='0 0 0 3px rgba(140,14,3,0.1)'"
+                       onblur="this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxShadow='none'">
             </div>
 
-            <hr class="divider">
+            <div style="height:1px;background:rgba(171,171,171,0.06);margin-bottom:20px;"></div>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-                <a href="{{ route('super_admin.tenants.index') }}" class="btn btn-ghost">Cancel</a>
-                <button type="submit" class="btn btn-primary">Create Tenant</button>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <a href="{{ route('super_admin.tenants.index') }}"
+                   style="display:inline-flex;align-items:center;padding:9px 20px;border:1px solid rgba(171,171,171,0.15);
+                          background:transparent;color:rgba(171,171,171,0.5);font-size:12px;font-weight:700;
+                          letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;font-family:'Barlow Condensed',sans-serif;">
+                    Cancel
+                </a>
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;
+                               background:#8C0E03;color:rgba(255,255,255,0.92);border:none;cursor:pointer;
+                               font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;
+                               transition:background 0.2s;"
+                        onmouseover="this.style.background='#a81004'"
+                        onmouseout="this.style.background='#8C0E03'">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
+                    </svg>
+                    Create Tenant
+                </button>
             </div>
         </form>
     </div>
 
     {{-- Info box --}}
-    <div style="margin-top:16px; padding:16px 18px; border-radius:10px; border:1px solid rgba(108,99,255,.25); background:rgba(108,99,255,.06); font-size:13px; color:var(--muted); line-height:1.7;">
-        <strong style="color:#a09aff;">What happens on creation:</strong><br>
-        A new isolated database is provisioned for this tenant, all tenant migrations are run automatically, the domain is registered so traffic is routed correctly, and the admin account is seeded into the tenant's database.
+    <div style="padding:16px 20px;border:1px solid rgba(140,14,3,0.18);background:rgba(140,14,3,0.04);
+                font-size:12px;color:rgba(171,171,171,0.4);line-height:1.8;font-family:monospace;">
+        <span style="color:rgba(200,90,80,0.65);font-weight:700;">// on creation:</span><br>
+        A new isolated database is provisioned → all tenant migrations run automatically → domain is registered for traffic routing → admin account is seeded into tenant database.
     </div>
 </div>
-
 @endsection
