@@ -6,23 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('tenants', function (Blueprint $table) {
-            //
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('plan')->nullable();
+            $table->string('status')->default('approved');
+            $table->unsignedBigInteger('created_by')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('tenants', function (Blueprint $table) {
-            //
+            $table->dropColumn(['name', 'email', 'plan', 'status', 'created_by']);
         });
     }
 };

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TenantRegistration;
-use Stancl\Tenancy\Database\Models\Domain;
 use App\Models\Tenant;
+use App\Mail\TenantApproved;
+use App\Mail\TenantRejected;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SuperAdminTenantApprovalController extends Controller
 {
