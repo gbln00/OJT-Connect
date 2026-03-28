@@ -10,6 +10,11 @@ class LoginController extends Controller
 {
     public function showLogin()
     {
+       // If we're in a tenant context, use tenant login view
+        if (app(\Stancl\Tenancy\Tenancy::class)->initialized) {
+            return view('auth.tenant-login');
+        }
+
         return view('auth.login');
     }
 
@@ -39,6 +44,7 @@ class LoginController extends Controller
                 'student_intern'     => '/student/dashboard',
                 default              => '/',
             };
+            
 
             return redirect($path);
         }
@@ -46,6 +52,8 @@ class LoginController extends Controller
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput($request->only('email'));
+
+        
     }
 
     public function logout(Request $request)
@@ -53,6 +61,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
-    }
+
+        return redirect()->to('/login');
+        }
 }

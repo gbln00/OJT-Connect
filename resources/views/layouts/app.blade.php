@@ -202,7 +202,7 @@
                         Profile & Settings
                     </a>
                     <div class="dropdown-divider"></div>
-                    <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                    <form method="POST" action="/logout" id="logout-form">
                         @csrf
                     </form>
                     <a href="#" class="dropdown-item danger"
