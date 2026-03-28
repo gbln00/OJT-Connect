@@ -47,31 +47,35 @@
                 Great news — your registration on <strong style="color:#0D0D0D;">{{ config('app.name') }}</strong> has been reviewed and approved. Your tenant workspace is now live and ready to use.
               </p>
 
-              {{-- Workspace URL box --}}
+              {{-- Credentials + Workspace URL box --}}
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 1.75rem;">
                 <tr>
                   <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
-                    <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your workspace URL</p>
-                    <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
-                      Your login credentials:
-                            Email: {{ $registration->email }}
-                            Password: Admin@1234
-
-                            Please change your password after your first login.
-                    </p>
+                    <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.75rem;">Your Login Credentials</p>
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#ABABAB;font-size:13px;padding-bottom:0.4rem;width:80px;">Email</td>
+                        <td style="color:#0D0D0D;font-size:14px;font-weight:600;padding-bottom:0.4rem;">{{ $registration->email }}</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#ABABAB;font-size:13px;padding-bottom:0.75rem;">Password</td>
+                        <td style="color:#0D0D0D;font-size:14px;font-weight:600;padding-bottom:0.75rem;font-family:monospace;">password</td>
+                      </tr>
+                    </table>
+                    <p style="color:#8C0E03;font-size:12px;font-weight:600;margin:0;">⚠ Please change your password immediately after your first login.</p>
                   </td>
                 </tr>
+                <tr><td style="height:0.75rem;"></td></tr>
                 <tr>
                   <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
-                    <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your workspace URL</p>
+                    <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your Workspace URL</p>
                     <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
-                      {{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com') }}
+                      {{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com:8000') }}
                     </p>
                   </td>
                 </tr>
               </table>
-
-              {{-- CTA Button --}}
+                            {{-- CTA Button --}}
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 2rem;">
                 <tr>
                   <td align="center">

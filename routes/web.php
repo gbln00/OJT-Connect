@@ -31,7 +31,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                 ]);
             }
 
-            return view('welcome');
+            return view('central');
         });
 
         // ── Guest-only ────────────────────────────────────────────────────
