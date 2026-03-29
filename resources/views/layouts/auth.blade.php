@@ -511,9 +511,8 @@
         <span class="nav-title">OJT<span class="nav-title-muted">Connect</span></span>
         <div class="nav-badge" style="display:none;" id="nav-badge">
             <div class="nav-badge-dot"></div>
-            BukSU
+             {{ tenant('name') }}
         </div>
-        
         
     </a>
     

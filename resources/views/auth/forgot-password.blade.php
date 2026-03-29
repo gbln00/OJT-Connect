@@ -2,7 +2,7 @@
 @section('title', 'Forgot Password')
 
 @section('content')
-    <a href="{{ route('login') }}" class="link" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:28px;font-size:13px;">
+    <a href="/login" class="link" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:28px;font-size:13px;">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to sign in
     </a>
@@ -20,7 +20,7 @@
         <div class="alert alert-error">{{ $errors->first() }}</div>
     @endif
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="/forgot-password" novalidate>
         @csrf
 
         <div class="form-group">

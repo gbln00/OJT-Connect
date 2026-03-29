@@ -6,18 +6,7 @@
 @endpush
 
 @section('content')
-    {{-- Institution badge --}}
-    @if(tenant('name'))
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding:8px 12px;
-                border:1px solid rgba(140,14,3,0.2);background:rgba(140,14,3,0.05);">
-        <span style="width:6px;height:6px;background:#8C0E03;border-radius:50%;flex-shrink:0;
-                     animation:flicker 8s ease-in-out infinite;"></span>
-        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;
-                     text-transform:uppercase;color:rgba(140,14,3,0.7);">
-            {{ tenant('name') }}
-        </span>
-    </div>
-    @endif
+   
 
     <h2 class="auth-card-title">Welcome back</h2>
     <p class="auth-card-sub">Sign in to your OJTConnect account to continue.</p>
@@ -94,8 +83,8 @@
                 <span class="remember-box"></span>
                 Remember me
             </label>
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="link">Forgot password?</a>
+            @if (Route::has('tenant.password.request'))
+                <a href="{{ route('tenant.password.request') }}" class="link">Forgot password?</a>
             @endif
         </div>
 

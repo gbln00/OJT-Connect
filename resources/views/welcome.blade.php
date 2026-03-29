@@ -182,14 +182,14 @@
         {{-- Tenant name pill --}}
         @if(tenant('name'))
         <span class="hidden md:flex items-center gap-1.5 px-2 py-0.5 border border-[#8C0E03]/20 bg-[#8C0E03]/[0.06]
-                     font-['DM_Mono'] text-[10px] tracking-[0.12em] text-[#8C0E03]/60 uppercase max-w-[180px] truncate">
+                     font-['DM_Mono'] text-[10px] tracking-[0.12em] text-[#8C0E03]/60 uppercase">
             <span class="w-1 h-1 bg-[#8C0E03] inline-block animate-flicker flex-shrink-0"></span>
             {{ tenant('name') }}
         </span>
         @endif
     </a>
 
-    <a href="{{ route('login') }}"
+    <a href="/login"
        class="inline-flex items-center gap-2 px-5 py-2 btn-crimson
               font-['Barlow_Condensed'] font-semibold text-sm tracking-wider uppercase">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -262,7 +262,7 @@
     {{-- CTA --}}
     <div style="animation: fadeUp 0.7s 0.40s cubic-bezier(.22,.61,.36,1) both;"
          class="flex flex-col sm:flex-row items-center gap-3 mb-16">
-        <a href="{{ route('login') }}"
+        <a href="/login"
            class="inline-flex items-center gap-2.5 px-10 py-4 btn-crimson
                   font-['Barlow_Condensed'] font-bold text-[15px] tracking-[0.1em] uppercase group">
             Access the System
@@ -399,7 +399,7 @@
             <p class="text-[#ABABAB]/38 text-[15px] font-light mb-12 max-w-[38ch] mx-auto">
                 Log in to your account to get started. Contact your OJT coordinator if you don't have an account yet.
             </p>
-            <a href="{{ route('login') }}"
+            <a href="/login"
                class="inline-flex items-center gap-2.5 px-10 py-3.5 btn-crimson
                       font-['Barlow_Condensed'] font-bold text-[14px] tracking-[0.12em] uppercase group">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

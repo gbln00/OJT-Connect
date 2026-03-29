@@ -62,7 +62,7 @@ Route::middleware([
     InitializeTenancyByDomain::class,   // 1. Boots tenancy — tenant() is available after this
     PreventAccessFromCentralDomains::class, // 2. Rejects central domain hits
     'tenant.active',                    // 3. Aborts with 503 if tenant status === 'inactive'
-])->name('tenant.')->group(function () {
+])->group(function () {
 
     // ── Root redirect ─────────────────────────────────────────────────
     Route::get('/', function () {
@@ -82,22 +82,19 @@ Route::middleware([
     });
 
     // ── Guest-only routes ─────────────────────────────────────────────
-        Route::middleware('guest')->group(function () {
-            Route::get('/login',                  [LoginController::class, 'showLogin'])->name('tenant.login');
-            Route::post('/login',                 [LoginController::class, 'login']);
-            Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
-            Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
-            Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-            Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::middleware('guest')->group(function () {
+        Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');     
+        Route::post('/login',                 [LoginController::class, 'login']);
+        Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request'); 
+        Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+        Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+        Route::get('/auth/google',            [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+    });
 
-            // Google redirect only —
-            Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
-        });
+    Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])->name('google.tenant.login');
 
-        // ── Google tenant callback —
-        Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])->name('google.tenant.login');
-
-        Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
     // ── Admin ─────────────────────────────────────────────────────────
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

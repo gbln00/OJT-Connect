@@ -9,7 +9,7 @@
         <div class="alert alert-error">{{ $errors->first() }}</div>
     @endif
 
-    <form method="POST" action="{{ route('password.update') }}">
+    <form method="POST" action="/reset-password" novalidate>
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
 
