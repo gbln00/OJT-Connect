@@ -2,17 +2,6 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
-
-@php
-    $pendingCount  = \App\Models\TenantRegistration::where('status','pending')->count();
-    $approvedCount = \App\Models\TenantRegistration::where('status','approved')->count();
-    $rejectedCount = \App\Models\TenantRegistration::where('status','rejected')->count();
-    $basicCount    = \App\Models\TenantRegistration::where('plan','basic')->count();
-    $standardCount = \App\Models\TenantRegistration::where('plan','standard')->count();
-    $premiumCount  = \App\Models\TenantRegistration::where('plan','premium')->count();
-    $totalRegs     = \App\Models\TenantRegistration::count();
-@endphp
-
 @push('styles')
 <style>
     /* ── Greeting ── */
@@ -52,7 +41,6 @@
     }
     .stat-card:hover { border-color: var(--border2); }
 
-    /* Crimson corner accent */
     .stat-card::after {
         content: ''; position: absolute;
         bottom: 0; right: 0;
@@ -74,26 +62,11 @@
         color: rgba(171,171,171,0.35);
         flex-shrink: 0;
     }
-    .stat-icon.crimson {
-        border-color: rgba(140,14,3,0.3);
-        background: rgba(140,14,3,0.08);
-        color: rgba(140,14,3,0.8);
-    }
-    .stat-icon.gold {
-        border-color: rgba(201,168,76,0.25);
-        background: rgba(201,168,76,0.06);
-        color: #c9a84c;
-    }
-    .stat-icon.blue {
-        border-color: rgba(91,143,185,0.25);
-        background: rgba(91,143,185,0.06);
-        color: #5b8fb9;
-    }
-    .stat-icon.green {
-        border-color: rgba(74,222,128,0.2);
-        background: rgba(74,222,128,0.05);
-        color: #4ade80;
-    }
+    .stat-icon.crimson { border-color: rgba(140,14,3,0.3); background: rgba(140,14,3,0.08); color: rgba(140,14,3,0.8); }
+    .stat-icon.gold    { border-color: rgba(201,168,76,0.25); background: rgba(201,168,76,0.06); color: #c9a84c; }
+    .stat-icon.blue    { border-color: rgba(91,143,185,0.25); background: rgba(91,143,185,0.06); color: #5b8fb9; }
+    .stat-icon.green   { border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.05); color: #4ade80; }
+    .stat-icon.red     { border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.06); color: rgba(252,165,165,0.8); }
 
     .stat-tag {
         font-family: 'DM Mono', monospace;
@@ -110,13 +83,24 @@
         letter-spacing: -0.02em;
     }
     .stat-num.crimson-num { color: var(--crimson); }
-    .stat-num.gold-num   { color: #c9a84c; }
+    .stat-num.gold-num    { color: #c9a84c; }
+    .stat-num.green-num   { color: #4ade80; }
+    .stat-num.red-num     { color: rgba(252,165,165,0.85); }
 
     .stat-label {
         font-family: 'Barlow Condensed', sans-serif;
         font-size: 10px; font-weight: 600;
         letter-spacing: 0.18em; text-transform: uppercase;
         color: rgba(171,171,171,0.25);
+    }
+
+    /* ── Active/Inactive mini bar inside stat card ── */
+    .stat-mini-bar {
+        display: flex;
+        height: 2px;
+        margin-top: 10px;
+        gap: 2px;
+        overflow: hidden;
     }
 
     /* ── Plan strip ── */
@@ -166,7 +150,6 @@
         gap: 10px;
     }
 
-    /* ── Right column ── */
     .right-col { display: flex; flex-direction: column; gap: 10px; }
 
     /* ── Quick actions ── */
@@ -202,7 +185,6 @@
         color: rgba(171,171,171,0.35);
     }
 
-    /* Pending badge on QA */
     .qa-badge {
         position: absolute; top: 8px; right: 8px;
         background: var(--crimson);
@@ -241,7 +223,7 @@
     }
     .reg-row-label { color: rgba(171,171,171,0.35); font-weight: 300; }
     .reg-row-val { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; color: rgba(171,171,171,0.7); }
-    .reg-row-val.pending-val { color: #fbbf24; }
+    .reg-row-val.pending-val  { color: #fbbf24; }
     .reg-row-val.approved-val { color: #4ade80; }
     .reg-row-val.rejected-val { color: rgba(140,14,3,0.8); }
 
@@ -283,7 +265,6 @@
         color: rgba(171,171,171,0.5);
     }
 
-    /* ── Responsive ── */
     @media (max-width: 1100px) {
         .stats-grid { grid-template-columns: repeat(2, 1fr); }
         .plan-strip { grid-template-columns: repeat(2, 1fr); }
@@ -310,6 +291,11 @@
 </div>
 
 {{-- ── STAT CARDS ── --}}
+@php
+    $activePercent   = $totalTenants > 0 ? round(($activeTenants   / $totalTenants) * 100) : 0;
+    $inactivePercent = $totalTenants > 0 ? round(($inactiveTenants / $totalTenants) * 100) : 0;
+@endphp
+
 <div class="stats-grid">
 
     {{-- Total Tenants --}}
@@ -324,9 +310,52 @@
         </div>
         <div class="stat-num">{{ $totalTenants }}</div>
         <div class="stat-label">Total Tenants</div>
+        {{-- Active vs Inactive mini bar --}}
+        @if($totalTenants > 0)
+        <div class="stat-mini-bar">
+            @if($activePercent > 0)
+                <div style="width:{{ $activePercent }}%;background:#4ade80;"></div>
+            @endif
+            @if($inactivePercent > 0)
+                <div style="width:{{ $inactivePercent }}%;background:rgba(239,68,68,0.6);"></div>
+            @endif
+        </div>
+        @endif
     </div>
 
-    {{-- Pending --}}
+    {{-- Active Tenants ← was broken before --}}
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon green">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <span class="stat-tag">live</span>
+        </div>
+        <div class="stat-num green-num">{{ $activeTenants }}</div>
+        <div class="stat-label">Active Tenants</div>
+    </div>
+
+    {{-- Inactive Tenants ← new, was missing --}}
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon red">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="8" y1="12" x2="16" y2="12" stroke-linecap="round"/>
+                </svg>
+            </div>
+            {{-- pulse if any tenants are inactive --}}
+            <span class="stat-tag {{ $inactiveTenants > 0 ? 'pulse' : '' }}">
+                {{ $inactiveTenants > 0 ? 'suspended' : 'all clear' }}
+            </span>
+        </div>
+        <div class="stat-num {{ $inactiveTenants > 0 ? 'red-num' : '' }}">{{ $inactiveTenants }}</div>
+        <div class="stat-label">Inactive Tenants</div>
+    </div>
+
+    {{-- Pending Approvals --}}
     <div class="stat-card">
         <div class="stat-top">
             <div class="stat-icon gold">
@@ -338,35 +367,6 @@
         </div>
         <div class="stat-num gold-num">{{ $pendingCount }}</div>
         <div class="stat-label">Pending Approvals</div>
-    </div>
-
-    {{-- Active domains --}}
-    <div class="stat-card">
-        <div class="stat-top">
-            <div class="stat-icon blue">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-            </div>
-            <span class="stat-tag">live</span>
-        </div>
-        <div class="stat-num">{{ $recentTenants->count() }}</div>
-        <div class="stat-label">Active Domains</div>
-    </div>
-
-    {{-- Approved --}}
-    <div class="stat-card">
-        <div class="stat-top">
-            <div class="stat-icon green">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <span class="stat-tag">approved</span>
-        </div>
-        <div class="stat-num">{{ $approvedCount }}</div>
-        <div class="stat-label">Approved Registrations</div>
     </div>
 
 </div>
@@ -431,13 +431,26 @@
                     <tr>
                         <th>Tenant</th>
                         <th>Domain</th>
+                        <th>Plan</th>
                         <th>Status</th>
                         <th>Registered</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($recentTenants as $tenant)
+                    @php
+                        $tStatus   = $tenant->status ?? 'active';
+                        $tActive   = $tStatus === 'active';
+                        $tPlan     = $tenant->plan ?? null;
+                        $planColor = match($tPlan) {
+                            'basic'    => 'rgba(100,170,240,0.75)',
+                            'standard' => 'rgba(200,100,90,0.85)',
+                            'premium'  => 'rgba(210,170,70,0.85)',
+                            default    => 'rgba(171,171,171,0.2)',
+                        };
+                    @endphp
                     <tr>
+                        {{-- Tenant ID --}}
                         <td>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <div class="tenant-avatar">{{ strtoupper(substr($tenant->id, 0, 2)) }}</div>
@@ -449,27 +462,60 @@
                                 </div>
                             </div>
                         </td>
+
+                        {{-- Domain --}}
                         <td>
-                            @foreach($tenant->domains as $domain)
+                            @forelse($tenant->domains as $domain)
                                 <span class="domain-pill">
-                                    <span style="width:5px;height:5px;border-radius:50%;background:#4ade80;flex-shrink:0;"></span>
+                                    <span style="width:5px;height:5px;border-radius:50%;
+                                                 background:{{ $tActive ? '#4ade80' : '#ef4444' }};
+                                                 flex-shrink:0;
+                                                 {{ $tActive ? 'box-shadow:0 0 4px rgba(74,222,128,0.5);' : '' }}">
+                                    </span>
                                     {{ $domain->domain }}
                                 </span>
-                            @endforeach
+                            @empty
+                                <span style="font-size:11px;color:rgba(171,171,171,0.2);font-family:monospace;">—</span>
+                            @endforelse
                         </td>
+
+                        {{-- Plan --}}
                         <td>
-                            <span class="badge badge-active">
-                                <span class="badge-dot" style="background:#4ade80;"></span>
-                                Active
+                            @if($tPlan)
+                                <span style="font-family:'DM Mono',monospace;font-size:10px;
+                                             letter-spacing:0.1em;text-transform:uppercase;
+                                             color:{{ $planColor }};">
+                                    {{ ucfirst($tPlan) }}
+                                </span>
+                            @else
+                                <span style="font-size:11px;color:rgba(171,171,171,0.18);font-family:monospace;">—</span>
+                            @endif
+                        </td>
+
+                        {{-- Status — now reflects real value ── --}}
+                        <td>
+                            <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+                                         border:1px solid {{ $tActive ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }};
+                                         background:{{ $tActive ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)' }};
+                                         font-family:'DM Mono',monospace;font-size:9px;
+                                         letter-spacing:0.12em;text-transform:uppercase;
+                                         color:{{ $tActive ? 'rgba(74,222,128,0.8)' : 'rgba(252,165,165,0.7)' }};">
+                                <span style="width:5px;height:5px;border-radius:50%;flex-shrink:0;
+                                             background:{{ $tActive ? '#22c55e' : '#ef4444' }};
+                                             {{ $tActive ? 'box-shadow:0 0 5px rgba(34,197,94,0.55);' : '' }}">
+                                </span>
+                                {{ $tActive ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
+
+                        {{-- Date --}}
                         <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(171,171,171,0.3);">
                             {{ $tenant->created_at->format('M d, Y') }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" style="padding:40px;text-align:center;">
+                        <td colspan="5" style="padding:40px;text-align:center;">
                             <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(171,171,171,0.2);">No tenants yet</div>
                             <a href="{{ route('super_admin.tenants.create') }}" style="display:inline-block;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(140,14,3,0.7);text-decoration:none;">Create first tenant →</a>
                         </td>
@@ -532,7 +578,7 @@
             </div>
         </div>
 
-        {{-- REGISTRATION STATUS ── --}}
+        {{-- REGISTRATION STATUS --}}
         <div class="sa-card">
             <div class="card-header">
                 <div class="card-title">Registration Status</div>
@@ -591,7 +637,7 @@
                 </a>
             </div>
 
-            @forelse(\App\Models\TenantRegistration::latest()->take(5)->get() as $reg)
+            @forelse($recentRegistrations as $reg)
             <div class="feed-item">
                 <div class="feed-dot" style="background:{{ $reg->status === 'approved' ? '#4ade80' : ($reg->status === 'rejected' ? 'var(--crimson)' : '#fbbf24') }};"></div>
                 <div class="feed-body">
