@@ -71,17 +71,17 @@ class SuperAdminTenantManagementController extends Controller
             SuperAdminNotification::notify(
                 type:    'tenant',
                 title:   'New Tenant Created',
-                message: "Tenant \"{$tenant->id}\" was manually created by super admin.",
+                message: "Tenant \"{$data['id']}\" was manually created by super admin.",
                 icon:    'plus',
-                link:    route('super_admin.tenants.show', $tenant),
+                link:    route('super_admin.tenants.show', $data['id']),
             );
-
         });
 
         return redirect()
             ->route('super_admin.tenants.index')
             ->with('success', "Tenant \"{$tenant->id}\" created successfully.");
     }
+
     /**
      * Show a single tenant's details.
      */
@@ -103,8 +103,10 @@ class SuperAdminTenantManagementController extends Controller
     }
 
     /**
-     * Update a tenant's domain.
-     * (Tenant ID is immutable — only the domain can be changed.)
+     * Update a tenant's domain, status, and plan.
+     *
+     * Domain is OPTIONAL — the quick-toggle on the index page does not
+     * send a domain field, so we must not require it here.
      */
     public function update(Request $request, Tenant $tenant)
     {
@@ -113,17 +115,20 @@ class SuperAdminTenantManagementController extends Controller
         $currentDomain = $tenant->domains->first()?->domain;
 
         $data = $request->validate([
+            // nullable so the inline status toggle (which omits domain) passes validation
             'domain' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
                 Rule::unique('domains', 'domain')->ignore($currentDomain, 'domain'),
             ],
             'status' => ['required', Rule::in(['active', 'inactive'])],
-            'plan'   => ['nullable', 'string', Rule::in(['basic', 'pro', 'premium'])],
+            'plan'   => ['nullable', 'string', Rule::in(['basic', 'standard', 'premium'])],
         ]);
 
-        // Update or create the primary domain
+        // ── Capture old status BEFORE updating so the comparison is accurate ──
+        $oldStatus = $tenant->status ?? 'active';
+
         // Only update domain if one was actually submitted
         if (!empty($data['domain'])) {
             if ($tenant->domains->first()) {
@@ -132,14 +137,14 @@ class SuperAdminTenantManagementController extends Controller
                 $tenant->domains()->create(['domain' => $data['domain']]);
             }
         }
+
         // Update tenant meta columns
         $tenant->update([
             'status' => $data['status'],
             'plan'   => $data['plan'] ?? null,
         ]);
 
-        // 🔔 Notification if status changed
-        $oldStatus = $tenant->getOriginal('status');
+        // 🔔 Notification — only fires when status actually changed
         $newStatus = $data['status'];
 
         if ($oldStatus !== $newStatus) {
@@ -150,6 +155,15 @@ class SuperAdminTenantManagementController extends Controller
                 icon:    'toggle',
                 link:    route('super_admin.tenants.show', $tenant),
             );
+        }
+
+        // Redirect back to wherever the request came from (index toggle or edit form)
+        $redirectTo = $request->input('redirect_to', 'index');
+
+        if ($redirectTo === 'edit') {
+            return redirect()
+                ->route('super_admin.tenants.edit', $tenant)
+                ->with('success', "Tenant \"{$tenant->id}\" updated successfully.");
         }
 
         return redirect()

@@ -21,11 +21,21 @@
 
 @php
     $planColors = [
-        'basic'   => ['border'=>'rgba(80,150,220,0.35)',  'bg'=>'rgba(80,150,220,0.08)',  'color'=>'rgba(100,170,240,0.8)'],
-        'standard'     => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)'],
-        'premium' => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)'],
+        'basic'    => ['border'=>'rgba(80,150,220,0.35)',  'bg'=>'rgba(80,150,220,0.08)',  'color'=>'rgba(100,170,240,0.8)'],
+        'standard' => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)'],
+        'premium'  => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)'],
     ];
 @endphp
+
+{{-- ── Flash message ── --}}
+@if(session('success'))
+<div style="margin-bottom:8px;padding:12px 18px;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);
+            font-size:12px;color:rgba(74,222,128,0.85);font-family:monospace;display:flex;align-items:center;gap:10px;">
+    <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;
+                 box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
+    {{ session('success') }}
+</div>
+@endif
 
 {{-- ── Stat Strip ── --}}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(171,171,171,0.06);margin-bottom:1px;">
@@ -110,9 +120,9 @@
                 <tbody>
                     @foreach($tenants as $tenant)
                     @php
-                        $plan   = $tenant->plan   ?? null;
-                        $status = $tenant->status ?? 'active';
-                        $pc     = $planColors[$plan] ?? ['border'=>'rgba(171,171,171,0.12)','bg'=>'transparent','color'=>'rgba(171,171,171,0.25)'];
+                        $plan     = $tenant->plan   ?? null;
+                        $status   = $tenant->status ?? 'active';
+                        $pc       = $planColors[$plan] ?? ['border'=>'rgba(171,171,171,0.12)','bg'=>'transparent','color'=>'rgba(171,171,171,0.25)'];
                         $isActive = $status === 'active';
                     @endphp
                     <tr style="border-bottom:1px solid rgba(171,171,171,0.05);transition:background 0.15s;"
@@ -195,6 +205,8 @@
                         {{-- Actions --}}
                         <td style="padding:15px 0;vertical-align:middle;">
                             <div style="display:flex;gap:5px;align-items:center;">
+
+                                {{-- View --}}
                                 <a href="{{ route('super_admin.tenants.show', $tenant) }}"
                                    title="View"
                                    style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
@@ -207,6 +219,8 @@
                                         <circle cx="12" cy="12" r="3"/>
                                     </svg>
                                 </a>
+
+                                {{-- Edit --}}
                                 <a href="{{ route('super_admin.tenants.edit', $tenant) }}"
                                    title="Edit"
                                    style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
@@ -221,29 +235,38 @@
                                 </a>
 
                                 {{-- Quick-toggle status --}}
-                                <form method="POST" action="{{ route('super_admin.tenants.update', $tenant) }}" style="margin:0;">
-                                    @csrf @method('PUT')
-                                    <input type="hidden" name="status" value="{{ $isActive ? 'inactive' : 'active' }}">
-                                    <input type="hidden" name="plan"   value="{{ $tenant->plan ?? '' }}">
-                                    {{-- domain is nullable in update() now, omit it entirely so no validation error --}}
+                                {{--
+                                    Only sends: status (toggled), plan (preserved), redirect_to=index.
+                                    Domain is intentionally omitted — the controller accepts nullable domain.
+                                --}}
+                                <form method="POST"
+                                      action="{{ route('super_admin.tenants.update', $tenant) }}"
+                                      style="margin:0;">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status"      value="{{ $isActive ? 'inactive' : 'active' }}">
+                                    <input type="hidden" name="plan"        value="{{ $tenant->plan ?? '' }}">
+                                    <input type="hidden" name="redirect_to" value="index">
                                     <button type="submit"
-                                            title="{{ $isActive ? 'Deactivate' : 'Activate' }}"
+                                            title="{{ $isActive ? 'Deactivate tenant' : 'Activate tenant' }}"
                                             style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-                                                border:1px solid {{ $isActive ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)' }};
-                                                background:transparent;
-                                                color:{{ $isActive ? 'rgba(252,165,165,0.5)' : 'rgba(74,222,128,0.5)' }};
-                                                cursor:pointer;transition:border-color 0.2s,color 0.2s,background 0.2s;"
+                                                   border:1px solid {{ $isActive ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)' }};
+                                                   background:transparent;
+                                                   color:{{ $isActive ? 'rgba(252,165,165,0.5)' : 'rgba(74,222,128,0.5)' }};
+                                                   cursor:pointer;transition:border-color 0.2s,color 0.2s,background 0.2s;"
                                             onmouseover="this.style.borderColor='{{ $isActive ? 'rgba(239,68,68,0.5)' : 'rgba(34,197,94,0.5)' }}';
-                                                        this.style.color='{{ $isActive ? 'rgba(252,165,165,0.9)' : 'rgba(74,222,128,0.9)' }}';
-                                                        this.style.background='{{ $isActive ? 'rgba(239,68,68,0.06)' : 'rgba(34,197,94,0.06)' }}'"
+                                                         this.style.color='{{ $isActive ? 'rgba(252,165,165,0.9)' : 'rgba(74,222,128,0.9)' }}';
+                                                         this.style.background='{{ $isActive ? 'rgba(239,68,68,0.06)' : 'rgba(34,197,94,0.06)' }}'"
                                             onmouseout="this.style.borderColor='{{ $isActive ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)' }}';
                                                         this.style.color='{{ $isActive ? 'rgba(252,165,165,0.5)' : 'rgba(74,222,128,0.5)' }}';
                                                         this.style.background='transparent'">
                                         @if($isActive)
+                                            {{-- Pause icon = deactivate --}}
                                             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                                 <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
                                             </svg>
                                         @else
+                                            {{-- Play icon = activate --}}
                                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
                                                 <polygon points="5,3 19,12 5,21"/>
                                             </svg>
@@ -251,6 +274,7 @@
                                     </button>
                                 </form>
 
+                                {{-- Delete --}}
                                 <button onclick="openDeleteModal('{{ $tenant->id }}', '{{ route('super_admin.tenants.destroy', $tenant) }}')"
                                         title="Delete"
                                         style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
@@ -266,6 +290,7 @@
                                         <path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
                                     </svg>
                                 </button>
+
                             </div>
                         </td>
                     </tr>
@@ -290,8 +315,9 @@
     The <span style="color:rgba(171,171,171,0.5);">⏸ / ▶</span> buttons toggle a tenant's active status inline without leaving the page.
 </div>
 
-{{-- Delete Modal --}}
-<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(13,13,13,0.88);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(2px);">
+{{-- ── Delete Modal ── --}}
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(13,13,13,0.88);z-index:999;
+                              align-items:center;justify-content:center;backdrop-filter:blur(2px);">
     <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.1);border-top:2px solid #8C0E03;
                 width:100%;max-width:440px;margin:0 20px;padding:28px;
                 animation:fadeUp 0.25s cubic-bezier(.22,.61,.36,1) both;">

@@ -56,8 +56,9 @@ use App\Http\Controllers\Supervisor\SupervisorSettingsController;
 
 Route::middleware([
     'web',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
+    InitializeTenancyByDomain::class,   // 1. Boots tenancy — tenant() is available after this
+    PreventAccessFromCentralDomains::class, // 2. Rejects central domain hits
+    'tenant.active',                    // 3. Aborts with 503 if tenant status === 'inactive'
 ])->group(function () {
 
     // ── Root redirect ─────────────────────────────────────────────────
@@ -76,7 +77,7 @@ Route::middleware([
 
         return view('welcome');
     });
-    
+
     // ── Guest-only routes ─────────────────────────────────────────────
     Route::middleware('guest')->group(function () {
         Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
@@ -161,11 +162,6 @@ Route::middleware([
         Route::get('/applications/{application}',          [CoordinatorApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
-
-        // Hour logs
-        // Route::get('/hours',                    [CoordinatorHourLogController::class, 'index'])->name('hours.index');
-        // Route::post('/hours/{hourLog}/approve', [CoordinatorHourLogController::class, 'approve'])->name('hours.approve');
-        // Route::post('/hours/{hourLog}/reject',  [CoordinatorHourLogController::class, 'reject'])->name('hours.reject');
 
         // Weekly reports
         Route::get('/reports',                   [CoordinatorReportController::class, 'index'])->name('reports.index');

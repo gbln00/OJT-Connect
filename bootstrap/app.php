@@ -16,14 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             // Role-based access control middleware
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'role'               => \App\Http\Middleware\RoleMiddleware::class,
 
             // Register SuperAdmin middleware for central domain access control
-            'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+            'super_admin'        => \App\Http\Middleware\SuperAdminMiddleware::class,
+
+            // Block access to tenant sites when the tenant is set to inactive
+            'tenant.active'      => \App\Http\Middleware\CheckTenantActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
-
-    

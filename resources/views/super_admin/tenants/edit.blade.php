@@ -34,15 +34,19 @@ $focusOff    = "this.style.borderColor='rgba(171,171,171,0.12)';this.style.boxSh
 $currentDomain = $tenant->domains->first()?->domain;
 $currentStatus = $tenant->status ?? 'active';
 $currentPlan   = $tenant->plan ?? '';
-
-$planColors = [
-    'basic'   => 'rgba(80,150,220,0.8)',
-    'standard'     => 'rgba(200,100,90,0.9)',
-    'premium' => 'rgba(210,170,70,0.9)',
-];
 @endphp
 
 <div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
+
+    {{-- ── Flash ── --}}
+    @if(session('success'))
+    <div style="padding:12px 18px;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);
+                font-size:12px;color:rgba(74,222,128,0.85);font-family:monospace;display:flex;align-items:center;gap:10px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;
+                     box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
+        {{ session('success') }}
+    </div>
+    @endif
 
     {{-- ── Main Edit Card ── --}}
     <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:28px;">
@@ -59,7 +63,10 @@ $planColors = [
         </div>
 
         <form method="POST" action="{{ route('super_admin.tenants.update', $tenant) }}">
-            @csrf @method('PUT')
+            @csrf
+            @method('PUT')
+            {{-- Tells the controller to redirect back to the edit page after saving --}}
+            <input type="hidden" name="redirect_to" value="edit">
 
             {{-- Tenant ID (read-only) --}}
             <div style="margin-bottom:20px;">
@@ -125,7 +132,7 @@ $planColors = [
                     @error('status')
                         <div style="{{ $errorStyle }}">{{ $message }}</div>
                     @enderror
-                    {{-- Live badge --}}
+                    {{-- Live status badge --}}
                     <div id="status-badge"
                          style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;
                                 font-size:10px;font-family:monospace;letter-spacing:0.1em;min-height:18px;">
@@ -237,10 +244,10 @@ $planColors = [
     const planBadge  = document.getElementById('plan-badge');
 
     const planConfigs = {
-        '':        { text: '',          color: '' },
-        basic:     { text: 'Basic plan selected',   color: 'rgba(100,170,240,0.7)' },
+        '':        { text: '',                      color: '' },
+        basic:     { text: 'Basic plan selected',   color: 'rgba(100,170,240,0.7)'  },
         standard:  { text: 'Standard plan selected', color: 'rgba(200,100,90,0.8)'  },
-        premium:   { text: 'Premium plan selected', color: 'rgba(210,170,70,0.8)'  },
+        premium:   { text: 'Premium plan selected', color: 'rgba(210,170,70,0.8)'   },
     };
 
     function updatePlan(val) {
