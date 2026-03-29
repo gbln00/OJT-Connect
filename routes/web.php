@@ -45,15 +45,15 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
 
             // ── PUBLIC: Self-service registration form ──
-            Route::get('/register/company',       [TenantRegisterController::class, 'showForm'])->name('tenant.register');
-            Route::post('/register/company',      [TenantRegisterController::class, 'submit'])->name('tenant.register.submit');
-        
-            // Google OAuth — central
-            Route::get('/auth/google',              [GoogleAuthController::class, 'redirect'])->name('google.redirect');
-            Route::get('/auth/google/callback',     [GoogleAuthController::class, 'callback'])->name('google.callback');
+            Route::get('/register/company',  [TenantRegisterController::class, 'showForm'])->name('tenant.register');
+            Route::post('/register/company', [TenantRegisterController::class, 'submit'])->name('tenant.register.submit');
+
+            // Google redirect only — 
+            Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         });
 
-        Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+        // ── Google callback  ──────────────────────
+        Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
         // ── Super Admin ───────────────────────────────────────────────────
         Route::middleware(['auth', 'role:super_admin'])

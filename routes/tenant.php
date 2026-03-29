@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 
+
 // Admin controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
@@ -81,21 +82,22 @@ Route::middleware([
     });
 
     // ── Guest-only routes ─────────────────────────────────────────────
-    Route::middleware('guest')->group(function () {
-        Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
-        Route::post('/login',                 [LoginController::class, 'login']);
-        Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
-        Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
-        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-        Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+        Route::middleware('guest')->group(function () {
+            Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
+            Route::post('/login',                 [LoginController::class, 'login']);
+            Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
+            Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+            Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+            Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
 
-        // Google OAuth — tenant
-        Route::get('/auth/google',              [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+            // Google redirect only —
+            Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+        });
+
+        // ── Google tenant callback —
         Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])->name('google.tenant.login');
-    
-    });
 
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+        Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
     // ── Admin ─────────────────────────────────────────────────────────
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
