@@ -42,7 +42,7 @@ $planColors = [
 ];
 @endphp
 
-<div style="max-width:560px;display:flex;flex-direction:column;gap:12px;">
+<div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
 
     {{-- ── Main Edit Card ── --}}
     <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:28px;">

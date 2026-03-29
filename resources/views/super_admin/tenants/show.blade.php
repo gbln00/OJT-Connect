@@ -43,7 +43,7 @@
     $pc = $planColors[$tenant->plan] ?? null;
 @endphp
 
-<div style="max-width:640px;display:flex;flex-direction:column;gap:1px;">
+<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:1px;">
 
     {{-- ── Tenant Details Card ── --}}
     <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:24px;">

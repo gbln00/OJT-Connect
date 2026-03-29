@@ -785,7 +785,7 @@
                             id="subdomain"
                             name="subdomain"
                             value="{{ old('subdomain') }}"
-                            placeholder="yourname"
+                            placeholder="yourdomain"
                             class="{{ $errors->has('subdomain') ? 'error' : '' }}"
                             autocomplete="off"
                             spellcheck="false"
@@ -793,7 +793,7 @@
                         />
                     </div>
                     <span class="subdomain-hint">
-                        Your URL will be: <strong id="subdomain-preview">yourname</strong>.ojtconnect.edu.ph
+                        Your URL will be: <strong id="subdomain-preview">yourdomain</strong>.ojtconnect.edu.ph
                     </span>
                     @error('subdomain')
                     <span class="field-error">{{ $message }}</span>
@@ -957,7 +957,7 @@
     // Live subdomain preview
     function updateSubdomainHint(val) {
         const preview = document.getElementById('subdomain-preview');
-        preview.textContent = val.trim() || 'yourname';
+        preview.textContent = val.trim() || 'yourdomain';
     }
 
     // Pre-populate on load
