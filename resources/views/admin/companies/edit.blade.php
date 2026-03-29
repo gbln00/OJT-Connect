@@ -3,115 +3,139 @@
 @section('page-title', 'Edit Company')
 
 @section('content')
-<div style="max-width:600px;margin:0 auto;">
+<div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
 
-    <a href="{{ route('admin.companies.index') }}"
-       style="display:inline-flex;align-items:center;gap:6px;color:var(--muted2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.15s;"
-       onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        Back to companies
-    </a>
+    {{-- Eyebrow --}}
+    <div class="fade-up" style="display:flex;align-items:center;gap:8px;">
+        <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+            Companies / Edit
+        </span>
+    </div>
 
-    <div class="card fade-up">
+    <div class="card fade-up fade-up-1">
+
         <div class="card-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:36px;height:36px;border-radius:8px;background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.2);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--gold);">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:40px;height:40px;flex-shrink:0;border:1px solid rgba(140,14,3,0.35);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:900;color:var(--crimson);">
                     {{ strtoupper(substr($company->name, 0, 2)) }}
                 </div>
                 <div>
                     <div class="card-title">{{ $company->name }}</div>
-                    <div style="font-size:12px;color:var(--muted);margin-top:1px;">Edit company details</div>
+                    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">
+                        // Editing company profile and contact details
+                    </div>
                 </div>
             </div>
+            <a href="{{ route('admin.companies.index') }}" class="btn btn-ghost btn-sm">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back
+            </a>
         </div>
 
-        <div style="padding:24px;">
+        <form method="POST" action="{{ route('admin.companies.update', $company) }}" style="padding:24px;">
+            @csrf @method('PUT')
 
             @if($errors->any())
-                <div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.3);color:var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;">
-                    <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:6px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        Please fix the following errors:
-                    </div>
-                    @foreach($errors->all() as $error)<div style="margin-top:2px;">· {{ $error }}</div>@endforeach
-                </div>
+            <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.3);color:var(--crimson);padding:13px 16px;margin-bottom:24px;">
+                <strong style="display:block;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;font-size:11px;">
+                    Please fix the following:
+                </strong>
+                @foreach($errors->all() as $error)
+                    <div style="margin-top:3px;font-size:12.5px;">· {{ $error }}</div>
+                @endforeach
+            </div>
             @endif
 
-            <form method="POST" action="{{ route('admin.companies.update', $company) }}">
-                @csrf @method('PUT')
+            <div class="form-section-divider"><span>Company Information</span></div>
 
-                {{-- Company Info Section --}}
-                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
-                    Company information
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Company name <span style="color:var(--crimson);">✦</span></label>
+                <input type="text" name="name" value="{{ old('name', $company->name) }}"
+                       required
+                       class="form-input {{ $errors->has('name') ? 'is-invalid' : '' }}">
+                @error('name')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+                <div>
+                    <label class="form-label">Industry</label>
+                    <input type="text" name="industry" value="{{ old('industry', $company->industry) }}"
+                           class="form-input {{ $errors->has('industry') ? 'is-invalid' : '' }}">
+                    @error('industry')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
-
-                <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                        Company name <span style="color:var(--coral);">*</span>
-                    </label>
-                    <input type="text" name="name" value="{{ old('name', $company->name) }}"
-                           required
-                           style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='{{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }}'">
-                    @error('name')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                <div>
+                    <label class="form-label">Address</label>
+                    <input type="text" name="address" value="{{ old('address', $company->address) }}"
+                           class="form-input {{ $errors->has('address') ? 'is-invalid' : '' }}">
+                    @error('address')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
+            </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Industry</label>
-                        <input type="text" name="industry" value="{{ old('industry', $company->industry) }}"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                        @error('industry')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Address</label>
-                        <input type="text" name="address" value="{{ old('address', $company->address) }}"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                        @error('address')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
-                    </div>
+            <div class="form-section-divider"><span>Contact Details</span></div>
+
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Contact person</label>
+                <input type="text" name="contact_person" value="{{ old('contact_person', $company->contact_person) }}"
+                       class="form-input {{ $errors->has('contact_person') ? 'is-invalid' : '' }}">
+                @error('contact_person')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+                <div>
+                    <label class="form-label">Contact email</label>
+                    <input type="email" name="contact_email" value="{{ old('contact_email', $company->contact_email) }}"
+                           class="form-input {{ $errors->has('contact_email') ? 'is-invalid' : '' }}">
+                    @error('contact_email')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
-
-                {{-- Contact Section --}}
-                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;margin-top:24px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
-                    Contact details
+                <div>
+                    <label class="form-label">Contact phone</label>
+                    <input type="text" name="contact_phone" value="{{ old('contact_phone', $company->contact_phone) }}"
+                           class="form-input {{ $errors->has('contact_phone') ? 'is-invalid' : '' }}">
+                    @error('contact_phone')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
+            </div>
 
-                <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact person</label>
-                    <input type="text" name="contact_person" value="{{ old('contact_person', $company->contact_person) }}"
-                           style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                    @error('contact_person')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact email</label>
-                        <input type="email" name="contact_email" value="{{ old('contact_email', $company->contact_email) }}"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                        @error('contact_email')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact phone</label>
-                        <input type="text" name="contact_phone" value="{{ old('contact_phone', $company->contact_phone) }}"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                        @error('contact_phone')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border);">
-                    <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:4px;">
+                <p class="form-hint">Fields marked <span style="color:var(--crimson);">✦</span> are required.</p>
+                <div style="display:flex;gap:8px;">
                     <a href="{{ route('admin.companies.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
                 </div>
+            </div>
 
-                
-
-            </form>
-        </div>
+        </form>
     </div>
+
 </div>
+
+@push('styles')
+<style>
+.form-section-divider {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+}
+.form-section-divider::before { content: ''; width: 20px; height: 2px; background: var(--crimson); flex-shrink: 0; }
+.form-section-divider::after  { content: ''; flex: 1; height: 1px; background: var(--border); }
+.form-section-divider span {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+}
+.form-input {
+    width: 100%; padding: 10px 14px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text); font-size: 13px; font-family: 'Barlow', sans-serif;
+    outline: none; transition: border-color 0.15s;
+    box-sizing: border-box; border-radius: 0;
+}
+.form-input:focus { border-color: var(--crimson); }
+.form-input.is-invalid { border-color: var(--crimson); }
+.form-label {
+    display: block; font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+}
+.form-hint  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+.form-error { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--crimson); margin-top: 4px; letter-spacing: 0.04em; }
+</style>
+@endpush
 @endsection
