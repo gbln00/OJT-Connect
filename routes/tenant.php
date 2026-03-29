@@ -31,6 +31,7 @@ use App\Http\Controllers\Coordinator\CoordinatorHourLogController;
 use App\Http\Controllers\Coordinator\CoordinatorReportController;
 use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
 
+
 // Student controllers
 use App\Http\Controllers\Student\StudentApplicationController;
 use App\Http\Controllers\Student\StudentController;
@@ -178,6 +179,8 @@ Route::middleware([
         Route::get('/evaluations',                        [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluations/{evaluation}',           [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
         Route::post('/evaluations/{evaluation}/complete', [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
+
+        Route::get('/hours', [CoordinatorHourLogController::class, 'index'])->name('hours.index');
     });
 
     // ── Supervisor ────────────────────────────────────────────────────

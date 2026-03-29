@@ -3,66 +3,84 @@
 @section('page-title', 'Applications')
 @section('content')
 
-{{-- Stat tabs --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
-    @foreach([
-        ['label'=>'Total',    'key'=>'total',    'color'=>'var(--muted2)',  'bg'=>'var(--surface2)'],
-        ['label'=>'Pending',  'key'=>'pending',  'color'=>'var(--gold)',   'bg'=>'var(--gold-dim)'],
-        ['label'=>'Approved', 'key'=>'approved', 'color'=>'var(--teal)',   'bg'=>'var(--teal-dim)'],
-        ['label'=>'Rejected', 'key'=>'rejected', 'color'=>'var(--coral)',  'bg'=>'var(--coral-dim)'],
-    ] as $s)
-    <a href="{{ route('coordinator.applications.index', ['status' => $s['key'] === 'total' ? '' : $s['key']]) }}"
-       style="padding:16px 18px;border-radius:10px;border:1px solid var(--border2);background:var(--surface);
-              text-decoration:none;display:block;
-              {{ request('status') === $s['key'] || ($s['key']==='total' && !request('status')) ? 'border-color:'.$s['color'].';background:'.$s['bg'].';' : '' }}">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:6px;">
-            {{ strtoupper($s['label']) }}
+{{-- STAT STRIP --}}
+<div class="stats-grid fade-up" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon steel">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                </svg>
+            </div>
+            <span class="stat-tag">all</span>
         </div>
-        <div style="font-size:26px;font-weight:800;color:{{ $s['color'] }};line-height:1;">
-            {{ $counts[$s['key']] }}
+        <div class="stat-num">{{ $counts['total'] }}</div>
+        <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon gold">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
+            </div>
+            <span class="stat-tag">pending</span>
         </div>
-    </a>
-    @endforeach
+        <div class="stat-num">{{ $counts['pending'] }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon teal">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+            </div>
+            <span class="stat-tag">approved</span>
+        </div>
+        <div class="stat-num">{{ $counts['approved'] }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon coral">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </div>
+            <span class="stat-tag">rejected</span>
+        </div>
+        <div class="stat-num">{{ $counts['rejected'] }}</div>
+        <div class="stat-label">Rejected</div>
+    </div>
 </div>
 
-{{-- Search + filter bar --}}
-<div class="card" style="padding:16px;margin-bottom:16px;">
-    <form method="GET" action="{{ route('coordinator.applications.index') }}"
-          style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-
+{{-- TOOLBAR --}}
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;" class="fade-up fade-up-1">
+    <form method="GET" action="{{ route('coordinator.applications.index') }}" style="display:flex;gap:8px;flex:1;min-width:0;flex-wrap:wrap;">
         <input type="text" name="search" value="{{ request('search') }}"
                placeholder="Search student name…"
-               style="flex:1;min-width:200px;padding:8px 12px;border-radius:8px;border:1px solid var(--border2);
-                      background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+               class="form-input" style="flex:1;min-width:160px;">
 
-        <select name="status"
-                style="padding:8px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);
-                       color:var(--text);font-size:13px;outline:none;font-family:inherit;cursor:pointer;">
+        <select name="status" class="form-input" style="width:auto;">
             <option value="">All statuses</option>
             <option value="pending"  {{ request('status')==='pending'  ? 'selected' : '' }}>Pending</option>
             <option value="approved" {{ request('status')==='approved' ? 'selected' : '' }}>Approved</option>
             <option value="rejected" {{ request('status')==='rejected' ? 'selected' : '' }}>Rejected</option>
         </select>
 
-        <button type="submit"
-                style="padding:8px 18px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;
-                       font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
-            Filter
-        </button>
+        <button type="submit" class="btn btn-ghost btn-sm">Filter</button>
 
-        @if(request('search') || request('status'))
-        <a href="{{ route('coordinator.applications.index') }}"
-           style="padding:8px 14px;border:1px solid var(--border2);border-radius:8px;font-size:13px;
-                  color:var(--muted);text-decoration:none;">
-            Clear
-        </a>
+        @if(request()->hasAny(['search','status']))
+            <a href="{{ route('coordinator.applications.index') }}" class="btn btn-ghost btn-sm">Clear</a>
         @endif
     </form>
 </div>
 
-{{-- Table --}}
-<div class="card">
+{{-- TABLE --}}
+<div class="card fade-up fade-up-2">
     <div class="table-wrap">
         <table>
             <thead>
@@ -77,134 +95,45 @@
             </thead>
             <tbody>
             @forelse($applications as $app)
+            @php
+                $statusClass = $app->status === 'approved' ? 'teal' : ($app->status === 'rejected' ? 'coral' : 'gold');
+            @endphp
             <tr>
-                {{-- Student --}}
                 <td>
-                    <div style="font-weight:600;font-size:13px;color:var(--text);">
-                        {{ $app->student->name ?? '—' }}
-                    </div>
-                    <div style="font-size:11.5px;color:var(--muted);">
-                        {{ $app->student->email ?? '' }}
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:28px;height:28px;flex-shrink:0;border:1px solid rgba(140,14,3,0.3);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--crimson);">
+                            {{ strtoupper(substr($app->student->name ?? 'S', 0, 2)) }}
+                        </div>
+                        <div>
+                            <div style="font-weight:500;color:var(--text);">{{ $app->student->name ?? '—' }}</div>
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $app->student->email ?? '' }}</div>
+                        </div>
                     </div>
                 </td>
-
-                {{-- Company --}}
                 <td>
-                    <div style="font-size:13px;color:var(--text);">
-                        {{ $app->company->name ?? $app->company_name ?? '—' }}
-                    </div>
-                    <div style="font-size:11.5px;color:var(--muted);">
-                        {{ $app->company->address ?? '' }}
-                    </div>
+                    <div style="font-size:13px;color:var(--text);">{{ $app->company->name ?? $app->company_name ?? '—' }}</div>
+                    @if($app->company?->address)
+                    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $app->company->address }}</div>
+                    @endif
                 </td>
-
-                {{-- Hours --}}
-                <td style="font-size:13px;color:var(--text);font-weight:600;">
+                <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--blue);">
                     {{ $app->required_hours ?? '—' }} hrs
                 </td>
-
-                {{-- Date --}}
-                <td style="font-size:12px;color:var(--muted);white-space:nowrap;">
+                <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;">
                     {{ $app->created_at->format('M d, Y') }}
                 </td>
-
-                {{-- Status badge --}}
                 <td>
-                    <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
-                        background:var(--{{ $app->status === 'approved' ? 'teal' : ($app->status === 'rejected' ? 'coral' : 'gold') }}-dim);
-                        color:var(--{{ $app->status === 'approved' ? 'teal' : ($app->status === 'rejected' ? 'coral' : 'gold') }});">
-                        {{ ucfirst($app->status) }}
-                    </span>
+                    <span class="status-dot {{ $app->status }}">{{ ucfirst($app->status) }}</span>
                 </td>
-
-                {{-- Actions --}}
                 <td>
-                    <a href="{{ route('coordinator.applications.show', $app->id) }}"
-                           style="font-size:12px;color:var(--teal);text-decoration:none;border:1px solid var(--teal);
-                                  padding:4px 12px;border-radius:6px;font-weight:600;white-space:nowrap;">
-                            Review
-                        </a>
+                    <a href="{{ route('coordinator.applications.show', $app->id) }}" class="btn btn-ghost btn-sm">Review</a>
                 </td>
             </tr>
-
-            <!-- {{-- Approve modal --}}
-            @if($app->status === 'pending')
-            <tr id="approve-{{ $app->id }}" style="display:none;">
-                <td colspan="6" style="padding:0;border:none;">
-                    <div style="background:var(--teal-dim);border:1px solid rgba(45,212,191,0.25);border-radius:8px;
-                                padding:16px 20px;margin:4px 0;">
-                        <div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px;">
-                            ✓ Approve — {{ $app->student->name }}
-                        </div>
-                        <form method="POST" action="{{ route('coordinator.applications.approve', $app->id) }}"
-                              style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-                            @csrf
-                            <div style="flex:1;min-width:240px;">
-                                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;">
-                                    REMARKS <span style="font-weight:400;">(optional)</span>
-                                </label>
-                                <input type="text" name="remarks" placeholder="Add a note…"
-                                       style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border2);
-                                              background:var(--surface);color:var(--text);font-size:13px;outline:none;
-                                              font-family:inherit;box-sizing:border-box;">
-                            </div>
-                            <button type="submit"
-                                    style="padding:8px 20px;background:var(--teal);color:var(--bg);border:none;
-                                           border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
-                                Confirm Approve
-                            </button>
-                            <button type="button" onclick="closeModal('approve-{{ $app->id }}')"
-                                    style="padding:8px 14px;background:none;border:1px solid var(--border2);color:var(--muted);
-                                           border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">
-                                Cancel
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-
-            {{-- Reject modal --}}
-            <tr id="reject-{{ $app->id }}" style="display:none;">
-                <td colspan="6" style="padding:0;border:none;">
-                    <div style="background:var(--coral-dim);border:1px solid rgba(248,113,113,0.25);border-radius:8px;
-                                padding:16px 20px;margin:4px 0;">
-                        <div style="font-size:13px;font-weight:600;color:var(--coral);margin-bottom:10px;">
-                            ✕ Reject — {{ $app->student->name }}
-                        </div>
-                        <form method="POST" action="{{ route('coordinator.applications.reject', $app->id) }}"
-                              style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-                            @csrf
-                            <div style="flex:1;min-width:240px;">
-                                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;">
-                                    REASON FOR REJECTION <span style="color:var(--coral);">*</span>
-                                </label>
-                                <input type="text" name="remarks" placeholder="State the reason…" required
-                                       style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(248,113,113,0.4);
-                                              background:var(--surface);color:var(--text);font-size:13px;outline:none;
-                                              font-family:inherit;box-sizing:border-box;">
-                            </div>
-                            <button type="submit"
-                                    style="padding:8px 20px;background:var(--coral);color:var(--bg);border:none;
-                                           border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
-                                Confirm Reject
-                            </button>
-                            <button type="button" onclick="closeModal('reject-{{ $app->id }}')"
-                                    style="padding:8px 14px;background:none;border:1px solid var(--border2);color:var(--muted);
-                                           border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">
-                                Cancel
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            @endif -->
-
             @empty
             <tr>
-                <td colspan="6" style="text-align:center;padding:50px;color:var(--muted);">
-                    <div style="font-size:28px;margin-bottom:10px;">📋</div>
-                    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">No applications found</div>
-                    <div style="font-size:12px;">Try adjusting your filters.</div>
+                <td colspan="6" style="text-align:center;padding:48px;color:var(--muted);">
+                    No applications found.
+                    <span style="font-family:'DM Mono',monospace;font-size:11px;">Try adjusting your filters.</span>
                 </td>
             </tr>
             @endforelse
@@ -212,24 +141,23 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
-    <div style="padding:16px 20px;border-top:1px solid var(--border2);">
-        {{ $applications->links() }}
+    @if($applications->hasPages())
+    <div class="pagination">
+        <span class="pagination-info">Showing {{ $applications->firstItem() }}–{{ $applications->lastItem() }} of {{ $applications->total() }}</span>
+        <div style="display:flex;gap:4px;">
+            @if($applications->onFirstPage())
+                <span class="page-link disabled">← Prev</span>
+            @else
+                <a href="{{ $applications->previousPageUrl() }}" class="page-link">← Prev</a>
+            @endif
+            @if($applications->hasMorePages())
+                <a href="{{ $applications->nextPageUrl() }}" class="page-link">Next →</a>
+            @else
+                <span class="page-link disabled">Next →</span>
+            @endif
+        </div>
     </div>
+    @endif
 </div>
-
-<script>
-    function openModal(id) {
-        // Close any other open modals first
-        document.querySelectorAll('tr[id^="approve-"], tr[id^="reject-"]').forEach(el => {
-            el.style.display = 'none';
-        });
-        document.getElementById(id).style.display = 'table-row';
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-    }
-</script>
 
 @endsection
