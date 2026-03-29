@@ -6,25 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
 {
     /**
-     * Redirect to Google. 
-     * We encode whether this is a tenant context in the `state` param
-     * so the central callback knows where to redirect back.
+     * Redirect to Google.
+     * Store tenant context in session before leaving.
      */
     public function redirect(Request $request)
     {
-        // Store the current host so the callback can redirect correctly
+        $isTenant = app(\Stancl\Tenancy\Tenancy::class)->initialized;
+
         $state = base64_encode(json_encode([
+            'is_tenant' => $isTenant,
             'host'      => $request->getHost(),
             'port'      => $request->getPort(),
-            'is_tenant' => app(\Stancl\Tenancy\Tenancy::class)->initialized,
+            'csrf'      => \Str::random(40), // our own CSRF token
         ]));
 
+        \Log::info('Google redirect', [
+            'is_tenant' => $isTenant,
+            'host'      => $request->getHost(),
+        ]);
+
         return Socialite::driver('google')
+            ->stateless()           // ← disables Socialite's own state/session check
             ->with(['state' => $state])
             ->redirect();
     }
@@ -35,29 +43,35 @@ class GoogleAuthController extends Controller
     public function callback(Request $request)
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
+            \Log::error('Google OAuth callback error: ' . $e->getMessage());
+
             return redirect('/login')->withErrors([
-                'email' => 'Google authentication failed. Please try again.',
+                'email' => 'Google authentication failed: ' . $e->getMessage(),
             ]);
         }
 
-        // Decode where this request came from
-        $state = json_decode(base64_decode($request->get('state', '')), true);
+        // Read our custom state
+        $state    = json_decode(base64_decode($request->get('state', '')), true);
         $isTenant = $state['is_tenant'] ?? false;
-        $host = $state['host'] ?? null;
-        $port = $state['port'] ?? null;
+        $host     = $state['host'] ?? null;
+        $port     = $state['port'] ?? null;
 
-        // Find or create the user in the correct DB context
+        \Log::info('Google callback', [
+            'is_tenant' => $isTenant,
+            'host'      => $host,
+            'email'     => $googleUser->getEmail(),
+        ]);
+
         if ($isTenant && $host) {
             return $this->handleTenantCallback($googleUser, $host, $port);
         }
 
         return $this->handleCentralCallback($googleUser);
     }
-
     /**
-     * Central domain: only super_admin accounts allowed via Google.
+     * Central domain: only super_admin allowed via Google.
      */
     private function handleCentralCallback($googleUser)
     {
@@ -77,7 +91,6 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Link Google account if not already linked
         if (!$user->google_id) {
             $user->update([
                 'google_id' => $googleUser->getId(),
@@ -90,12 +103,10 @@ class GoogleAuthController extends Controller
     }
 
     /**
-     * Tenant domain: redirect back to tenant domain to complete login there.
-     * We use a signed short-lived token to pass identity securely.
+     * Tenant domain: forward identity securely to tenant domain.
      */
     private function handleTenantCallback($googleUser, string $host, ?int $port)
     {
-        // Build a signed payload the tenant callback will verify
         $payload = encrypt([
             'google_id' => $googleUser->getId(),
             'email'     => $googleUser->getEmail(),
@@ -104,19 +115,24 @@ class GoogleAuthController extends Controller
             'expires'   => now()->addMinutes(2)->timestamp,
         ]);
 
-        $tenantUrl = 'http://' . $host . ($port && $port != 80 ? ":$port" : '') . '/auth/google/tenant-login';
+        $tenantUrl = 'http://' . $host
+            . ($port && $port != 80 ? ":$port" : '')
+            . '/auth/google/tenant-login';
+
+        \Log::info('Forwarding to tenant', ['url' => $tenantUrl]);
 
         return redirect($tenantUrl . '?' . http_build_query(['token' => $payload]));
     }
 
     /**
-     * Called on the tenant domain — validates the encrypted token and logs in.
+     * Called on the tenant domain — validates token and logs in.
      */
     public function tenantLogin(Request $request)
     {
         try {
             $data = decrypt($request->get('token'));
         } catch (\Exception $e) {
+            \Log::error('Tenant login decrypt error: ' . $e->getMessage());
             return redirect('/login')->withErrors([
                 'email' => 'Google login failed. Please try again.',
             ]);
@@ -128,9 +144,16 @@ class GoogleAuthController extends Controller
             ]);
         }
 
+        // ↓ Replace the old lookup with this debug version
         $user = User::where('google_id', $data['google_id'])
                     ->orWhere('email', $data['email'])
                     ->first();
+
+        \Log::info('Tenant login lookup', [
+            'google_id'  => $data['google_id'],
+            'email'      => $data['email'],
+            'user_found' => $user ? $user->email : 'NOT FOUND',
+        ]);
 
         if (!$user) {
             return redirect('/login')->withErrors([
@@ -144,7 +167,6 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Link Google account if not already linked
         if (!$user->google_id) {
             $user->update([
                 'google_id' => $data['google_id'],
