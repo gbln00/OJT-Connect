@@ -34,7 +34,22 @@
             --text:       rgba(255,255,255,0.88);
             --text2:      rgba(171,171,171,0.65);
             --muted:      rgba(171,171,171,0.35);
+            --muted2:     rgba(171,171,171,0.55);
             --sidebar-w:  248px;
+
+            /* Extended palette — used across pages */
+            --teal-color:   #2dd4bf;
+            --teal-dim:     rgba(45,212,191,0.08);
+            --teal-border:  rgba(45,212,191,0.2);
+            --coral-color:  #f87171;
+            --coral-dim:    rgba(248,113,113,0.08);
+            --coral-border: rgba(248,113,113,0.2);
+            --blue-color:   #60a5fa;
+            --blue-dim:     rgba(96,165,250,0.08);
+            --blue-border:  rgba(96,165,250,0.2);
+            --gold-color:   #c9a84c;
+            --gold-dim:     rgba(201,168,76,0.1);
+            --gold-border:  rgba(201,168,76,0.25);
         }
 
         [data-theme="light"] {
@@ -47,6 +62,21 @@
             --text:       #0D0D0D;
             --text2:      #333740;
             --muted:      #8a8e99;
+            --muted2:     #6b7280;
+
+            /* Extended palette — light overrides */
+            --teal-color:   #0f9e8e;
+            --teal-dim:     rgba(15,158,142,0.07);
+            --teal-border:  rgba(15,158,142,0.2);
+            --coral-color:  #e05252;
+            --coral-dim:    rgba(224,82,82,0.07);
+            --coral-border: rgba(224,82,82,0.2);
+            --blue-color:   #1d4ed8;
+            --blue-dim:     rgba(29,78,216,0.07);
+            --blue-border:  rgba(29,78,216,0.2);
+            --gold-color:   #9a6f00;
+            --gold-dim:     rgba(154,111,0,0.08);
+            --gold-border:  rgba(154,111,0,0.2);
         }
 
         /* ═══════════════════════════════════════════════
@@ -346,10 +376,18 @@
             border: 1px solid;
             display: flex; align-items: center; justify-content: center;
         }
-        .stat-icon.crimson { border-color: rgba(140,14,3,0.35); background: rgba(140,14,3,0.08); color: var(--crimson); }
-        .stat-icon.steel   { border-color: rgba(171,171,171,0.2); background: rgba(171,171,171,0.06); color: var(--ash); }
-        .stat-icon.night   { border-color: rgba(14,17,38,0.5); background: rgba(14,17,38,0.2); color: #60A5FA; }
-        .stat-icon.gold    { border-color: rgba(171,171,171,0.2); background: rgba(171,171,171,0.06); color: #c9a84c; }
+        /* Stat icon color variants */
+        .stat-icon.crimson { border-color: rgba(140,14,3,0.35);    background: rgba(140,14,3,0.08);    color: var(--crimson); }
+        .stat-icon.steel   { border-color: rgba(171,171,171,0.2);  background: rgba(171,171,171,0.06); color: var(--ash); }
+        .stat-icon.night   { border-color: rgba(14,17,38,0.5);     background: rgba(14,17,38,0.2);     color: #60A5FA; }
+        .stat-icon.gold    { border-color: var(--gold-border);     background: var(--gold-dim);         color: var(--gold-color); }
+        .stat-icon.teal    { border-color: var(--teal-border);     background: var(--teal-dim);         color: var(--teal-color); }
+        .stat-icon.blue    { border-color: var(--blue-border);     background: var(--blue-dim);         color: var(--blue-color); }
+        .stat-icon.coral   { border-color: var(--coral-border);    background: var(--coral-dim);        color: var(--coral-color); }
+
+        [data-theme="light"] .stat-icon.crimson { border-color: rgba(140,14,3,0.25); }
+        [data-theme="light"] .stat-icon.steel   { color: #333740; }
+        [data-theme="light"] .stat-icon.night   { color: var(--blue-color); border-color: var(--blue-border); background: var(--blue-dim); }
 
         .stat-tag {
             font-family: 'DM Mono', monospace;
@@ -421,15 +459,14 @@
             font-size: 11px; font-weight: 600;
             letter-spacing: 0.07em; text-transform: uppercase;
         }
-        .status-pill.gold    { background: rgba(201,168,76,0.1);  color: #c9a84c; border:1px solid rgba(201,168,76,0.25); }
+        .status-pill.gold    { background: var(--gold-dim);   color: var(--gold-color); border:1px solid var(--gold-border); }
         .status-pill.green   { background: rgba(52,211,153,0.08); color: #34d399; border:1px solid rgba(52,211,153,0.2); }
         .status-pill.crimson { background: rgba(140,14,3,0.1);    color: #c0392b; border:1px solid rgba(140,14,3,0.2); }
-        .status-pill.blue    { background: rgba(96,165,250,0.08); color: #60a5fa; border:1px solid rgba(96,165,250,0.2); }
+        .status-pill.blue    { background: var(--blue-dim);   color: var(--blue-color); border:1px solid var(--blue-border); }
         .status-pill.steel   { background: rgba(171,171,171,0.07);color: var(--ash); border:1px solid var(--border2); }
 
         [data-theme="light"] .status-pill.green   { color: #0f9660; background: rgba(16,155,96,0.08); border-color: rgba(16,155,96,0.2); }
         [data-theme="light"] .status-pill.crimson { color: #8C0E03; }
-        [data-theme="light"] .status-pill.gold    { color: #9a6f00; background: rgba(154,111,0,0.1); border-color: rgba(154,111,0,0.2); }
 
         /* ═══════════════════════════════════════════════
            BUTTONS
@@ -665,12 +702,10 @@
         <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
             <div class="brand-icon"><span>O</span></div>
             <div class="brand-text">OJT<em>Connect</em></div>
-           
         </a>
-        
 
         <nav class="sidebar-nav">
-             {{-- Tenant name pill --}}
+            {{-- Tenant name pill --}}
             @if(tenant('name'))
             <span class="hidden md:flex items-center gap-1.5 px-2 py-0.5 border border-[#8C0E03]/20 bg-[#8C0E03]/[0.06]
                         font-['DM_Mono'] text-[10px] tracking-[0.12em] text-[#8C0E03]/60 uppercase">
@@ -680,7 +715,6 @@
             @endif
 
             <div class="nav-section-label">Main</div>
-            
 
             <a href="{{ route('admin.dashboard') }}"
                class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
