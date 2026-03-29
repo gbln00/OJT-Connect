@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- GREETING --}}
-<div class="greeting">
+<div class="greeting fade-up">
     <div class="greeting-sub">{{ now()->format('l, F j, Y') }}</div>
     <div class="greeting-title">
         Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }},
@@ -14,59 +14,59 @@
 </div>
 
 {{-- STAT CARDS --}}
-<div class="stats-grid">
+<div class="stats-grid fade-up fade-up-1" style="grid-template-columns:repeat(4,1fr);">
 
-    <div class="stat-card">
+    <div class="stat-card fade-up fade-up-1">
         <div class="stat-top">
-            <div class="stat-icon gold">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="stat-icon crimson">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                     <circle cx="9" cy="7" r="4"/>
                     <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                 </svg>
             </div>
-            <span class="stat-trend up">all roles</span>
+            <span class="stat-tag">all roles</span>
         </div>
         <div class="stat-num">{{ $totalUsers }}</div>
         <div class="stat-label">Total users</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card fade-up fade-up-2">
         <div class="stat-top">
-            <div class="stat-icon coral">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="stat-icon steel">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                     <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
             </div>
-            <span class="stat-trend neutral">interns</span>
+            <span class="stat-tag">interns</span>
         </div>
         <div class="stat-num">{{ $totalStudents }}</div>
         <div class="stat-label">Student interns</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card fade-up fade-up-3">
         <div class="stat-top">
-            <div class="stat-icon teal">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="stat-icon gold">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                     <polyline points="14,2 14,8 20,8"/>
                 </svg>
             </div>
-            <span class="stat-trend neutral">pending</span>
+            <span class="stat-tag">pending</span>
         </div>
         <div class="stat-num">{{ $pendingApplications }}</div>
         <div class="stat-label">Pending applications</div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card fade-up fade-up-4">
         <div class="stat-top">
-            <div class="stat-icon blue">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="stat-icon night">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                 </svg>
             </div>
-            <span class="stat-trend up">partners</span>
+            <span class="stat-tag">partners</span>
         </div>
         <div class="stat-num">{{ $totalCompanies }}</div>
         <div class="stat-label">Partner companies</div>
@@ -74,38 +74,31 @@
 
 </div>
 
-{{-- ROLE BREAKDOWN STRIP --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;">
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:12px;color:var(--muted);">Admins</div>
-        <span class="role-badge admin">{{ $roleBreakdown['admin'] }}</span>
+{{-- ROLE BREAKDOWN --}}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;" class="fade-up fade-up-2">
+    @php
+    $roles = [
+        ['label'=>'Admins',       'val'=>$roleBreakdown['admin'],       'cls'=>'admin'],
+        ['label'=>'Coordinators', 'val'=>$roleBreakdown['coordinator'], 'cls'=>'coordinator'],
+        ['label'=>'Supervisors',  'val'=>$roleBreakdown['supervisor'],  'cls'=>'supervisor'],
+        ['label'=>'Students',     'val'=>$roleBreakdown['student'],     'cls'=>'student'],
+    ];
+    @endphp
+    @foreach($roles as $r)
+    <div style="background:var(--surface);border:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">{{ $r['label'] }}</span>
+        <span class="role-badge {{ $r['cls'] }}">{{ $r['val'] }}</span>
     </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:12px;color:var(--muted);">Coordinators</div>
-        <span class="role-badge coordinator">{{ $roleBreakdown['coordinator'] }}</span>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:12px;color:var(--muted);">Supervisors</div>
-        <span class="role-badge supervisor">{{ $roleBreakdown['supervisor'] }}</span>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:12px;color:var(--muted);">Students</div>
-        <span class="role-badge student">{{ $roleBreakdown['student'] }}</span>
-    </div>
-
+    @endforeach
 </div>
 
 {{-- BOTTOM GRID --}}
-<div class="bottom-grid">
+<div style="display:grid;grid-template-columns:1fr 320px;gap:16px;" class="fade-up fade-up-3">
 
     {{-- RECENT USERS TABLE --}}
     <div class="card">
         <div class="card-header">
-            <div class="card-title">Recent user accounts</div>
+            <div class="card-title">Recent accounts</div>
             <a href="{{ route('admin.users.index') }}" class="card-action">View all →</a>
         </div>
         <div class="table-wrap">
@@ -123,38 +116,33 @@
                     @forelse($recentUsers as $user)
                     <tr>
                         <td>
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <div style="width:28px;height:28px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(240,180,41,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--gold);flex-shrink:0;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:28px;height:28px;flex-shrink:0;border:1px solid rgba(140,14,3,0.3);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--crimson);">
                                     {{ strtoupper(substr($user->name, 0, 2)) }}
                                 </div>
-                                {{ $user->name }}
+                                <span style="color:var(--text);font-weight:500;">{{ $user->name }}</span>
                             </div>
                         </td>
                         <td>
                             @php
-                                $roleMap = [
-                                    'admin'              => ['label' => 'Admin',       'class' => 'admin'],
-                                    'ojt_coordinator'    => ['label' => 'Coordinator', 'class' => 'coordinator'],
-                                    'company_supervisor' => ['label' => 'Supervisor',  'class' => 'supervisor'],
-                                    'student_intern'     => ['label' => 'Student',     'class' => 'student'],
-                                ];
-                                $r = $roleMap[$user->role] ?? ['label' => $user->role, 'class' => 'student'];
+                            $rc = ['admin'=>'admin','ojt_coordinator'=>'coordinator','company_supervisor'=>'supervisor','student_intern'=>'student'];
+                            $rl = ['admin'=>'Admin','ojt_coordinator'=>'Coordinator','company_supervisor'=>'Supervisor','student_intern'=>'Student'];
                             @endphp
-                            <span class="role-badge {{ $r['class'] }}">{{ $r['label'] }}</span>
+                            <span class="role-badge {{ $rc[$user->role] ?? 'student' }}">{{ $rl[$user->role] ?? $user->role }}</span>
                         </td>
-                        <td>{{ $user->email }}</td>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;">{{ $user->email }}</td>
                         <td>
                             <span class="status-dot {{ $user->is_active ? 'active' : 'inactive' }}">
                                 {{ $user->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td>{{ $user->created_at->format('M d, Y') }}</td>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $user->created_at->format('M d, Y') }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" style="text-align:center;padding:32px;color:var(--muted);">
+                        <td colspan="5" style="text-align:center;padding:36px;color:var(--muted);">
                             No users yet.
-                            <a href="{{ route('admin.users.create') }}" style="color:var(--gold);text-decoration:none;">Create one →</a>
+                            <a href="{{ route('admin.users.create') }}" style="color:var(--crimson);text-decoration:none;font-weight:500;">Create one →</a>
                         </td>
                     </tr>
                     @endforelse
@@ -164,7 +152,7 @@
     </div>
 
     {{-- RIGHT COLUMN --}}
-    <div style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
 
         {{-- QUICK ACTIONS --}}
         <div class="card">
@@ -172,10 +160,9 @@
                 <div class="card-title">Quick actions</div>
             </div>
             <div class="quick-actions">
-
                 <a href="{{ route('admin.users.create') }}" class="qa-btn">
-                    <div class="qa-icon" style="background:var(--gold-dim);color:var(--gold);">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
                             <circle cx="9" cy="7" r="4"/>
                             <line x1="19" y1="8" x2="19" y2="14"/>
@@ -184,10 +171,9 @@
                     </div>
                     <span class="qa-label">Add user</span>
                 </a>
-
                 <a href="{{ route('admin.users.index') }}" class="qa-btn">
-                    <div class="qa-icon" style="background:var(--teal-dim);color:var(--teal);">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                             <circle cx="9" cy="7" r="4"/>
                             <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
@@ -195,29 +181,24 @@
                     </div>
                     <span class="qa-label">All users</span>
                 </a>
-
                 <a href="{{ route('admin.companies.create') }}" class="qa-btn">
-                    <div class="qa-icon" style="background:var(--blue-dim);color:var(--blue);">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                             <polyline points="9,22 9,12 15,12 15,22"/>
                         </svg>
                     </div>
                     <span class="qa-label">Add company</span>
                 </a>
-
-                <a href="{{ route('admin.companies.index') }}" class="qa-btn">
-                    <div class="qa-icon" style="background:var(--coral-dim);color:var(--coral);">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="2" y="7" width="20" height="14" rx="2"/>
-                            <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
-                            <line x1="12" y1="12" x2="12" y2="16"/>
-                            <line x1="10" y1="14" x2="14" y2="14"/>
+                <a href="{{ route('admin.applications.index') }}" class="qa-btn">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
                         </svg>
                     </div>
-                    <span class="qa-label">All companies</span>
+                    <span class="qa-label">Applications</span>
                 </a>
-
             </div>
         </div>
 
@@ -225,33 +206,27 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title">System status</div>
+                <span style="width:7px;height:7px;background:#34d399;display:inline-block;" class="flicker"></span>
             </div>
             <div style="padding:4px 0;">
-
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--border);">
-                    <span style="font-size:12.5px;color:var(--muted2);">Active users</span>
-                    <span style="font-size:12.5px;font-weight:500;color:var(--teal);">{{ $activeUsers }}</span>
+                @php
+                $statusRows = [
+                    ['Active users',             $activeUsers,           '#34d399'],
+                    ['Inactive users',            $inactiveUsers,         'var(--muted)'],
+                    ['Active companies',          $activeCompanies,       '#60a5fa'],
+                    ['Pending applications',      $pendingApplications,   'var(--crimson)'],
+                ];
+                @endphp
+                @foreach($statusRows as [$lbl, $val, $clr])
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--border);">
+                    <span style="font-size:12.5px;color:var(--text2);">{{ $lbl }}</span>
+                    <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:{{ $clr }};">{{ $val }}</span>
                 </div>
-
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--border);">
-                    <span style="font-size:12.5px;color:var(--muted2);">Inactive users</span>
-                    <span style="font-size:12.5px;font-weight:500;color:var(--coral);">{{ $inactiveUsers }}</span>
-                </div>
-
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--border);">
-                    <span style="font-size:12.5px;color:var(--muted2);">Active companies</span>
-                    <span style="font-size:12.5px;font-weight:500;color:var(--blue);">{{ $activeCompanies }}</span>
-                </div>
-
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;">
-                    <span style="font-size:12.5px;color:var(--muted2);">Pending OJT applications</span>
-                    <span style="font-size:12.5px;font-weight:500;color:var(--gold);">{{ $pendingApplications }}</span>
-                </div>
-
+                @endforeach
             </div>
         </div>
 
-        {{-- ACTIVITY FEED --}}
+        {{-- RECENT ACTIVITY --}}
         <div class="card">
             <div class="card-header">
                 <div class="card-title">Recent activity</div>
@@ -259,35 +234,25 @@
             <div class="activity-list">
                 @forelse($recentActivity as $activity)
                 <div class="activity-item">
-                    <div class="activity-dot-wrap">
-                        <div class="activity-dot {{ $activity['color'] ?? 'gold' }}"></div>
-                    </div>
-                    <div class="activity-body">
+                    <div class="activity-dot {{ $activity['color'] ?? 'steel' }}" style="margin-top:5px;"></div>
+                    <div>
                         <div class="activity-text">{!! $activity['text'] !!}</div>
                         <div class="activity-time">{{ $activity['time'] }}</div>
                     </div>
                 </div>
                 @empty
                 <div class="activity-item">
-                    <div class="activity-dot-wrap"><div class="activity-dot gold"></div></div>
-                    <div class="activity-body">
+                    <div class="activity-dot crimson" style="margin-top:5px;"></div>
+                    <div>
                         <div class="activity-text">System initialized successfully.</div>
                         <div class="activity-time">Just now</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-dot-wrap"><div class="activity-dot teal"></div></div>
-                    <div class="activity-body">
-                        <div class="activity-text"><strong>Admin</strong> account created.</div>
-                        <div class="activity-time">Today</div>
                     </div>
                 </div>
                 @endforelse
             </div>
         </div>
 
-    </div>{{-- end right column --}}
-
-</div>{{-- end bottom grid --}}
+    </div>
+</div>
 
 @endsection

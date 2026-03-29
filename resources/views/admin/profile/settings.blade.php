@@ -4,212 +4,116 @@
 
 @section('content')
 
-{{-- Flash messages --}}
-@if(session('success'))
-    <div style="background:var(--teal-dim);border:1px solid var(--teal);color:var(--teal);padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;">
-        {{ session('success') }}
-    </div>
-@endif
-@if(session('error'))
-    <div style="background:var(--coral-dim);border:1px solid var(--coral);color:var(--coral);padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;">
-        {{ session('error') }}
-    </div>
-@endif
-
 {{-- PROFILE HEADER --}}
-<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;">
-    <div style="width:64px;height:64px;border-radius:50%;background:var(--gold-dim);border:2px solid rgba(240,180,41,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--gold);flex-shrink:0;">
+<div style="background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden;" class="fade-up">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--crimson);"></div>
+    <div style="width:56px;height:56px;flex-shrink:0;border:1px solid rgba(140,14,3,0.45);background:rgba(140,14,3,0.08);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--crimson);">
         {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
     </div>
     <div>
-        <div style="font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">{{ auth()->user()->name }}</div>
-        <div style="font-size:12.5px;color:var(--muted);margin-top:3px;">{{ auth()->user()->email }}</div>
-        <div style="margin-top:6px;">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);">{{ auth()->user()->name }}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:0.05em;">{{ auth()->user()->email }}</div>
+        <div style="margin-top:8px;">
             @php
-                $roleMap = [
-                    'admin'              => ['label' => 'Admin',       'class' => 'admin'],
-                    'ojt_coordinator'    => ['label' => 'Coordinator', 'class' => 'coordinator'],
-                    'company_supervisor' => ['label' => 'Supervisor',  'class' => 'supervisor'],
-                    'student_intern'     => ['label' => 'Student',     'class' => 'student'],
-                ];
-                $r = $roleMap[auth()->user()->role] ?? ['label' => auth()->user()->role, 'class' => 'student'];
+            $roleMap = ['admin'=>'admin','ojt_coordinator'=>'coordinator','company_supervisor'=>'supervisor','student_intern'=>'student'];
+            $roleLabel = ['admin'=>'Admin','ojt_coordinator'=>'Coordinator','company_supervisor'=>'Supervisor','student_intern'=>'Student'];
+            $r = $roleMap[auth()->user()->role] ?? 'student';
             @endphp
-            <span class="role-badge {{ $r['class'] }}">{{ $r['label'] }}</span>
+            <span class="role-badge {{ $r }}">{{ $roleLabel[auth()->user()->role] ?? auth()->user()->role }}</span>
         </div>
     </div>
     <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:11px;color:var(--muted);">Member since</div>
-        <div style="font-size:13px;color:var(--muted2);margin-top:2px;">{{ auth()->user()->created_at->format('M d, Y') }}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);">Member since</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--text);margin-top:4px;">{{ auth()->user()->created_at->format('M d, Y') }}</div>
     </div>
 </div>
 
-{{-- TWO COLUMN LAYOUT --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+{{-- TWO COLUMN --}}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;" class="fade-up fade-up-1">
 
-    {{-- LEFT: UPDATE PROFILE INFO --}}
+    {{-- PROFILE INFO --}}
     <div class="card">
         <div class="card-header">
-            <div class="card-title">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:7px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;color:var(--gold);">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </div>
-                    Profile information
-                </div>
-            </div>
+            <div class="card-title">Profile information</div>
         </div>
-
         <form method="POST" action="{{ route('admin.settings.update.profile') }}" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
-            @csrf
-            @method('PATCH')
+            @csrf @method('PATCH')
 
-            {{-- Name --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Full name
-                </label>
-                <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
-                       required
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                       onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                @error('name')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
+                <label class="form-label">Full name</label>
+                <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" required class="form-input">
+                @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            {{-- Email --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Email address
-                </label>
-                <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
-                       required
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                       onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                @error('email')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
+                <label class="form-label">Email address</label>
+                <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="form-input">
+                @error('email')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            {{-- Role (read-only) --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Role <span style="color:var(--muted);font-weight:400;">(cannot be changed here)</span>
-                </label>
-                <input type="text" value="{{ $r['label'] }}" disabled
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:13px;cursor:not-allowed;font-family:inherit;">
+                <label class="form-label">Role <span style="text-transform:none;letter-spacing:0;font-size:10px;color:var(--muted);">(read-only)</span></label>
+                <input type="text" value="{{ $roleLabel[auth()->user()->role] ?? auth()->user()->role }}" disabled
+                       class="form-input" style="opacity:0.45;cursor:not-allowed;">
             </div>
 
             <div style="padding-top:4px;">
-                <button type="submit"
-                        style="padding:9px 22px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;"
-                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Save changes
-                </button>
+                <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
             </div>
         </form>
     </div>
 
-    {{-- RIGHT: CHANGE PASSWORD --}}
+    {{-- CHANGE PASSWORD --}}
     <div class="card">
         <div class="card-header">
-            <div class="card-title">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:7px;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;color:var(--teal);">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </div>
-                    Change password
-                </div>
-            </div>
+            <div class="card-title">Change password</div>
         </div>
-
         <form method="POST" action="{{ route('admin.settings.update.password') }}" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
-            @csrf
-            @method('PATCH')
+            @csrf @method('PATCH')
 
-            {{-- Current password --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Current password
-                </label>
+                <label class="form-label">Current password</label>
                 <div style="position:relative;">
-                    <input type="password" name="current_password" id="current_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                    <button type="button" onclick="togglePw('current_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+                    <input type="password" name="current_password" id="pw-cur" required class="form-input" style="padding-right:38px;">
+                    <button type="button" onclick="togglePw('pw-cur',this)"
+                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                @error('current_password')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
+                @error('current_password')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            {{-- New password --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    New password
-                </label>
+                <label class="form-label">New password</label>
                 <div style="position:relative;">
-                    <input type="password" name="password" id="new_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'"
-                           oninput="checkStrength(this.value)">
-                    <button type="button" onclick="togglePw('new_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+                    <input type="password" name="password" id="pw-new" required class="form-input" style="padding-right:38px;" oninput="checkStrength(this.value)">
+                    <button type="button" onclick="togglePw('pw-new',this)"
+                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                {{-- Strength bar --}}
-                <div style="margin-top:8px;">
-                    <div style="height:3px;border-radius:4px;background:var(--border);overflow:hidden;">
-                        <div id="strength-bar" style="height:100%;width:0%;border-radius:4px;transition:width 0.3s,background 0.3s;"></div>
+                <div style="margin-top:6px;">
+                    <div style="height:2px;background:var(--border2);overflow:hidden;">
+                        <div id="strength-bar" style="height:100%;width:0%;transition:width 0.3s,background 0.3s;"></div>
                     </div>
-                    <div id="strength-label" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+                    <div id="strength-label" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:0.05em;"></div>
                 </div>
-                @error('password')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
+                @error('password')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            {{-- Confirm password --}}
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Confirm new password
-                </label>
+                <label class="form-label">Confirm new password</label>
                 <div style="position:relative;">
-                    <input type="password" name="password_confirmation" id="confirm_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                    <button type="button" onclick="togglePw('confirm_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+                    <input type="password" name="password_confirmation" id="pw-con" required class="form-input" style="padding-right:38px;">
+                    <button type="button" onclick="togglePw('pw-con',this)"
+                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
             </div>
 
             <div style="padding-top:4px;">
-                <button type="submit"
-                        style="padding:9px 22px;background:var(--teal);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;"
-                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Update password
-                </button>
+                <button type="submit" class="btn btn-primary btn-sm">Update password</button>
             </div>
         </form>
     </div>
@@ -217,19 +121,11 @@
 </div>
 
 {{-- DANGER ZONE --}}
-<div class="card" style="margin-top:16px;border-color:rgba(248,113,113,0.2);">
-    <div class="card-header" style="border-bottom-color:rgba(248,113,113,0.15);">
-        <div class="card-title">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:28px;height:28px;border-radius:7px;background:var(--coral-dim);display:flex;align-items:center;justify-content:center;color:var(--coral);">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </div>
-                <span style="color:var(--coral);">Danger zone</span>
-            </div>
+<div class="card danger-zone fade-up fade-up-2" style="margin-top:16px;">
+    <div class="card-header">
+        <div class="card-title" style="color:var(--crimson);display:flex;align-items:center;gap:8px;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Danger zone
         </div>
     </div>
     <div style="padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -239,48 +135,37 @@
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit"
-                    style="padding:9px 18px;background:none;border:1px solid var(--coral);color:var(--coral);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.15s;"
-                    onmouseover="this.style.background='var(--coral-dim)'" onmouseout="this.style.background='none'">
-                Log out
-            </button>
+            <button type="submit" class="btn btn-danger btn-sm">Log out</button>
         </form>
     </div>
 </div>
 
 <script>
-    // Toggle password visibility
-    function togglePw(id, btn) {
-        const input = document.getElementById(id);
-        const isText = input.type === 'text';
-        input.type = isText ? 'password' : 'text';
-        btn.style.color = isText ? 'var(--muted)' : 'var(--gold)';
-    }
-
-    // Password strength checker
-    function checkStrength(val) {
-        const bar   = document.getElementById('strength-bar');
-        const label = document.getElementById('strength-label');
-        if (!val) { bar.style.width = '0%'; label.textContent = ''; return; }
-
-        let score = 0;
-        if (val.length >= 8)          score++;
-        if (/[A-Z]/.test(val))        score++;
-        if (/[0-9]/.test(val))        score++;
-        if (/[^A-Za-z0-9]/.test(val)) score++;
-
-        const levels = [
-            { w: '25%', color: 'var(--coral)',  text: 'Weak' },
-            { w: '50%', color: 'var(--gold)',   text: 'Fair' },
-            { w: '75%', color: 'var(--blue)',   text: 'Good' },
-            { w: '100%',color: 'var(--teal)',   text: 'Strong' },
-        ];
-        const l = levels[score - 1] || levels[0];
-        bar.style.width      = l.w;
-        bar.style.background = l.color;
-        label.textContent    = l.text;
-        label.style.color    = l.color;
-    }
+function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.style.color = isText ? 'var(--muted)' : 'var(--crimson)';
+}
+function checkStrength(val) {
+    const bar = document.getElementById('strength-bar');
+    const lbl = document.getElementById('strength-label');
+    if (!val) { bar.style.width = '0%'; lbl.textContent = ''; return; }
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+        { w: '25%', color: '#c0392b',  text: 'WEAK' },
+        { w: '50%', color: '#c9a84c',  text: 'FAIR' },
+        { w: '75%', color: '#60a5fa',  text: 'GOOD' },
+        { w: '100%',color: '#34d399',  text: 'STRONG' },
+    ];
+    const l = levels[score - 1] || levels[0];
+    bar.style.width = l.w; bar.style.background = l.color;
+    lbl.textContent = l.text; lbl.style.color = l.color;
+}
 </script>
 
 @endsection
