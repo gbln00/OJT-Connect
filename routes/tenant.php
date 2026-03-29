@@ -62,7 +62,7 @@ Route::middleware([
     InitializeTenancyByDomain::class,   // 1. Boots tenancy — tenant() is available after this
     PreventAccessFromCentralDomains::class, // 2. Rejects central domain hits
     'tenant.active',                    // 3. Aborts with 503 if tenant status === 'inactive'
-])->group(function () {
+])->name('tenant.')->group(function () {
 
     // ── Root redirect ─────────────────────────────────────────────────
     Route::get('/', function () {
@@ -83,7 +83,7 @@ Route::middleware([
 
     // ── Guest-only routes ─────────────────────────────────────────────
         Route::middleware('guest')->group(function () {
-            Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
+            Route::get('/login',                  [LoginController::class, 'showLogin'])->name('tenant.login');
             Route::post('/login',                 [LoginController::class, 'login']);
             Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
             Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');

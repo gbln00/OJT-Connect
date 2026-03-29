@@ -513,7 +513,10 @@
             <div class="nav-badge-dot"></div>
             BukSU
         </div>
+        
+        
     </a>
+    
     <a href="{{ route('tenant.register') }}" class="btn-ghost">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M12 10v6M9 13h6"/>

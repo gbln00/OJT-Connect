@@ -236,8 +236,9 @@
             </p>
             <h1 class="font-['Playfair_Display'] font-black text-white leading-tight tracking-tight"
                 style="font-size: clamp(28px, 5vw, 64px); max-width: 16ch; margin: 0 auto;">
-                {{ tenant('name') }}
+                <span class="block text-white font-normal italic"> {{ tenant('name') }}</span>
             </h1>
+            
         @else
             <h1 class="font-['Playfair_Display'] font-black text-white leading-tight tracking-tight"
                 style="font-size: clamp(36px, 6vw, 72px);">
@@ -245,6 +246,13 @@
             </h1>
         @endif
     </div>
+
+    <h1 style="animation: fadeUp 0.7s 0.15s cubic-bezier(.22,.61,.36,1) both;
+            font-size: clamp(42px, 7vw, 88px);"
+        class="font-['Playfair_Display'] font-black leading-[0.98] tracking-tight mb-8 max-w-5xl">
+        <span class="block text-[#ABABAB]">On-the-Job</span>
+        <span class="block text-[#ABABAB]">Training <span class="text-[#8C0E03] animate-flicker">Management</span></span>
+     </h1>
 
     <p style="animation: fadeUp 0.7s 0.28s cubic-bezier(.22,.61,.36,1) both;"
        class="text-[15px] font-light text-[#ABABAB]/45 max-w-[40ch] leading-relaxed mb-12 italic">
@@ -262,6 +270,7 @@
                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
             </svg>
         </a>
+        
         <a href="{{ route('password.request') }}"
            class="inline-flex items-center gap-2 px-7 py-4 btn-ghost
                   font-['Barlow_Condensed'] font-semibold text-[14px] tracking-[0.1em] uppercase">

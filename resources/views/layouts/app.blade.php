@@ -665,6 +665,14 @@
         <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
             <div class="brand-icon"><span>O</span></div>
             <div class="brand-text">OJT<em>Connect</em></div>
+            {{-- Tenant name pill --}}
+            @if(tenant('name'))
+            <span class="hidden md:flex items-center gap-1.5 px-2 py-0.5 border border-[#8C0E03]/20 bg-[#8C0E03]/[0.06]
+                        font-['DM_Mono'] text-[10px] tracking-[0.12em] text-[#8C0E03]/60 uppercase max-w-[180px] truncate">
+                <span class="w-1 h-1 bg-[#8C0E03] inline-block animate-flicker flex-shrink-0"></span>
+                {{ tenant('name') }}
+            </span>
+            @endif
         </a>
 
         <nav class="sidebar-nav">
