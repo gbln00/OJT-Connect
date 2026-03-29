@@ -3,13 +3,7 @@
 @section('page-title', 'Tenants')
 
 @section('topbar-actions')
-    <a href="{{ route('super_admin.tenants.create') }}"
-       style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;
-              background:#8C0E03;color:rgba(255,255,255,0.92);font-family:'Barlow Condensed',sans-serif;
-              font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;
-              transition:background 0.2s,transform 0.15s,box-shadow 0.2s;"
-       onmouseover="this.style.background='#a81004';this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 32px rgba(140,14,3,0.35)'"
-       onmouseout="this.style.background='#8C0E03';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+    <a href="{{ route('super_admin.tenants.create') }}" class="btn btn-primary btn-sm">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
         </svg>
@@ -27,55 +21,51 @@
     ];
 @endphp
 
-{{-- ── Flash message ── --}}
+{{-- Flash --}}
 @if(session('success'))
-<div style="margin-bottom:8px;padding:12px 18px;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);
-            font-size:12px;color:rgba(74,222,128,0.85);font-family:monospace;display:flex;align-items:center;gap:10px;">
-    <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;
-                 box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
-    {{ session('success') }}
-</div>
+    <div class="flash flash-success fade-up" style="margin-bottom:16px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+        {{ session('success') }}
+    </div>
 @endif
 
 {{-- ── Stat Strip ── --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(171,171,171,0.06);margin-bottom:1px;">
+<div class="stats-grid fade-up" style="grid-template-columns:repeat(4,1fr);">
     @foreach([
-        [$totalCount,    'Total Tenants', '#fff'],
-        [$activeCount,   'Active',        'rgba(34,197,94,0.85)'],
-        [$inactiveCount, 'Inactive',      'rgba(239,68,68,0.75)'],
-        [$domainCount,   'Domains',       '#fff'],
-    ] as [$val, $label, $color])
-    <div style="background:#0E1126;padding:18px 22px;transition:background 0.2s;"
-         onmouseover="this.style.background='rgba(14,17,38,0.8)'"
-         onmouseout="this.style.background='#0E1126'">
-        <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:{{ $color }};line-height:1;letter-spacing:-0.02em;">{{ $val }}</div>
-        <div style="font-size:10px;color:rgba(171,171,171,0.3);letter-spacing:0.18em;text-transform:uppercase;font-family:monospace;margin-top:6px;">{{ $label }}</div>
+        [$totalCount,    'Total Tenants', 'stat-icon crimson', '<path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>'],
+        [$activeCount,   'Active',        'stat-icon green',   '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'],
+        [$inactiveCount, 'Inactive',      'stat-icon red',     '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12" stroke-linecap="round"/>'],
+        [$domainCount,   'Domains',       'stat-icon blue',    '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'],
+    ] as [$val, $label, $iconClass, $iconSvg])
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="{{ $iconClass }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">{!! $iconSvg !!}</svg>
+            </div>
+            <span class="stat-tag">{{ strtolower($label) }}</span>
+        </div>
+        <div class="stat-num">{{ $val }}</div>
+        <div class="stat-label">{{ $label }}</div>
     </div>
     @endforeach
 </div>
 
 {{-- ── Main Card ── --}}
-<div style="background:#0E1126;border:1px solid rgba(171,171,171,0.08);border-top:2px solid #8C0E03;padding:24px;">
-
-    {{-- Header --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(171,171,171,0.06);">
+<div class="card fade-up fade-up-1">
+    <div class="card-header">
         <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-                <div style="width:20px;height:2px;background:#8C0E03;flex-shrink:0;"></div>
-                <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;">All Tenants</span>
-            </div>
-            <div style="font-size:12px;color:rgba(171,171,171,0.35);margin-top:2px;font-family:monospace;">
-              // {{ $totalCount }} tenant{{ $totalCount !== 1 ? 's' : '' }} registered
+            <div class="card-title-main">All Tenants</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">
+                // {{ $totalCount }} tenant{{ $totalCount !== 1 ? 's' : '' }} registered
             </div>
         </div>
-
-        {{-- Plan legend --}}
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             @foreach(['basic'=>'Basic','standard'=>'Standard','premium'=>'Premium'] as $key => $label)
             @php $c = $planColors[$key]; @endphp
             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
                          border:1px solid {{ $c['border'] }};background:{{ $c['bg'] }};
-                         font-size:10px;color:{{ $c['color'] }};font-family:monospace;letter-spacing:0.1em;text-transform:uppercase;">
+                         font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;
+                         letter-spacing:0.1em;text-transform:uppercase;color:{{ $c['color'] }};">
                 {{ $label }}
             </span>
             @endforeach
@@ -83,20 +73,15 @@
     </div>
 
     @if($tenants->isEmpty())
-        {{-- Empty state --}}
         <div style="text-align:center;padding:80px 20px;">
-            <div style="width:56px;height:56px;border:1px solid rgba(171,171,171,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-                <svg width="22" height="22" fill="none" stroke="rgba(171,171,171,0.25)" stroke-width="1.5" viewBox="0 0 24 24">
+            <div style="width:56px;height:56px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                <svg width="22" height="22" fill="none" stroke="var(--muted)" stroke-width="1.5" viewBox="0 0 24 24">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
                 </svg>
             </div>
-            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;">No tenants yet</div>
-            <div style="font-size:13px;color:rgba(171,171,171,0.35);margin-bottom:24px;font-family:monospace;">// Create your first tenant to get started.</div>
-            <a href="{{ route('super_admin.tenants.create') }}"
-               style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:#8C0E03;color:rgba(255,255,255,0.92);
-                      font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;
-                      transition:background 0.2s;"
-               onmouseover="this.style.background='#a81004'" onmouseout="this.style.background='#8C0E03'">
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">No tenants yet</div>
+            <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:24px;">// Create your first tenant to get started.</div>
+            <a href="{{ route('super_admin.tenants.create') }}" class="btn btn-primary btn-sm">
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
                 </svg>
@@ -104,193 +89,93 @@
             </a>
         </div>
     @else
-        <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;min-width:760px;">
+        <div class="table-wrap">
+            <table>
                 <thead>
-                    <tr style="border-bottom:1px solid rgba(171,171,171,0.08);">
-                        @foreach(['Tenant', 'Domain(s)', 'Plan', 'Status', 'Created', 'Actions'] as $th)
-                        <th style="font-family:monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
-                                   color:rgba(171,171,171,0.28);font-weight:600;padding:0 14px 12px 0;text-align:left;
-                                   {{ $loop->last ? 'padding-right:0;' : '' }}">
-                            {{ $th }}
-                        </th>
-                        @endforeach
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Domain(s)</th>
+                        <th>Plan</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($tenants as $tenant)
                     @php
-                        $plan     = $tenant->plan   ?? null;
+                        $plan     = $tenant->plan ?? null;
                         $status   = $tenant->status ?? 'active';
-                        $pc       = $planColors[$plan] ?? ['border'=>'rgba(171,171,171,0.12)','bg'=>'transparent','color'=>'rgba(171,171,171,0.25)'];
+                        $pc       = $planColors[$plan] ?? null;
                         $isActive = $status === 'active';
                     @endphp
-                    <tr style="border-bottom:1px solid rgba(171,171,171,0.05);transition:background 0.15s;"
-                        onmouseover="this.style.background='rgba(171,171,171,0.018)'"
-                        onmouseout="this.style.background='transparent'">
-
-                        {{-- Tenant ID --}}
-                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                    <tr>
+                        <td>
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:2px;height:32px;background:#8C0E03;flex-shrink:0;"></div>
+                                <div style="width:32px;height:32px;flex-shrink:0;border:1px solid rgba(140,14,3,0.3);background:rgba(140,14,3,0.07);
+                                            display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--crimson);">
+                                    {{ strtoupper(substr($tenant->id, 0, 2)) }}
+                                </div>
                                 <div>
-                                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
-                                                color:#fff;letter-spacing:0.05em;line-height:1.2;">
-                                        {{ $tenant->id }}
-                                    </div>
+                                    <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:500;">{{ $tenant->id }}</div>
                                     @if($tenant->name)
-                                    <div style="font-size:11px;color:rgba(171,171,171,0.3);font-family:monospace;margin-top:2px;">
-                                        {{ $tenant->name }}
-                                    </div>
+                                        <div style="font-size:11px;color:var(--muted);margin-top:1px;">{{ $tenant->name }}</div>
                                     @endif
                                 </div>
                             </div>
                         </td>
-
-                        {{-- Domains --}}
-                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
+                        <td>
                             <div style="display:flex;flex-wrap:wrap;gap:5px;">
                                 @forelse($tenant->domains as $domain)
-                                    <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
-                                                 border:1px solid rgba(140,14,3,0.35);background:rgba(140,14,3,0.08);
-                                                 font-size:11px;color:rgba(200,100,90,0.85);font-family:monospace;letter-spacing:0.04em;">
-                                        <span style="width:4px;height:4px;background:#8C0E03;flex-shrink:0;display:inline-block;border-radius:50%;"></span>
+                                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;
+                                                 border:1px solid var(--border2);background:var(--surface2);
+                                                 font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text2);">
+                                        <span style="width:5px;height:5px;border-radius:50%;flex-shrink:0;
+                                                     background:{{ $isActive ? '#22c55e' : '#ef4444' }};
+                                                     {{ $isActive ? 'box-shadow:0 0 4px rgba(34,197,94,0.5);' : '' }}"></span>
                                         {{ $domain->domain }}
                                     </span>
                                 @empty
-                                    <span style="font-size:11px;color:rgba(171,171,171,0.2);font-family:monospace;">—</span>
+                                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">—</span>
                                 @endforelse
                             </div>
                         </td>
-
-                        {{-- Plan --}}
-                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
-                            @if($plan)
-                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
-                                             border:1px solid {{ $pc['border'] }};background:{{ $pc['bg'] }};
-                                             font-size:10px;color:{{ $pc['color'] }};font-family:monospace;
-                                             letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">
+                        <td>
+                            @if($plan && $pc)
+                                <span style="display:inline-flex;padding:3px 9px;border:1px solid {{ $pc['border'] }};background:{{ $pc['bg'] }};
+                                             font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:{{ $pc['color'] }};">
                                     {{ ucfirst($plan) }}
                                 </span>
                             @else
-                                <span style="font-size:11px;color:rgba(171,171,171,0.2);font-family:monospace;">—</span>
+                                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">—</span>
                             @endif
                         </td>
-
-                        {{-- Status --}}
-                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
-                            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
-                                         border:1px solid {{ $isActive ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.2)' }};
-                                         background:{{ $isActive ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)' }};
-                                         font-size:10px;color:{{ $isActive ? 'rgba(74,222,128,0.85)' : 'rgba(252,165,165,0.75)' }};
-                                         font-family:monospace;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">
-                                <span style="width:5px;height:5px;border-radius:50%;flex-shrink:0;
-                                             background:{{ $isActive ? '#22c55e' : '#ef4444' }};
-                                             {{ $isActive ? 'box-shadow:0 0 6px rgba(34,197,94,0.6);' : '' }}">
-                                </span>
-                                {{ $isActive ? 'Active' : 'Inactive' }}
-                            </span>
+                        <td>
+                            <span class="status-dot {{ $isActive ? 'active' : 'inactive' }}">{{ $isActive ? 'Active' : 'Inactive' }}</span>
                         </td>
-
-                        {{-- Created --}}
-                        <td style="padding:15px 14px 15px 0;vertical-align:middle;">
-                            <div style="font-size:12px;color:rgba(171,171,171,0.35);font-family:monospace;line-height:1.5;">
-                                {{ $tenant->created_at->format('M d, Y') }}
-                            </div>
-                            <div style="font-size:10px;color:rgba(171,171,171,0.2);font-family:monospace;margin-top:2px;">
-                                {{ $tenant->updated_at->diffForHumans() }}
-                            </div>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+                            {{ $tenant->created_at->format('M d, Y') }}<br>
+                            <span style="font-size:10px;opacity:0.6;">{{ $tenant->updated_at->diffForHumans() }}</span>
                         </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:4px;">
+                                <a href="{{ route('super_admin.tenants.show', $tenant) }}" class="btn btn-ghost btn-sm">View</a>
+                                <a href="{{ route('super_admin.tenants.edit', $tenant) }}" class="btn btn-ghost btn-sm">Edit</a>
 
-                        {{-- Actions --}}
-                        <td style="padding:15px 0;vertical-align:middle;">
-                            <div style="display:flex;gap:5px;align-items:center;">
-
-                                {{-- View --}}
-                                <a href="{{ route('super_admin.tenants.show', $tenant) }}"
-                                   title="View"
-                                   style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-                                          border:1px solid rgba(171,171,171,0.1);background:transparent;color:rgba(171,171,171,0.4);
-                                          text-decoration:none;transition:border-color 0.2s,color 0.2s,background 0.2s;"
-                                   onmouseover="this.style.borderColor='rgba(171,171,171,0.3)';this.style.color='rgba(171,171,171,0.9)';this.style.background='rgba(171,171,171,0.05)'"
-                                   onmouseout="this.style.borderColor='rgba(171,171,171,0.1)';this.style.color='rgba(171,171,171,0.4)';this.style.background='transparent'">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </a>
-
-                                {{-- Edit --}}
-                                <a href="{{ route('super_admin.tenants.edit', $tenant) }}"
-                                   title="Edit"
-                                   style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-                                          border:1px solid rgba(171,171,171,0.1);background:transparent;color:rgba(171,171,171,0.4);
-                                          text-decoration:none;transition:border-color 0.2s,color 0.2s,background 0.2s;"
-                                   onmouseover="this.style.borderColor='rgba(171,171,171,0.3)';this.style.color='rgba(171,171,171,0.9)';this.style.background='rgba(171,171,171,0.05)'"
-                                   onmouseout="this.style.borderColor='rgba(171,171,171,0.1)';this.style.color='rgba(171,171,171,0.4)';this.style.background='transparent'">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
-                                </a>
-
-                                {{-- Quick-toggle status --}}
-                                {{--
-                                    Only sends: status (toggled), plan (preserved), redirect_to=index.
-                                    Domain is intentionally omitted — the controller accepts nullable domain.
-                                --}}
-                                <form method="POST"
-                                      action="{{ route('super_admin.tenants.update', $tenant) }}"
-                                      style="margin:0;">
-                                    @csrf
-                                    @method('PUT')
+                                <form method="POST" action="{{ route('super_admin.tenants.update', $tenant) }}" style="margin:0;">
+                                    @csrf @method('PUT')
                                     <input type="hidden" name="status"      value="{{ $isActive ? 'inactive' : 'active' }}">
                                     <input type="hidden" name="plan"        value="{{ $tenant->plan ?? '' }}">
                                     <input type="hidden" name="redirect_to" value="index">
-                                    <button type="submit"
-                                            title="{{ $isActive ? 'Deactivate tenant' : 'Activate tenant' }}"
-                                            style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-                                                   border:1px solid {{ $isActive ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)' }};
-                                                   background:transparent;
-                                                   color:{{ $isActive ? 'rgba(252,165,165,0.5)' : 'rgba(74,222,128,0.5)' }};
-                                                   cursor:pointer;transition:border-color 0.2s,color 0.2s,background 0.2s;"
-                                            onmouseover="this.style.borderColor='{{ $isActive ? 'rgba(239,68,68,0.5)' : 'rgba(34,197,94,0.5)' }}';
-                                                         this.style.color='{{ $isActive ? 'rgba(252,165,165,0.9)' : 'rgba(74,222,128,0.9)' }}';
-                                                         this.style.background='{{ $isActive ? 'rgba(239,68,68,0.06)' : 'rgba(34,197,94,0.06)' }}'"
-                                            onmouseout="this.style.borderColor='{{ $isActive ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)' }}';
-                                                        this.style.color='{{ $isActive ? 'rgba(252,165,165,0.5)' : 'rgba(74,222,128,0.5)' }}';
-                                                        this.style.background='transparent'">
-                                        @if($isActive)
-                                            {{-- Pause icon = deactivate --}}
-                                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                                <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
-                                            </svg>
-                                        @else
-                                            {{-- Play icon = activate --}}
-                                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                                                <polygon points="5,3 19,12 5,21"/>
-                                            </svg>
-                                        @endif
+                                    <button type="submit" class="btn btn-sm {{ $isActive ? 'btn-danger' : 'btn-approve' }}">
+                                        {{ $isActive ? 'Deactivate' : 'Activate' }}
                                     </button>
                                 </form>
 
-                                {{-- Delete --}}
                                 <button onclick="openDeleteModal('{{ $tenant->id }}', '{{ route('super_admin.tenants.destroy', $tenant) }}')"
-                                        title="Delete"
-                                        style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
-                                               border:1px solid rgba(140,14,3,0.2);background:transparent;
-                                               color:rgba(200,80,70,0.5);cursor:pointer;
-                                               transition:border-color 0.2s,color 0.2s,background 0.2s;"
-                                        onmouseover="this.style.borderColor='rgba(140,14,3,0.55)';this.style.color='rgba(220,100,90,0.9)';this.style.background='rgba(140,14,3,0.08)'"
-                                        onmouseout="this.style.borderColor='rgba(140,14,3,0.2)';this.style.color='rgba(200,80,70,0.5)';this.style.background='transparent'">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <polyline points="3,6 5,6 21,6"/>
-                                        <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
-                                        <path d="M10,11v6M14,11v6"/>
-                                        <path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
-                                    </svg>
+                                        class="btn btn-ghost btn-sm" style="color:var(--muted);">
+                                    Delete
                                 </button>
-
                             </div>
                         </td>
                     </tr>
@@ -300,66 +185,47 @@
         </div>
 
         @if($tenants->hasPages())
-            <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(171,171,171,0.06);">
-                {{ $tenants->links() }}
+        <div class="pagination">
+            <span class="pagination-info">Showing {{ $tenants->firstItem() }}–{{ $tenants->lastItem() }} of {{ $tenants->total() }} tenants</span>
+            <div style="display:flex;gap:4px;">
+                @if($tenants->onFirstPage())
+                    <span class="page-link disabled">← Prev</span>
+                @else
+                    <a href="{{ $tenants->previousPageUrl() }}" class="page-link">← Prev</a>
+                @endif
+                @if($tenants->hasMorePages())
+                    <a href="{{ $tenants->nextPageUrl() }}" class="page-link">Next →</a>
+                @else
+                    <span class="page-link disabled">Next →</span>
+                @endif
             </div>
+        </div>
         @endif
     @endif
 </div>
 
-{{-- Warning strip --}}
-<div style="margin-top:8px;padding:14px 20px;border:1px solid rgba(140,14,3,0.15);background:rgba(140,14,3,0.03);
-            font-size:12px;color:rgba(171,171,171,0.35);line-height:1.7;font-family:monospace;">
-    <span style="color:rgba(200,90,80,0.6);font-weight:700;">// warning:</span>
+<div class="flash flash-info fade-up fade-up-2" style="margin-top:8px;">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     Deleting a tenant permanently drops their isolated database and all associated records. This cannot be undone.
-    The <span style="color:rgba(171,171,171,0.5);">⏸ / ▶</span> buttons toggle a tenant's active status inline without leaving the page.
 </div>
 
-{{-- ── Delete Modal ── --}}
-<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(13,13,13,0.88);z-index:999;
-                              align-items:center;justify-content:center;backdrop-filter:blur(2px);">
-    <div style="background:#0E1126;border:1px solid rgba(171,171,171,0.1);border-top:2px solid #8C0E03;
-                width:100%;max-width:440px;margin:0 20px;padding:28px;
-                animation:fadeUp 0.25s cubic-bezier(.22,.61,.36,1) both;">
-        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">Delete Tenant?</div>
-        <div style="font-size:13px;color:rgba(171,171,171,0.5);line-height:1.8;margin-bottom:24px;font-family:monospace;">
-            // You are about to permanently delete<br>
-            <strong id="deleteTenantId" style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:0.05em;"></strong>.<br>
-            This will drop their entire database and remove all data.
-            <span style="color:rgba(200,80,70,0.8);">This action cannot be undone.</span>
+{{-- Delete Modal --}}
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);z-index:999;align-items:center;justify-content:center;" onclick="if(event.target===this)closeDeleteModal()">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--crimson);width:100%;max-width:440px;margin:0 20px;padding:28px;animation:fadeUp 0.2s ease both;">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px;">Delete Tenant?</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:24px;">
+            You are about to permanently delete <strong id="deleteTenantId" style="color:var(--text);"></strong>. This will drop their entire database and remove all data.
+            <span style="color:var(--crimson);">This action cannot be undone.</span>
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button onclick="closeDeleteModal()"
-                    style="padding:8px 18px;border:1px solid rgba(171,171,171,0.15);background:transparent;
-                           color:rgba(171,171,171,0.5);font-size:12px;font-weight:700;letter-spacing:0.1em;
-                           text-transform:uppercase;cursor:pointer;font-family:'Barlow Condensed',sans-serif;
-                           transition:border-color 0.2s,color 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(171,171,171,0.3)';this.style.color='rgba(171,171,171,0.85)'"
-                    onmouseout="this.style.borderColor='rgba(171,171,171,0.15)';this.style.color='rgba(171,171,171,0.5)'">
-                Cancel
-            </button>
+            <button onclick="closeDeleteModal()" class="btn btn-ghost btn-sm">Cancel</button>
             <form id="deleteForm" method="POST" style="margin:0;">
                 @csrf @method('DELETE')
-                <button type="submit"
-                        style="padding:8px 18px;border:1px solid rgba(140,14,3,0.5);background:rgba(140,14,3,0.15);
-                               color:rgba(220,100,90,0.9);font-size:12px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;cursor:pointer;font-family:'Barlow Condensed',sans-serif;
-                               transition:background 0.2s,border-color 0.2s;"
-                        onmouseover="this.style.background='rgba(140,14,3,0.28)';this.style.borderColor='rgba(140,14,3,0.75)'"
-                        onmouseout="this.style.background='rgba(140,14,3,0.15)';this.style.borderColor='rgba(140,14,3,0.5)'">
-                    Yes, Delete
-                </button>
+                <button type="submit" class="btn btn-danger btn-sm">Yes, Delete</button>
             </form>
         </div>
     </div>
 </div>
-
-<style>
-@keyframes fadeUp {
-    from { opacity:0; transform:translateY(14px); }
-    to   { opacity:1; transform:translateY(0); }
-}
-</style>
 
 @endsection
 
@@ -368,14 +234,10 @@
 function openDeleteModal(tenantId, actionUrl) {
     document.getElementById('deleteTenantId').textContent = tenantId;
     document.getElementById('deleteForm').action = actionUrl;
-    const modal = document.getElementById('deleteModal');
-    modal.style.display = 'flex';
+    document.getElementById('deleteModal').style.display = 'flex';
 }
 function closeDeleteModal() {
     document.getElementById('deleteModal').style.display = 'none';
 }
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-});
 </script>
 @endpush
