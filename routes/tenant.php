@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
+// Auth controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 
 // Admin controllers
 use App\Http\Controllers\Admin\AdminController;
@@ -86,6 +88,11 @@ Route::middleware([
         Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
         Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
         Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
+
+        // Google OAuth — tenant
+        Route::get('/auth/google',              [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+        Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])->name('google.tenant.login');
+    
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');

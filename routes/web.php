@@ -10,6 +10,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as Tenant
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantManualController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
 use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -44,11 +45,12 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::post('/reset-password',        [ResetPasswordController::class, 'reset'])->name('password.update');
 
             // ── PUBLIC: Self-service registration form ──
-            Route::get('/register/company',       [TenantRegisterController::class, 'showForm'])
-                ->name('tenant.register');
-            Route::post('/register/company',      [TenantRegisterController::class, 'submit'])
-                ->name('tenant.register.submit');
+            Route::get('/register/company',       [TenantRegisterController::class, 'showForm'])->name('tenant.register');
+            Route::post('/register/company',      [TenantRegisterController::class, 'submit'])->name('tenant.register.submit');
         
+            // Google OAuth — central
+            Route::get('/auth/google',              [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+            Route::get('/auth/google/callback',     [GoogleAuthController::class, 'callback'])->name('google.callback');
         });
 
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');

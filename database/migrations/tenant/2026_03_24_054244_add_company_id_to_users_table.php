@@ -12,10 +12,11 @@ return new class extends Migration
    public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('company_id')->nullable()->constrained('companies')->onDelete('set null');
+            if (!Schema::hasColumn('users', 'company_id')) {
+                $table->unsignedBigInteger('company_id')->nullable();
+            }
         });
     }
-
 
     /**
      * Reverse the migrations.
