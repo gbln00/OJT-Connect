@@ -3,31 +3,35 @@
 @section('page-title', 'Add User')
 
 @section('content')
-<div style="max-width:640px;">
+<div style="max-width:680px;margin:0 auto;">
 
     <a href="{{ route('admin.users.index') }}"
-       style="display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color 0.15s;"
-       onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
+       style="display:inline-flex;align-items:center;gap:6px;color:var(--muted2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.15s;"
+       onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
         </svg>
         Back to users
     </a>
 
-    <div class="card">
+    <div class="card fade-up">
         <div class="card-header">
-            <div class="card-title">Create new user account</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px;">
-                Fill in the details below. Extra fields appear based on the selected role.
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(140,14,3,0.08);border:1px solid rgba(140,14,3,0.15);display:flex;align-items:center;justify-content:center;color:var(--crimson);">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                </div>
+                <div>
+                    <div class="card-title">Create new user account</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:1px;">Extra fields appear based on the selected role.</div>
+                </div>
             </div>
         </div>
 
         <div style="padding:24px;">
 
-            {{-- Error block --}}
             @if($errors->any())
-                <div style="background:var(--coral-dim);border:1px solid var(--coral);color:var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;">
-                    <div style="font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                <div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.3);color:var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;">
+                    <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:6px;">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Please fix the following errors:
                     </div>
@@ -41,11 +45,10 @@
                 @csrf
 
                 {{-- SECTION: Account Info --}}
-                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
-                    Account Information
+                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                    Account information
                 </div>
 
-                {{-- Name + Email --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
@@ -53,8 +56,9 @@
                         </label>
                         <input type="text" name="name" value="{{ old('name') }}"
                                placeholder="e.g. Juan dela Cruz"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='{{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }}'">
+                        @error('name')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
@@ -62,12 +66,12 @@
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}"
                                placeholder="e.g. jdelacruz@company.com"
-                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('email') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('email') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='{{ $errors->has('email') ? 'var(--coral)' : 'var(--border2)' }}'">
+                        @error('email')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
-                {{-- Role --}}
                 <div style="margin-bottom:24px;">
                     <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
                         Role <span style="color:var(--coral);">*</span>
@@ -83,31 +87,26 @@
                     <div style="font-size:11px;color:var(--muted);margin-top:4px;">
                         Admins can only be created via the database seeder.
                     </div>
+                    @error('role')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                 </div>
 
-                {{-- ══════════════════════════════════════════════════════════
-                     SECTION: Supervisor Fields (company_supervisor only)
-                     ══════════════════════════════════════════════════════════ --}}
+                {{-- SECTION: Supervisor Fields --}}
                 <div id="supervisor-fields" style="display:none;">
-
-                    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
-                        Supervisor Details
+                    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                        Supervisor details
                     </div>
-
                     <div style="margin-bottom:24px;">
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                            Assigned Company <span style="color:var(--coral);">*</span>
+                            Assigned company <span style="color:var(--coral);">*</span>
                         </label>
-
-                        {{-- Live search filter --}}
                         <input type="text" id="company-search-sup"
                                placeholder="Search companies..."
                                autocomplete="off"
-                               style="width:100%;padding:10px 14px;border-radius:8px 8px 0 0;border:1px solid {{ $errors->has('company_id') ? 'var(--coral)' : 'var(--border2)' }};border-bottom:none;background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                               style="width:100%;padding:10px 14px;border-radius:8px 8px 0 0;border:1px solid {{ $errors->has('company_id') ? 'var(--coral)' : 'var(--border2)' }};border-bottom:none;background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
 
                         <div id="company-list-sup"
-                             style="border:1px solid {{ $errors->has('company_id') ? 'var(--coral)' : 'var(--border2)' }};border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;background:var(--surface2);">
+                             style="border:1px solid {{ $errors->has('company_id') ? 'var(--coral)' : 'var(--border2)' }};border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;background:var(--surface2);">
                             @forelse($companies ?? [] as $company)
                                 <label id="sup-company-{{ $company->id }}"
                                        style="display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;"
@@ -132,25 +131,18 @@
                                 </div>
                             @endforelse
                         </div>
-
                         @error('company_id')
                             <div style="font-size:11.5px;color:var(--coral);margin-top:5px;">{{ $message }}</div>
                         @enderror
                     </div>
-
                 </div>
-                {{-- END Supervisor Fields --}}
 
-                {{-- ══════════════════════════════════════════════════════════
-                     SECTION: Student Profile (student_intern only)
-                     ══════════════════════════════════════════════════════════ --}}
+                {{-- SECTION: Student Profile --}}
                 <div id="student-fields" style="display:none;">
-
-                    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
-                        Student Profile
+                    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                        Student profile
                     </div>
 
-                    {{-- Student ID + Course --}}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
@@ -158,8 +150,9 @@
                             </label>
                             <input type="text" name="student_id" value="{{ old('student_id') }}"
                                    placeholder="e.g. 2021-00123"
-                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('student_id') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('student_id') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                            @error('student_id')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
@@ -167,26 +160,26 @@
                             </label>
                             <input type="text" name="course" value="{{ old('course') }}"
                                    placeholder="e.g. BSIT"
-                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('course') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('course') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                            @error('course')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
-                    {{-- Year Level + Section --}}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                                Year Level <span style="color:var(--coral);">*</span>
+                                Year level <span style="color:var(--coral);">*</span>
                             </label>
                             <select name="year_level"
                                     style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('year_level') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;cursor:pointer;transition:border 0.15s;"
                                     onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
                                 <option value="">Select year</option>
-                                <option value="1st Year" {{ old('year_level') === '1st Year' ? 'selected' : '' }}>1st Year</option>
-                                <option value="2nd Year" {{ old('year_level') === '2nd Year' ? 'selected' : '' }}>2nd Year</option>
-                                <option value="3rd Year" {{ old('year_level') === '3rd Year' ? 'selected' : '' }}>3rd Year</option>
-                                <option value="4th Year" {{ old('year_level') === '4th Year' ? 'selected' : '' }}>4th Year</option>
+                                @foreach(['1st Year','2nd Year','3rd Year','4th Year'] as $yr)
+                                <option value="{{ $yr }}" {{ old('year_level') === $yr ? 'selected' : '' }}>{{ $yr }}</option>
+                                @endforeach
                             </select>
+                            @error('year_level')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                         </div>
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
@@ -194,45 +187,42 @@
                             </label>
                             <input type="text" name="section" value="{{ old('section') }}"
                                    placeholder="e.g. 3F"
-                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('section') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('section') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                            @error('section')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
-                    {{-- Phone + Required Hours --}}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Phone</label>
                             <input type="text" name="phone" value="{{ old('phone') }}"
                                    placeholder="e.g. 09171234567"
-                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
                         </div>
                         <div>
                             <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                                Required Hours <span style="color:var(--coral);">*</span>
+                                Required hours <span style="color:var(--coral);">*</span>
                             </label>
                             <input type="number" name="required_hours" value="{{ old('required_hours', 486) }}"
-                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Default is 486 hours.</div>
+                            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Default: 486 hours</div>
                         </div>
                     </div>
 
-                    {{-- Address --}}
                     <div style="margin-bottom:24px;">
                         <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Address</label>
                         <textarea name="address" rows="2"
                                   placeholder="e.g. Malaybalay City, Bukidnon"
-                                  style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;resize:vertical;"
+                                  style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;resize:vertical;font-family:inherit;box-sizing:border-box;"
                                   onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">{{ old('address') }}</textarea>
                     </div>
-
                 </div>
-                {{-- END Student Fields --}}
 
                 {{-- SECTION: Password --}}
-                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
                     Password
                 </div>
 
@@ -244,13 +234,11 @@
                         <div style="position:relative;">
                             <input type="password" name="password" id="pw-main"
                                    placeholder="Min. 8 characters"
-                                   style="width:100%;padding:10px 38px 10px 14px;border-radius:8px;border:1px solid {{ $errors->has('password') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 38px 10px 14px;border-radius:8px;border:1px solid {{ $errors->has('password') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
                             <button type="button" onclick="togglePw('pw-main',this)"
-                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                                </svg>
+                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;transition:color 0.15s;">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                         </div>
                         @error('password')
@@ -262,16 +250,13 @@
                             Confirm password <span style="color:var(--coral);">*</span>
                         </label>
                         <div style="position:relative;">
-                            {{-- IMPORTANT: name must be exactly "password_confirmation" for Laravel's 'confirmed' rule --}}
                             <input type="password" name="password_confirmation" id="pw-confirm"
                                    placeholder="Repeat password"
-                                   style="width:100%;padding:10px 38px 10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;"
+                                   style="width:100%;padding:10px 38px 10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
                                    onfocus="this.style.borderColor='var(--gold)'" onblur="checkMatch()">
                             <button type="button" onclick="togglePw('pw-confirm',this)"
-                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                                </svg>
+                                    style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;transition:color 0.15s;">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                         </div>
                         <div id="pw-match-msg" style="font-size:11.5px;margin-top:4px;min-height:16px;"></div>
@@ -279,18 +264,11 @@
                 </div>
 
                 {{-- Actions --}}
-                <div style="display:flex;gap:10px;border-top:1px solid var(--border2);padding-top:20px;">
-                    <button type="submit"
-                            style="padding:10px 28px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s;"
-                            onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
-                        Create user
-                    </button>
-                    <a href="{{ route('admin.users.index') }}"
-                       style="padding:10px 20px;border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:13px;text-decoration:none;transition:border-color 0.15s;"
-                       onmouseover="this.style.borderColor='var(--muted)'" onmouseout="this.style.borderColor='var(--border2)'">
-                        Cancel
-                    </a>
+                 <div style="display:flex;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border);">
+                    <button type="submit" class="btn btn-primary btn-sm">Add company</button>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
                 </div>
+                
 
             </form>
         </div>
@@ -298,7 +276,6 @@
 </div>
 
 <script>
-    // ── Password visibility toggle ────────────────────────────────
     function togglePw(id, btn) {
         const input = document.getElementById(id);
         const isText = input.type === 'text';
@@ -306,7 +283,6 @@
         btn.style.color = isText ? 'var(--muted)' : 'var(--gold)';
     }
 
-    // ── Live password match indicator ─────────────────────────────
     const pwMain    = document.getElementById('pw-main');
     const pwConfirm = document.getElementById('pw-confirm');
     const pwMsg     = document.getElementById('pw-match-msg');
@@ -314,20 +290,19 @@
     function checkMatch() {
         if (!pwConfirm.value) { pwMsg.textContent = ''; pwConfirm.style.borderColor = 'var(--border2)'; return; }
         if (pwMain.value === pwConfirm.value) {
-            pwMsg.textContent            = '✓ Passwords match';
+            pwMsg.innerHTML              = '<span style="display:flex;align-items:center;gap:4px;"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg> Passwords match</span>';
             pwMsg.style.color            = 'var(--teal)';
             pwConfirm.style.borderColor  = 'var(--teal)';
         } else {
-            pwMsg.textContent            = '✕ Passwords do not match';
+            pwMsg.innerHTML              = '<span style="display:flex;align-items:center;gap:4px;"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Passwords do not match</span>';
             pwMsg.style.color            = 'var(--coral)';
             pwConfirm.style.borderColor  = 'var(--coral)';
         }
     }
 
-    pwMain.addEventListener('input',    checkMatch);
+    pwMain.addEventListener('input', checkMatch);
     pwConfirm.addEventListener('input', checkMatch);
 
-    // ── Role-based field toggling ─────────────────────────────────
     const roleSelect       = document.getElementById('role-select');
     const supervisorFields = document.getElementById('supervisor-fields');
     const studentFields    = document.getElementById('student-fields');
@@ -353,26 +328,21 @@
         const isSupervisor = role === 'company_supervisor';
         const isStudent    = role === 'student_intern';
 
-        // Supervisor section
         isSupervisor ? animateIn(supervisorFields) : animateOut(supervisorFields);
         if (!isSupervisor) {
             document.querySelectorAll('#company-list-sup input[type="radio"]').forEach(r => r.checked = false);
         }
 
-        // Student section
         isStudent ? animateIn(studentFields) : animateOut(studentFields);
 
-        // Toggle required on student fields
         studentFields.querySelectorAll('input, select, textarea').forEach(el => {
             if (studentRequired.includes(el.name)) el.required = isStudent;
         });
     }
 
     roleSelect.addEventListener('change', toggleRoleFields);
-    // Restore on validation failure
     toggleRoleFields();
 
-    // ── Company live search (supervisor) ──────────────────────────
     document.getElementById('company-search-sup').addEventListener('input', function () {
         const q = this.value.toLowerCase();
         document.querySelectorAll('#company-list-sup label[id^="sup-company-"]').forEach(label => {

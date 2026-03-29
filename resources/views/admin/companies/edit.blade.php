@@ -3,53 +3,113 @@
 @section('page-title', 'Edit Company')
 
 @section('content')
-<div style="max-width:560px;">
+<div style="max-width:600px;margin:0 auto;">
+
     <a href="{{ route('admin.companies.index') }}"
-       style="display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-flex;align-items:center;gap:6px;color:var(--muted2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.15s;"
+       onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to companies
     </a>
 
-    <div class="card">
-        <div class="card-header"><div class="card-title">Edit — {{ $company->name }}</div></div>
-        <div style="padding:20px;">
+    <div class="card fade-up">
+        <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:8px;background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.2);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--gold);">
+                    {{ strtoupper(substr($company->name, 0, 2)) }}
+                </div>
+                <div>
+                    <div class="card-title">{{ $company->name }}</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:1px;">Edit company details</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding:24px;">
 
             @if($errors->any())
-                <div style="background:var(--coral-dim);border:1px solid var(--coral);color:var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;">
-                    @foreach($errors->all() as $error)<div>· {{ $error }}</div>@endforeach
+                <div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.3);color:var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;">
+                    <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:6px;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Please fix the following errors:
+                    </div>
+                    @foreach($errors->all() as $error)<div style="margin-top:2px;">· {{ $error }}</div>@endforeach
                 </div>
             @endif
 
             <form method="POST" action="{{ route('admin.companies.update', $company) }}">
                 @csrf @method('PUT')
 
-                @foreach([
-                    ['name', 'Company name', 'text', true],
-                    ['industry', 'Industry', 'text', false],
-                    ['address', 'Address', 'text', false],
-                    ['contact_person', 'Contact person', 'text', false],
-                    ['contact_email', 'Contact email', 'email', false],
-                    ['contact_phone', 'Contact phone', 'text', false],
-                ] as [$field, $lbl, $type, $required])
+                {{-- Company Info Section --}}
+                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                    Company information
+                </div>
+
                 <div style="margin-bottom:16px;">
                     <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                        {{ $lbl }} @if($required)<span style="color:var(--coral);">*</span>@endif
+                        Company name <span style="color:var(--coral);">*</span>
                     </label>
-                    <input type="{{ $type }}" name="{{ $field }}"
-                           value="{{ old($field, $company->$field) }}"
-                           {{ $required ? 'required' : '' }}
-                           style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;">
+                    <input type="text" name="name" value="{{ old('name', $company->name) }}"
+                           required
+                           style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid {{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }};background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='{{ $errors->has('name') ? 'var(--coral)' : 'var(--border2)' }}'">
+                    @error('name')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
                 </div>
-                @endforeach
 
-                <div style="display:flex;gap:10px;margin-top:8px;">
-                    <button type="submit" style="padding:10px 24px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;">
-                        Save changes
-                    </button>
-                    <a href="{{ route('admin.companies.index') }}" style="padding:10px 20px;border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:13px;text-decoration:none;">
-                        Cancel
-                    </a>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Industry</label>
+                        <input type="text" name="industry" value="{{ old('industry', $company->industry) }}"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                        @error('industry')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Address</label>
+                        <input type="text" name="address" value="{{ old('address', $company->address) }}"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                        @error('address')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                    </div>
                 </div>
+
+                {{-- Contact Section --}}
+                <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;margin-top:24px;padding-bottom:8px;border-bottom:1px solid var(--border2);">
+                    Contact details
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact person</label>
+                    <input type="text" name="contact_person" value="{{ old('contact_person', $company->contact_person) }}"
+                           style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                    @error('contact_person')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact email</label>
+                        <input type="email" name="contact_email" value="{{ old('contact_email', $company->contact_email) }}"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                        @error('contact_email')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">Contact phone</label>
+                        <input type="text" name="contact_phone" value="{{ old('contact_phone', $company->contact_phone) }}"
+                               style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;transition:border 0.15s;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+                        @error('contact_phone')<div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border);">
+                    <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
+                    <a href="{{ route('admin.companies.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+                </div>
+
+                
+
             </form>
         </div>
     </div>
