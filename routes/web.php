@@ -55,6 +55,9 @@ foreach (config('tenancy.central_domains') as $domain) {
         // ── Google callback  ──────────────────────
         Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
+         // ── Logout ────────────────────────────────────────────────────────
+        Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
         // ── Super Admin ───────────────────────────────────────────────────
         Route::middleware(['auth', 'role:super_admin'])
             ->prefix('super-admin')

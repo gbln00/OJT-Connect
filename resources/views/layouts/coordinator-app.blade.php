@@ -691,15 +691,7 @@
 
             <div class="nav-section-label">Review</div>
 
-            <a href="{{ route('coordinator.hours.index') }}"
-               class="nav-item {{ request()->routeIs('coordinator.hours.*') ? 'active' : '' }}">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12,6 12,12 16,14"/>
-                </svg>
-                Hour Logs
-            </a>
-
+          
             <a href="{{ route('coordinator.reports.index') }}"
                class="nav-item {{ request()->routeIs('coordinator.reports.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -730,7 +722,7 @@
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Coordinator' }}</div>
                     <div class="sidebar-user-role">OJT Coordinator</div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0;">
+                <form method="POST" action="/logout" style="flex-shrink:0;">
                     @csrf
                     <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" title="Log out">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -792,7 +784,7 @@
                             <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px;">OJT Coordinator</div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <form method="POST" action="{{ route('logout') }}" id="logout-form">@csrf</form>
+                        <form method="POST" action="/logout" id="logout-form">@csrf</form>
                         <a href="#" class="dropdown-item danger"
                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
