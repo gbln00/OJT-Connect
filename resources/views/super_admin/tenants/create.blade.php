@@ -83,7 +83,7 @@
                            class="form-input {{ $errors->has('subdomain') ? 'is-invalid' : '' }}"
                            autocomplete="off" spellcheck="false"
                            oninput="updateSubdomainHint(this.value)">
-                    <div class="form-hint">URL: <strong id="subdomain-preview" style="color:var(--text2);">yourdomain</strong>.ojtconnect.edu.ph</div>
+                    <div class="form-hint">URL: <strong id="subdomain-preview" style="color:var(--text2);">yourdomain</strong>.ojtconnect.com</div>
                     <input type="hidden" name="domain" id="domain-hidden" value="{{ old('domain') }}">
                     @error('subdomain')<div class="form-error">{{ $message }}</div>@enderror
                 </div>

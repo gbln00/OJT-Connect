@@ -70,6 +70,10 @@ class User extends Authenticatable
         };
     }
 
+    public function isSuperAdmin(): bool {
+        return $this->role === 'super_admin';
+    }
+    
     // Role helpers
     public function isAdmin(): bool { 
         return $this->role === 'admin'; 
