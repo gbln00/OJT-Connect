@@ -1,126 +1,225 @@
-{{-- resources/views/student/reports/create.blade.php --}}
-@extends('layouts.student-app')
-@section('title', 'Submit Weekly Report')
-@section('page-title', 'Submit Weekly Report')
+{{-- resources/views/student/hours/create.blade.php --}}
+@extends('layouts.student')
+
+@section('title', 'Log Hours')
 
 @section('content')
-<div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
+<div class="page-header">
+    <h1>Log Daily Hours</h1>
+    <p class="text-muted">Enter your time-in and time-out for each session today.</p>
+</div>
 
-    <div class="fade-up" style="display:flex;align-items:center;gap:8px;">
-        <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
-        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
-            Reports / New Entry
-        </span>
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form method="POST" action="{{ route('student.hours.store') }}">
+    @csrf
+
+    {{-- Date --}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <label class="form-label fw-semibold">Date</label>
+            <input
+                type="date"
+                name="date"
+                class="form-control @error('date') is-invalid @enderror"
+                value="{{ old('date', today()->toDateString()) }}"
+                max="{{ today()->toDateString() }}"
+                required
+            >
+            @error('date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
     </div>
 
-    <div class="card fade-up fade-up-1">
-        <div class="card-header">
-            <div>
-                <div class="card-title">New Weekly Report</div>
-                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">
-                    // Fill in the details for this week's internship report
-                </div>
+    {{-- Morning Session --}}
+    <div class="card mb-4 session-card" id="card-morning">
+        <div class="card-header d-flex align-items-center gap-3">
+            <div class="session-icon morning-icon">AM</div>
+            <div class="flex-grow-1">
+                <div class="fw-semibold">Morning Session</div>
+                <div class="text-muted small">Typical: 8:00 AM – 12:00 PM</div>
             </div>
-            <a href="{{ route('student.reports.index') }}" class="btn btn-ghost btn-sm">
-                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                Back
-            </a>
+            <div class="form-check form-switch mb-0">
+                <input
+                    class="form-check-input session-toggle"
+                    type="checkbox"
+                    name="log_morning"
+                    id="toggle-morning"
+                    value="1"
+                    data-target="morning-fields"
+                    {{ old('log_morning', !in_array('morning', $todayLogs)) ? 'checked' : '' }}
+                    {{ in_array('morning', $todayLogs) ? 'disabled' : '' }}
+                >
+                <label class="form-check-label" for="toggle-morning">
+                    {{ in_array('morning', $todayLogs) ? 'Already logged' : 'Log this session' }}
+                </label>
+            </div>
         </div>
 
-        <form action="{{ route('student.reports.store') }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
-            @csrf
-
-            @if($errors->any())
-            <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.3);color:var(--crimson);padding:13px 16px;margin-bottom:24px;font-size:13px;">
-                <strong style="display:block;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;font-size:11px;">Please fix the following:</strong>
-                @foreach($errors->all() as $error)
-                    <div style="margin-top:3px;font-size:12.5px;">· {{ $error }}</div>
-                @endforeach
+        @if (in_array('morning', $todayLogs))
+            <div class="card-body text-muted">
+                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                Morning session already submitted for today.
             </div>
-            @endif
-
-            <div class="form-section-divider"><span>Week Information</span></div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
-                <div>
-                    <label class="form-label">Week Number <span style="color:var(--crimson);">✦</span></label>
-                    <input type="number" name="week_number" min="1"
-                           value="{{ old('week_number', $nextWeekNumber ?? '') }}"
-                           placeholder="e.g. 1"
-                           class="form-input {{ $errors->has('week_number') ? 'is-invalid' : '' }}" required>
-                    @error('week_number')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
-                <div>
-                    <label class="form-label">Date From <span style="color:var(--crimson);">✦</span></label>
-                    <input type="date" name="week_start" value="{{ old('week_start') }}"
-                           class="form-input {{ $errors->has('week_start') ? 'is-invalid' : '' }}" required>
-                    @error('week_start')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
-                <div>
-                    <label class="form-label">Date To <span style="color:var(--crimson);">✦</span></label>
-                    <input type="date" name="week_end" value="{{ old('week_end') }}"
-                           class="form-input {{ $errors->has('week_end') ? 'is-invalid' : '' }}" required>
-                    @error('week_end')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
-            </div>
-
-            <div style="margin-bottom:28px;">
-                <label class="form-label">Hours Rendered This Week <span style="color:var(--crimson);">✦</span></label>
-                <input type="number" name="hours_this_week" min="0" max="168" step="0.5"
-                       value="{{ old('hours_this_week') }}"
-                       placeholder="e.g. 40"
-                       class="form-input {{ $errors->has('hours_this_week') ? 'is-invalid' : '' }}" style="max-width:200px;" required>
-                @error('hours_this_week')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="form-section-divider"><span>Report Content</span></div>
-
-            <div style="margin-bottom:16px;">
-                <label class="form-label">Activities Summary <span style="color:var(--crimson);">✦</span></label>
-                <textarea name="description" rows="4"
-                          placeholder="Briefly describe the tasks and activities you did this week…"
-                          class="form-input {{ $errors->has('description') ? 'is-invalid' : '' }}"
-                          style="resize:vertical;font-family:inherit;" required>{{ old('description') }}</textarea>
-                @error('description')<div class="form-error">{{ $message }}</div>@enderror
-            </div>
-
-            <div style="margin-bottom:16px;">
-                <label class="form-label">Learnings & Reflections</label>
-                <textarea name="learnings" rows="4"
-                          placeholder="What did you learn this week? Any challenges or highlights?"
-                          class="form-input"
-                          style="resize:vertical;font-family:inherit;">{{ old('learnings') }}</textarea>
-            </div>
-
-            <div style="margin-bottom:28px;">
-                <label class="form-label">Challenges Encountered</label>
-                <textarea name="challenges" rows="3"
-                          placeholder="Any difficulties or problems you encountered…"
-                          class="form-input"
-                          style="resize:vertical;font-family:inherit;">{{ old('challenges') }}</textarea>
-            </div>
-
-            <div class="form-section-divider"><span>Attachment</span></div>
-
-            <div style="margin-bottom:28px;">
-                <label class="form-label">File <span style="color:var(--muted);">(optional — PDF, DOC, image)</span></label>
-                <input type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                       class="form-input" style="cursor:pointer;">
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:4px;">
-                <p class="form-hint">Fields marked <span style="color:var(--crimson);">✦</span> are required.</p>
-                <div style="display:flex;gap:8px;">
-                    <a href="{{ route('student.reports.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
-                        </svg>
-                        Submit Report
-                    </button>
+        @else
+            <div class="card-body" id="morning-fields">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">Time In</label>
+                        <input
+                            type="time"
+                            name="am_time_in"
+                            class="form-control @error('am_time_in') is-invalid @enderror"
+                            value="{{ old('am_time_in', '08:00') }}"
+                        >
+                        @error('am_time_in')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Time Out</label>
+                        <input
+                            type="time"
+                            name="am_time_out"
+                            class="form-control @error('am_time_out') is-invalid @enderror"
+                            value="{{ old('am_time_out', '12:00') }}"
+                        >
+                        @error('am_time_out')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Activities / Description <span class="text-muted">(optional)</span></label>
+                        <textarea
+                            name="am_description"
+                            class="form-control"
+                            rows="2"
+                            placeholder="What did you work on this morning?"
+                        >{{ old('am_description') }}</textarea>
+                    </div>
                 </div>
             </div>
-        </form>
+        @endif
     </div>
-</div>
+
+    {{-- Afternoon Session --}}
+    <div class="card mb-4 session-card" id="card-afternoon">
+        <div class="card-header d-flex align-items-center gap-3">
+            <div class="session-icon afternoon-icon">PM</div>
+            <div class="flex-grow-1">
+                <div class="fw-semibold">Afternoon Session</div>
+                <div class="text-muted small">Typical: 1:00 PM – 5:00 PM</div>
+            </div>
+            <div class="form-check form-switch mb-0">
+                <input
+                    class="form-check-input session-toggle"
+                    type="checkbox"
+                    name="log_afternoon"
+                    id="toggle-afternoon"
+                    value="1"
+                    data-target="afternoon-fields"
+                    {{ old('log_afternoon', !in_array('afternoon', $todayLogs)) ? 'checked' : '' }}
+                    {{ in_array('afternoon', $todayLogs) ? 'disabled' : '' }}
+                >
+                <label class="form-check-label" for="toggle-afternoon">
+                    {{ in_array('afternoon', $todayLogs) ? 'Already logged' : 'Log this session' }}
+                </label>
+            </div>
+        </div>
+
+        @if (in_array('afternoon', $todayLogs))
+            <div class="card-body text-muted">
+                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                Afternoon session already submitted for today.
+            </div>
+        @else
+            <div class="card-body" id="afternoon-fields">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">Time In</label>
+                        <input
+                            type="time"
+                            name="pm_time_in"
+                            class="form-control @error('pm_time_in') is-invalid @enderror"
+                            value="{{ old('pm_time_in', '13:00') }}"
+                        >
+                        @error('pm_time_in')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Time Out</label>
+                        <input
+                            type="time"
+                            name="pm_out"
+                            class="form-control @error('pm_time_out') is-invalid @enderror"
+                            value="{{ old('pm_time_out', '17:00') }}"
+                        >
+                        @error('pm_time_out')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Activities / Description <span class="text-muted">(optional)</span></label>
+                        <textarea
+                            name="pm_description"
+                            class="form-control"
+                            rows="2"
+                            placeholder="What did you work on this afternoon?"
+                        >{{ old('pm_description') }}</textarea>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Submit Hour Log</button>
+        <a href="{{ route('student.hours.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+<style>
+.session-card .card-header {
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+    padding: 1rem 1.25rem;
+}
+.session-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.morning-icon   { background: #FEF3C7; color: #92400E; }
+.afternoon-icon { background: #DBEAFE; color: #1E40AF; }
+</style>
+
+<script>
+document.querySelectorAll('.session-toggle').forEach(function (toggle) {
+    var targetId = toggle.dataset.target;
+    var fields   = document.getElementById(targetId);
+
+    function sync() {
+        if (fields) fields.style.display = toggle.checked ? '' : 'none';
+    }
+
+    sync();
+    toggle.addEventListener('change', sync);
+});
+</script>
 @endsection

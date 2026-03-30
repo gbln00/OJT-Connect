@@ -197,6 +197,7 @@ Route::middleware([
 
         // Hour logs
         Route::get('/hours',                    [SupervisorHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours/{student}',          [SupervisorHourLogController::class, 'show'])->name('hours.show');
         Route::post('/hours/{hourLog}/approve', [SupervisorHourLogController::class, 'approve'])->name('hours.approve');
         Route::post('/hours/{hourLog}/reject',  [SupervisorHourLogController::class, 'reject'])->name('hours.reject');
 

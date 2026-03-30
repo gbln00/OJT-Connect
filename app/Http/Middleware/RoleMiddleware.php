@@ -10,16 +10,19 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string ...$roles): mixed
     {
+        // Check if the user is authenticated
         if (!Auth::check()) {
-            return redirect('/login'); // ← changed from route('login')
+            return redirect('/login');
         }
 
+        // Check if the user's role is in the allowed roles
         if (!in_array(Auth::user()->role, $roles)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect('/login')->withErrors([ // ← changed from route('login')
+            // Redirect to login with an error message
+            return redirect('/login')->withErrors([ 
                 'email' => 'You do not have access to that page.',
             ]);
         }
