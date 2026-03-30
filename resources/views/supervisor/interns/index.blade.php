@@ -1,6 +1,7 @@
 @extends('layouts.supervisor-app')
-@section('title', 'My Interns')
-@section('page-title', 'My Interns')
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
 @section('content')
 
 @php
@@ -8,201 +9,247 @@
     $notEvaluated = $interns->filter(fn($a) => $a->evaluation === null)->count();
     $total        = $interns->count();
     $company      = $interns->first()?->company;
+    $hour          = now()->hour;
 @endphp
 
-{{-- Header --}}
-<div style="margin-bottom:24px;">
-    <div style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px;">
-        @if($company) {{ $company->name }} @endif
+{{-- GREETING --}}
+<div class="greeting fade-up">
+    <div class="greeting-sub">{{ now()->format('l, F j, Y') }}</div>
+    <div class="greeting-title">
+        Good {{ $hour < 12 ? 'morning' : ($hour < 17 ? 'afternoon' : 'evening') }},
+        <span>{{ explode(' ', auth()->user()->name)[0] }}</span>
     </div>
-    <div style="font-size:12.5px;color:var(--muted);margin-top:3px;">
-        {{ $total }} active intern{{ $total !== 1 ? 's' : '' }} assigned to your company
+    @if($company)
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+                color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:6px;">
+        <span style="width:5px;height:5px;background:var(--teal);display:inline-block;"></span>
+        {{ $company->name }}
     </div>
+    @endif
 </div>
 
-{{-- Stat cards --}}
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+{{-- STAT CARDS --}}
+<div class="stats-grid fade-up fade-up-1" style="grid-template-columns:repeat(3,1fr);">
 
     <div class="stat-card">
         <div class="stat-top">
             <div class="stat-icon teal">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                     <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                 </svg>
             </div>
+            <span class="stat-tag">active</span>
         </div>
         <div class="stat-num">{{ $total }}</div>
-        <div class="stat-label">Total interns</div>
+        <div class="stat-label">Active Interns</div>
     </div>
 
     <div class="stat-card">
         <div class="stat-top">
             <div class="stat-icon gold">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
             </div>
+            <span class="stat-tag">pending</span>
         </div>
         <div class="stat-num">{{ $notEvaluated }}</div>
-        <div class="stat-label">Pending evaluation</div>
+        <div class="stat-label">Pending Evaluations</div>
     </div>
 
     <div class="stat-card">
         <div class="stat-top">
-            <div class="stat-icon teal">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <polyline points="20,6 9,17 4,12"/>
+            <div class="stat-icon blue">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
                 </svg>
             </div>
+            <span class="stat-tag">done</span>
         </div>
         <div class="stat-num">{{ $evaluated }}</div>
         <div class="stat-label">Evaluated</div>
+        @php $pct = $total > 0 ? round(($evaluated / $total) * 100) : 0; @endphp
+        <div class="progress-track" style="margin-top:12px;">
+            <div class="progress-fill blue" style="width:{{ $pct }}%;"></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:0.05em;">
+            {{ $pct }}% complete
+        </div>
     </div>
 
 </div>
 
-{{-- Intern cards --}}
-@forelse($interns as $intern)
-<div class="card" style="padding:22px;margin-bottom:12px;">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+{{-- BOTTOM GRID --}}
+<div style="display:grid;grid-template-columns:1fr 320px;gap:16px;" class="fade-up fade-up-2">
 
-        {{-- Left: student info --}}
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;border-radius:50%;background:var(--gold-dim);
-                        border:2px solid rgba(240,180,41,0.3);display:flex;align-items:center;
-                        justify-content:center;font-size:16px;font-weight:700;color:var(--gold);flex-shrink:0;">
-                {{ strtoupper(substr($intern->student->name ?? 'S', 0, 2)) }}
-            </div>
-            <div>
-                <div style="font-size:14px;font-weight:700;color:var(--text);">
-                    {{ $intern->student->name ?? '—' }}
-                </div>
-                <div style="font-size:12px;color:var(--muted);margin-top:2px;">
-                    {{ $intern->student->email ?? '' }}
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap;">
-                    <span style="font-size:11.5px;color:var(--muted2);">
-                        <span style="color:var(--muted);">Program</span> · {{ $intern->program ?? '—' }}
-                    </span>
-                    <span style="font-size:11.5px;color:var(--muted2);">
-                        <span style="color:var(--muted);">Semester</span> · {{ $intern->semester }} {{ $intern->school_year }}
-                    </span>
-                    <span style="font-size:11.5px;color:var(--blue);font-weight:600;">
-                        {{ number_format($intern->required_hours) }} hrs required
-                    </span>
-                </div>
-            </div>
+    {{-- INTERN TABLE --}}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">My Interns</div>
+            <a href="{{ route('supervisor.interns.index') }}" class="card-action">View all →</a>
         </div>
-
-        {{-- Right: evaluation status + action --}}
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-            @if($intern->evaluation)
-                {{-- Already evaluated --}}
-                <div style="display:flex;align-items:center;gap:14px;">
-                    <div style="text-align:center;">
-                        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:3px;">GRADE</div>
-                        <div style="font-size:22px;font-weight:800;color:var(--blue);line-height:1;">
-                            {{ number_format($intern->evaluation->overall_grade, 1) }}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Program</th>
+                        <th>Req. Hours</th>
+                        <th>Evaluation</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($interns->take(6) as $intern)
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:28px;height:28px;flex-shrink:0;border:1px solid var(--gold-border);
+                                        background:var(--gold-dim);display:flex;align-items:center;justify-content:center;
+                                        font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--gold);">
+                                {{ strtoupper(substr($intern->student->name ?? 'S', 0, 2)) }}
+                            </div>
+                            <div>
+                                <div style="font-weight:500;color:var(--text);font-size:13px;">{{ $intern->student->name ?? '—' }}</div>
+                                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $intern->student->email ?? '' }}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:3px;">RESULT</div>
-                        <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
-                            background:var(--{{ $intern->evaluation->recommendation === 'pass' ? 'teal' : 'coral' }}-dim);
-                            color:var(--{{ $intern->evaluation->recommendation === 'pass' ? 'teal' : 'coral' }});">
-                            {{ ucfirst($intern->evaluation->recommendation) }}
+                    </td>
+                    <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $intern->program ?? '—' }}</td>
+                    <td style="font-family:'Playfair Display',serif;font-weight:700;color:var(--blue);font-size:14px;">
+                        {{ number_format($intern->required_hours) }}
+                        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);font-weight:400;">hrs</span>
+                    </td>
+                    <td>
+                        @if($intern->evaluation)
+                            <span class="status-pill teal">✓ Done</span>
+                        @else
+                            <span class="status-pill gold">Pending</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if(!$intern->evaluation)
+                        <a href="{{ route('supervisor.evaluations.create', $intern->id) }}" class="btn btn-gold btn-sm">
+                            Evaluate
+                        </a>
+                        @else
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+                            {{ $intern->evaluation->overall_grade }}/100
                         </span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" style="text-align:center;padding:48px;color:var(--muted);">
+                        No active interns assigned yet.
+                    </td>
+                </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- RIGHT COLUMN --}}
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+        {{-- QUICK ACTIONS --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Quick actions</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;">
+
+                <a href="{{ route('supervisor.interns.index') }}"
+                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+                          padding:16px 10px;background:var(--surface2);border:1px solid var(--border);
+                          text-decoration:none;text-align:center;transition:all 0.2s;"
+                   onmouseover="this.style.borderColor='var(--teal-border)';this.style.background='var(--teal-dim)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+                    <div style="width:30px;height:30px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--teal);">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        </svg>
                     </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:3px;">ATTENDANCE</div>
-                        <div style="font-size:14px;font-weight:600;color:var(--text);">
-                            {{ $intern->evaluation->attendance_rating }}/5
-                        </div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:3px;">PERFORMANCE</div>
-                        <div style="font-size:14px;font-weight:600;color:var(--text);">
-                            {{ $intern->evaluation->performance_rating }}/5
-                        </div>
-                    </div>
-                </div>
-                <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
-                    background:var(--teal-dim);color:var(--teal);">
-                    ✓ Evaluated
-                </span>
-            @else
-                <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
-                    background:var(--gold-dim);color:var(--gold);">
-                    Pending
-                </span>
-                <a href="{{ route('supervisor.evaluations.create', $intern->id) }}"
-                   style="padding:8px 18px;background:var(--gold);color:var(--bg);border-radius:8px;
-                          font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;"
-                   onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-                    Evaluate
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);">My Interns</span>
                 </a>
-            @endif
-        </div>
 
-    </div>
+                <a href="{{ route('supervisor.evaluations.index') }}"
+                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+                          padding:16px 10px;background:var(--surface2);border:1px solid var(--border);
+                          text-decoration:none;text-align:center;transition:all 0.2s;"
+                   onmouseover="this.style.borderColor='var(--gold-border)';this.style.background='var(--gold-dim)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+                    <div style="width:30px;height:30px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--gold);">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                        </svg>
+                    </div>
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);">Evaluations</span>
+                </a>
 
-    {{-- Expandable details --}}
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border2);
-                display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                <a href="{{ route('supervisor.hours.index') }}"
+                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+                          padding:16px 10px;background:var(--surface2);border:1px solid var(--border);
+                          text-decoration:none;text-align:center;transition:all 0.2s;"
+                   onmouseover="this.style.borderColor='var(--blue-border)';this.style.background='var(--blue-dim)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+                    <div style="width:30px;height:30px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--blue);">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);">Hour Logs</span>
+                </a>
 
-        {{-- Hours progress --}}
-        @php
-            $approved = \App\Models\HourLog::where('application_id', $intern->id)
-                ->where('status', 'approved')
-                ->sum('total_hours');
-            $pct = $intern->required_hours > 0
-                ? min(100, round(($approved / $intern->required_hours) * 100))
-                : 0;
-            $barColor = $pct >= 100 ? 'var(--teal)' : ($pct >= 50 ? 'var(--blue)' : 'var(--gold)');
-        @endphp
-        <div style="flex:1;min-width:200px;">
-            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:5px;">
-                <span>Hours progress</span>
-                <span style="color:var(--text);font-weight:600;">
-                    {{ number_format($approved, 1) }} / {{ number_format($intern->required_hours) }} hrs
-                </span>
+                <a href="{{ route('supervisor.profile.settings') }}"
+                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+                          padding:16px 10px;background:var(--surface2);border:1px solid var(--border);
+                          text-decoration:none;text-align:center;transition:all 0.2s;"
+                   onmouseover="this.style.borderColor='var(--border2)';this.style.background='var(--surface3)'"
+                   onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+                    <div style="width:30px;height:30px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+                        </svg>
+                    </div>
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);">Settings</span>
+                </a>
+
             </div>
-            <div style="height:6px;background:var(--border2);border-radius:4px;overflow:hidden;">
-                <div style="height:100%;width:{{ $pct }}%;background:{{ $barColor }};border-radius:4px;transition:width 0.4s;"></div>
+        </div>
+
+        {{-- SUMMARY STATUS --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Summary</div>
+                <span style="width:7px;height:7px;background:#34d399;display:inline-block;" class="flicker"></span>
             </div>
-            <div style="font-size:11px;color:var(--muted);margin-top:4px;">{{ $pct }}% complete</div>
-        </div>
-
-        {{-- Evaluation remarks preview --}}
-        @if($intern->evaluation?->remarks)
-        <div style="flex:2;min-width:240px;padding:9px 12px;background:var(--surface2);
-                    border-left:3px solid var(--border2);border-radius:0 6px 6px 0;
-                    font-size:12px;color:var(--muted);line-height:1.5;max-width:480px;">
-            <span style="font-weight:600;color:var(--muted2);">Evaluation remarks: </span>
-            {{ Str::limit($intern->evaluation->remarks, 120) }}
-        </div>
-        @endif
-
-        {{-- Applied date --}}
-        <div style="font-size:11.5px;color:var(--muted);flex-shrink:0;">
-            Joined {{ $intern->created_at->format('M d, Y') }}
+            <div style="padding:4px 0;">
+                @php
+                $rows = [
+                    ['Active interns',       $total,        'var(--teal)'],
+                    ['Pending evaluations',  $notEvaluated, 'var(--gold)'],
+                    ['Completed evaluations',$evaluated,    'var(--blue)'],
+                    ['Evaluation progress',  $pct . '%',    'var(--crimson)'],
+                ];
+                @endphp
+                @foreach($rows as [$lbl, $val, $clr])
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--border);">
+                    <span style="font-size:12.5px;color:var(--text2);">{{ $lbl }}</span>
+                    <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:{{ $clr }};">{{ $val }}</span>
+                </div>
+                @endforeach
+            </div>
         </div>
 
     </div>
 </div>
-@empty
-<div class="card" style="padding:60px;text-align:center;">
-    <div style="font-size:32px;margin-bottom:12px;">👥</div>
-    <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">No active interns yet</div>
-    <div style="font-size:13px;color:var(--muted);">
-        Interns will appear here once their OJT applications are approved by the coordinator.
-    </div>
-</div>
-@endforelse
 
 @endsection

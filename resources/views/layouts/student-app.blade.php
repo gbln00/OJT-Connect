@@ -221,6 +221,21 @@
             letter-spacing: 0.05em; text-transform: uppercase; margin-top: 1px;
         }
 
+        .role-pill {
+            margin: 10px 12px 0;
+            padding: 5px 10px;
+            border: 1px solid rgba(140,14,3,0.2);
+            background: rgba(140,14,3,0.06);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .role-pill-dot { width: 5px; height: 5px; background: var(--crimson); flex-shrink: 0; }
+        .role-pill-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson);
+            opacity: 0.7;
+            
+        }
+
         /* ═══════════════════════════════════════════════
            MAIN AREA
         ═══════════════════════════════════════════════ */
@@ -694,9 +709,16 @@
             <div class="brand-icon"><span>O</span></div>
             <div class="brand-text">OJT<em>Connect</em></div>
         </a>
-        
+
+         <div class="role-pill">
+            @if(tenant('name'))
+                <span class="role-pill-dot flicker"></span>
+                <span class="role-pill-text"> {{ tenant('name') }}</span>
+            @endif
+        </div>
 
         <nav class="sidebar-nav">
+           
         
             <div class="nav-section-label">Main</div>
             

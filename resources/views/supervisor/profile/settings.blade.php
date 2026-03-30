@@ -1,274 +1,177 @@
 @extends('layouts.supervisor-app')
-@section('title', 'Evaluate Intern')
-@section('page-title', 'Evaluate Intern')
+@section('title', 'Settings')
+@section('page-title', 'Settings')
+
 @section('content')
 
-<div style="max-width:720px;">
+<div style="max-width:680px;">
 
-    {{-- Back link --}}
-    <a href="{{ route('supervisor.dashboard') }}"
-       style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:20px;">
-        ← Back to Dashboard
-    </a>
-
-    {{-- Intern info card --}}
-    <div class="card" style="padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
-        <div style="width:48px;height:48px;border-radius:50%;background:var(--gold-dim);border:2px solid rgba(240,180,41,0.3);
-                    display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;
-                    color:var(--gold);flex-shrink:0;">
-            {{ strtoupper(substr($application->student->name ?? 'S', 0, 2)) }}
-        </div>
-        <div>
-            <div style="font-size:15px;font-weight:700;color:var(--text);">{{ $application->student->name ?? '—' }}</div>
-            <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">{{ $application->student->email ?? '' }}</div>
-        </div>
-        <div style="margin-left:auto;text-align:right;">
-            <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;">REQUIRED HOURS</div>
-            <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:2px;">
-                {{ number_format($application->required_hours) }} hrs
-            </div>
-        </div>
+    {{-- EYEBROW --}}
+    <div class="fade-up" style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+        <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+            System / Settings
+        </span>
     </div>
 
-    {{-- Evaluation form --}}
-    <div class="card" style="padding:28px;">
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Intern Evaluation Form</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:24px;">
-            Ratings are from 1 (Poor) to 5 (Excellent). This evaluation is final once submitted.
+    {{-- PROFILE CARD --}}
+    <div class="card fade-up fade-up-1" style="margin-bottom:12px;">
+
+        <div class="card-header">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:40px;height:40px;flex-shrink:0;border:1px solid rgba(140,14,3,0.35);
+                            background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;
+                            font-family:'Playfair Display',serif;font-size:14px;font-weight:900;color:var(--crimson);">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}
+                </div>
+                <div>
+                    <div class="card-title">{{ auth()->user()->name }}</div>
+                    <div style="margin-top:3px;">
+                        <span class="role-badge supervisor">Supervisor</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <form method="POST" action="{{ route('supervisor.evaluations.store', $application->id) }}">
-            @csrf
+        <form method="POST" action="{{ route('supervisor.settings.update.profile') }}" style="padding:24px;">
+            @csrf @method('PATCH')
 
             @if($errors->any())
-            <div style="background:var(--coral-dim);border:1px solid rgba(248,113,113,0.3);border-radius:8px;
-                        padding:12px 16px;margin-bottom:20px;">
-                <div style="font-size:12px;font-weight:600;color:var(--coral);margin-bottom:6px;">Please fix the following:</div>
-                <ul style="margin:0;padding-left:18px;">
-                    @foreach($errors->all() as $error)
-                        <li style="font-size:12px;color:var(--coral);">{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.3);color:var(--crimson);
+                        padding:13px 16px;margin-bottom:24px;font-size:13px;">
+                <strong style="display:block;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;
+                               letter-spacing:0.08em;text-transform:uppercase;font-size:11px;">
+                    Please fix the following:
+                </strong>
+                @foreach($errors->all() as $error)
+                    <div style="margin-top:3px;font-size:12.5px;">· {{ $error }}</div>
+                @endforeach
             </div>
             @endif
 
-            {{-- Attendance Rating --}}
-            <div style="margin-bottom:24px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);
-                              letter-spacing:.5px;margin-bottom:10px;">
-                    ATTENDANCE RATING <span style="color:var(--coral);">*</span>
-                </label>
-                <div style="display:flex;gap:10px;">
-                    @for($i = 1; $i <= 5; $i++)
-                    <label style="flex:1;cursor:pointer;">
-                        <input type="radio" name="attendance_rating" value="{{ $i }}"
-                               {{ old('attendance_rating') == $i ? 'checked' : '' }}
-                               style="display:none;" class="star-radio" data-group="attendance">
-                        <div class="star-btn" data-value="{{ $i }}" data-group="attendance"
-                             style="text-align:center;padding:10px 6px;border-radius:8px;border:1px solid var(--border2);
-                                    background:var(--surface2);cursor:pointer;transition:all .15s;">
-                            <div style="font-size:18px;">{{ $i <= 1 ? '★' : '★' }}</div>
-                            <div style="font-size:10.5px;color:var(--muted);margin-top:3px;">
-                                {{ ['','Poor','Fair','Good','Very Good','Excellent'][$i] }}
-                            </div>
-                        </div>
-                    </label>
-                    @endfor
-                </div>
-                @error('attendance_rating')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:6px;">{{ $message }}</div>
-                @enderror
-            </div>
+            <div class="form-section-divider"><span>Account Information</span></div>
 
-            {{-- Performance Rating --}}
-            <div style="margin-bottom:24px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);
-                              letter-spacing:.5px;margin-bottom:10px;">
-                    PERFORMANCE RATING <span style="color:var(--coral);">*</span>
-                </label>
-                <div style="display:flex;gap:10px;">
-                    @for($i = 1; $i <= 5; $i++)
-                    <label style="flex:1;cursor:pointer;">
-                        <input type="radio" name="performance_rating" value="{{ $i }}"
-                               {{ old('performance_rating') == $i ? 'checked' : '' }}
-                               style="display:none;" class="star-radio" data-group="performance">
-                        <div class="star-btn" data-value="{{ $i }}" data-group="performance"
-                             style="text-align:center;padding:10px 6px;border-radius:8px;border:1px solid var(--border2);
-                                    background:var(--surface2);cursor:pointer;transition:all .15s;">
-                            <div style="font-size:18px;">★</div>
-                            <div style="font-size:10.5px;color:var(--muted);margin-top:3px;">
-                                {{ ['','Poor','Fair','Good','Very Good','Excellent'][$i] }}
-                            </div>
-                        </div>
-                    </label>
-                    @endfor
-                </div>
-                @error('performance_rating')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:6px;">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Overall Grade + Recommendation (2 col) --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-
-                {{-- Overall Grade --}}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);
-                                  letter-spacing:.5px;margin-bottom:6px;">
-                        OVERALL GRADE (0–100) <span style="color:var(--coral);">*</span>
-                    </label>
-                    <input type="number" name="overall_grade" min="0" max="100" step="0.01"
-                           value="{{ old('overall_grade') }}"
-                           placeholder="e.g. 92.5"
-                           style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);
-                                  background:var(--surface2);color:var(--text);font-size:13px;outline:none;
-                                  font-family:inherit;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'"
-                           required>
-                    @error('overall_grade')
-                        <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Full name</label>
+                    <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
+                           class="form-input {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                           style="border-radius:0;">
+                    @error('name')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
-
-                {{-- Recommendation --}}
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);
-                                  letter-spacing:.5px;margin-bottom:6px;">
-                        RECOMMENDATION <span style="color:var(--coral);">*</span>
-                    </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <label style="cursor:pointer;">
-                            <input type="radio" name="recommendation" value="pass"
-                                   {{ old('recommendation') === 'pass' ? 'checked' : '' }}
-                                   style="display:none;" class="rec-radio">
-                            <div class="rec-btn" data-value="pass"
-                                 style="text-align:center;padding:9px 8px;border-radius:8px;border:1px solid var(--border2);
-                                        background:var(--surface2);cursor:pointer;font-size:13px;font-weight:600;
-                                        color:var(--muted);transition:all .15s;">
-                                ✓ Pass
-                            </div>
-                        </label>
-                        <label style="cursor:pointer;">
-                            <input type="radio" name="recommendation" value="fail"
-                                   {{ old('recommendation') === 'fail' ? 'checked' : '' }}
-                                   style="display:none;" class="rec-radio">
-                            <div class="rec-btn" data-value="fail"
-                                 style="text-align:center;padding:9px 8px;border-radius:8px;border:1px solid var(--border2);
-                                        background:var(--surface2);cursor:pointer;font-size:13px;font-weight:600;
-                                        color:var(--muted);transition:all .15s;">
-                                ✕ Fail
-                            </div>
-                        </label>
-                    </div>
-                    @error('recommendation')
-                        <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">Email address</label>
+                    <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
+                           class="form-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                           style="border-radius:0;">
+                    @error('email')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
             </div>
 
-            {{-- Remarks --}}
-            <div style="margin-bottom:28px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);
-                              letter-spacing:.5px;margin-bottom:6px;">
-                    REMARKS <span style="font-weight:400;">(optional)</span>
-                </label>
-                <textarea name="remarks" rows="4"
-                          placeholder="Additional comments about the intern's performance, attitude, strengths, or areas for improvement…"
-                          style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);
-                                 background:var(--surface2);color:var(--text);font-size:13px;resize:vertical;
-                                 outline:none;font-family:inherit;box-sizing:border-box;"
-                          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">{{ old('remarks') }}</textarea>
-                @error('remarks')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Warning notice --}}
-            <div style="padding:10px 14px;background:var(--surface2);border:1px solid var(--border2);
-                        border-radius:8px;font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;">
-                ⚠️ <strong style="color:var(--text);">This evaluation is final.</strong>
-                Once submitted it cannot be edited. Please review your ratings carefully before submitting.
-            </div>
-
-            {{-- Actions --}}
-            <div style="display:flex;gap:12px;">
-                <button type="submit"
-                        style="padding:10px 28px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;
-                               font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;"
-                        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-                    Submit Evaluation
-                </button>
-                <a href="{{ route('supervisor.dashboard') }}"
-                   style="padding:10px 20px;background:transparent;color:var(--muted);border:1px solid var(--border2);
-                          border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
-                    Cancel
-                </a>
+            <div style="display:flex;justify-content:flex-end;">
+                <button type="submit" class="btn btn-primary btn-sm">Save profile</button>
             </div>
 
         </form>
     </div>
+
+    {{-- PASSWORD CARD --}}
+    <div class="card fade-up fade-up-2">
+
+        <div class="card-header">
+            <div>
+                <div class="card-title">Change password</div>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">
+                    // Leave blank to keep current password unchanged
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('supervisor.settings.update.password') }}" style="padding:24px;">
+            @csrf @method('PATCH')
+
+            <div class="form-section-divider"><span>New Password</span></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+                <div>
+                    <label class="form-label">New password</label>
+                    <div style="position:relative;">
+                        <input type="password" name="password" id="pw-main"
+                               placeholder="Min. 8 characters"
+                               class="form-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                               style="padding-right:38px;border-radius:0;">
+                        <button type="button" onclick="togglePw('pw-main', this)"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                                       background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    @error('password')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+                <div>
+                    <label class="form-label">Confirm new password</label>
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="pw-confirm"
+                               placeholder="Repeat new password"
+                               class="form-input"
+                               style="padding-right:38px;border-radius:0;"
+                               oninput="checkMatch()">
+                        <button type="button" onclick="togglePw('pw-confirm', this)"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                                       background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="pw-match-msg" style="font-family:'DM Mono',monospace;font-size:10px;margin-top:4px;min-height:16px;letter-spacing:0.04em;"></div>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;">
+                <button type="submit" class="btn btn-primary btn-sm">Update password</button>
+            </div>
+
+        </form>
+    </div>
+
 </div>
 
+@push('styles')
+<style>
+.form-input { border-radius: 0 !important; }
+.form-input:focus { border-color: var(--crimson); }
+.form-input.is-invalid { border-color: var(--crimson); }
+</style>
+@endpush
+
+@push('scripts')
 <script>
-// Star rating buttons
-document.querySelectorAll('.star-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const group = this.dataset.group;
-        const value = parseInt(this.dataset.value);
-
-        // Check the hidden radio
-        document.querySelector(`input.star-radio[data-group="${group}"][value="${value}"]`).checked = true;
-
-        // Update styles for all buttons in this group
-        document.querySelectorAll(`.star-btn[data-group="${group}"]`).forEach(b => {
-            const bVal = parseInt(b.dataset.value);
-            if (bVal <= value) {
-                b.style.background    = 'var(--gold-dim)';
-                b.style.borderColor   = 'var(--gold)';
-                b.style.color         = 'var(--gold)';
-                b.querySelector('div:first-child').style.color = 'var(--gold)';
-            } else {
-                b.style.background    = 'var(--surface2)';
-                b.style.borderColor   = 'var(--border2)';
-                b.style.color         = '';
-                b.querySelector('div:first-child').style.color = '';
-            }
-        });
-    });
-});
-
-// Recommendation buttons
-document.querySelectorAll('.rec-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const value = this.dataset.value;
-        document.querySelector(`input.rec-radio[value="${value}"]`).checked = true;
-
-        document.querySelectorAll('.rec-btn').forEach(b => {
-            const isPass = b.dataset.value === 'pass';
-            const isSelected = b.dataset.value === value;
-            if (isSelected) {
-                b.style.background  = isPass ? 'var(--teal-dim)'  : 'var(--coral-dim)';
-                b.style.borderColor = isPass ? 'var(--teal)'      : 'var(--coral)';
-                b.style.color       = isPass ? 'var(--teal)'      : 'var(--coral)';
-            } else {
-                b.style.background  = 'var(--surface2)';
-                b.style.borderColor = 'var(--border2)';
-                b.style.color       = 'var(--muted)';
-            }
-        });
-    });
-});
-
-// Restore old() state on page load (after validation error)
-@if(old('attendance_rating'))
-    document.querySelector('.star-btn[data-group="attendance"][data-value="{{ old('attendance_rating') }}"]')?.click();
-@endif
-@if(old('performance_rating'))
-    document.querySelector('.star-btn[data-group="performance"][data-value="{{ old('performance_rating') }}"]')?.click();
-@endif
-@if(old('recommendation'))
-    document.querySelector('.rec-btn[data-value="{{ old('recommendation') }}"]')?.click();
-@endif
+function togglePw(id, btn) {
+    const input  = document.getElementById(id);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.style.color = isText ? 'var(--muted)' : 'var(--crimson)';
+}
+const pwMain    = document.getElementById('pw-main');
+const pwConfirm = document.getElementById('pw-confirm');
+const pwMsg     = document.getElementById('pw-match-msg');
+function checkMatch() {
+    if (!pwConfirm.value) { pwMsg.textContent = ''; return; }
+    if (pwMain.value === pwConfirm.value) {
+        pwMsg.textContent = '✓ passwords match';
+        pwMsg.style.color = '#34d399';
+        pwConfirm.style.borderColor = '#34d399';
+    } else {
+        pwMsg.textContent = '✕ passwords do not match';
+        pwMsg.style.color = 'var(--crimson)';
+        pwConfirm.style.borderColor = 'var(--crimson)';
+    }
+}
+pwMain.addEventListener('input', checkMatch);
 </script>
+@endpush
 
 @endsection
