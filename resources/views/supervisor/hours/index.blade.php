@@ -1,5 +1,5 @@
 {{-- resources/views/supervisor/hours/index.blade.php --}}
-@extends('layouts.supervisor')
+@extends('layouts.supervisor-app')
 
 @section('title', 'Hour Logs')
 

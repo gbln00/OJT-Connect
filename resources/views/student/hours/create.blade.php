@@ -1,5 +1,5 @@
 {{-- resources/views/student/hours/create.blade.php --}}
-@extends('layouts.student')
+@extends('layouts.student-app')
 
 @section('title', 'Log Hours')
 

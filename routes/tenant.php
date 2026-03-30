@@ -38,6 +38,7 @@ use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\HourLogController;
 use App\Http\Controllers\Student\StudentWeeklyReportController;
 use App\Http\Controllers\Student\StudentEvaluationController;
+use App\Http\Controllers\Student\StudentHourLogController;
 use App\Http\Controllers\Student\StudentSettingsController;
 
 // Supervisor controllers
@@ -227,9 +228,9 @@ Route::middleware([
         Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
 
         // Hour logs
-        Route::get('/hours',        [HourLogController::class, 'index'])->name('hours.index');
-        Route::get('/hours/create', [HourLogController::class, 'create'])->name('hours.create');
-        Route::post('/hours',       [HourLogController::class, 'store'])->name('hours.store');
+        Route::get('/hours',        [StudentHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours/create', [StudentHourLogController::class, 'create'])->name('hours.create');
+        Route::post('/hours',       [StudentHourLogController::class, 'store'])->name('hours.store');
 
         // Reports
         Route::get('/reports',               [StudentWeeklyReportController::class, 'index'])->name('reports.index');
