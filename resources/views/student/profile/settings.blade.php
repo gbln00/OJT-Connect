@@ -3,284 +3,204 @@
 @section('page-title', 'Account Settings')
 
 @section('content')
+<div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">
 
-{{-- Flash messages --}}
-@if(session('success'))
-    <div style="background:var(--teal-dim);border:1px solid var(--teal);color:var(--teal);padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;">
-        {{ session('success') }}
+    {{-- Eyebrow --}}
+    <div class="fade-up" style="display:flex;align-items:center;gap:8px;">
+        <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+            System / Settings
+        </span>
     </div>
-@endif
-@if(session('error'))
-    <div style="background:var(--coral-dim);border:1px solid var(--coral);color:var(--coral);padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;">
-        {{ session('error') }}
-    </div>
-@endif
 
-{{-- PROFILE HEADER --}}
-<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;">
-    <div style="width:64px;height:64px;border-radius:50%;background:var(--gold-dim);border:2px solid rgba(240,180,41,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--gold);flex-shrink:0;">
-        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-    </div>
-    <div>
-        <div style="font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.3px;">{{ auth()->user()->name }}</div>
-        <div style="font-size:12.5px;color:var(--muted);margin-top:3px;">{{ auth()->user()->email }}</div>
-        <div style="margin-top:6px;">
-            @php
-                $roleMap = [
-                    'admin'              => ['label' => 'Admin',       'class' => 'admin'],
-                    'ojt_coordinator'    => ['label' => 'Coordinator', 'class' => 'coordinator'],
-                    'company_supervisor' => ['label' => 'Supervisor',  'class' => 'supervisor'],
-                    'student_intern'     => ['label' => 'Student',     'class' => 'student'],
-                ];
-                $r = $roleMap[auth()->user()->role] ?? ['label' => auth()->user()->role, 'class' => 'student'];
-            @endphp
-            <span class="role-badge {{ $r['class'] }}">{{ $r['label'] }}</span>
+    {{-- PROFILE HEADER --}}
+    <div class="card fade-up fade-up-1">
+        <div style="padding:20px 24px;display:flex;align-items:center;gap:16px;">
+            <div style="width:52px;height:52px;flex-shrink:0;border:1px solid rgba(140,14,3,0.4);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--crimson);">
+                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);">{{ auth()->user()->name }}</div>
+                <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;">{{ auth()->user()->email }}</div>
+                <div style="margin-top:6px;"><span class="role-badge student">Student Intern</span></div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+                <div class="form-hint">Member since</div>
+                <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);margin-top:2px;">{{ auth()->user()->created_at->format('M d, Y') }}</div>
+            </div>
         </div>
     </div>
-    <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:11px;color:var(--muted);">Member since</div>
-        <div style="font-size:13px;color:var(--muted2);margin-top:2px;">{{ auth()->user()->created_at->format('M d, Y') }}</div>
-    </div>
-</div>
 
-{{-- TWO COLUMN LAYOUT --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+    {{-- TWO COLUMN --}}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" class="fade-up fade-up-2">
 
-    {{-- LEFT: UPDATE PROFILE INFO --}}
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:7px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;color:var(--gold);">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
+        {{-- PROFILE INFO --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Profile Information</div>
+            </div>
+            <form method="POST" action="{{ route('student.settings.profile') }}" style="padding:24px;">
+                @csrf @method('PATCH')
+
+                <div style="margin-bottom:16px;">
+                    <label class="form-label">Full name</label>
+                    <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
+                           required class="form-input {{ $errors->has('name') ? 'is-invalid' : '' }}">
+                    @error('name')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+
+                <div style="margin-bottom:28px;">
+                    <label class="form-label">Email address</label>
+                    <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
+                           required class="form-input {{ $errors->has('email') ? 'is-invalid' : '' }}">
+                    @error('email')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+
+                <div style="margin-bottom:28px;">
+                    <label class="form-label">Role <span style="color:var(--muted);">(read-only)</span></label>
+                    <input type="text" value="Student Intern" disabled
+                           class="form-input" style="cursor:not-allowed;color:var(--muted);background:var(--bg);">
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;">
+                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        {{-- CHANGE PASSWORD --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Change Password</div>
+            </div>
+            <form method="POST" action="{{ route('student.settings.password') }}" style="padding:24px;">
+                @csrf @method('PATCH')
+
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px;letter-spacing:0.04em;">
+                    // Leave blank to keep current password unchanged
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label class="form-label">Current password</label>
+                    <div style="position:relative;">
+                        <input type="password" name="current_password" id="pw-current"
+                               class="form-input {{ $errors->has('current_password') ? 'is-invalid' : '' }}"
+                               style="padding-right:38px;">
+                        <button type="button" onclick="togglePw('pw-current',this)"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
                     </div>
-                    Profile information
+                    @error('current_password')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
-            </div>
-        </div>
 
-        <form method="POST" action="{{ route('admin.settings.update.profile') }}" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
-            @csrf
-            @method('PATCH')
-
-            {{-- Name --}}
-            <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Full name
-                </label>
-                <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
-                       required
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                       onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                @error('name')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Email --}}
-            <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Email address
-                </label>
-                <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
-                       required
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                       onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                @error('email')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Role (read-only) --}}
-            <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Role <span style="color:var(--muted);font-weight:400;">(cannot be changed here)</span>
-                </label>
-                <input type="text" value="{{ $r['label'] }}" disabled
-                       style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:13px;cursor:not-allowed;font-family:inherit;">
-            </div>
-
-            <div style="padding-top:4px;">
-                <button type="submit"
-                        style="padding:9px 22px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;"
-                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Save changes
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- RIGHT: CHANGE PASSWORD --}}
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:28px;height:28px;border-radius:7px;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;color:var(--teal);">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
+                <div style="margin-bottom:16px;">
+                    <label class="form-label">New password</label>
+                    <div style="position:relative;">
+                        <input type="password" name="password" id="pw-main"
+                               class="form-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                               style="padding-right:38px;" oninput="checkStrength(this.value)">
+                        <button type="button" onclick="togglePw('pw-main',this)"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
                     </div>
-                    Change password
-                </div>
-            </div>
-        </div>
-
-        <form method="POST" action="{{ route('admin.settings.update.password') }}" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
-            @csrf
-            @method('PATCH')
-
-            {{-- Current password --}}
-            <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Current password
-                </label>
-                <div style="position:relative;">
-                    <input type="password" name="current_password" id="current_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                    <button type="button" onclick="togglePw('current_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
-                    </button>
-                </div>
-                @error('current_password')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- New password --}}
-            <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    New password
-                </label>
-                <div style="position:relative;">
-                    <input type="password" name="password" id="new_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'"
-                           oninput="checkStrength(this.value)">
-                    <button type="button" onclick="togglePw('new_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
-                    </button>
-                </div>
-                {{-- Strength bar --}}
-                <div style="margin-top:8px;">
-                    <div style="height:3px;border-radius:4px;background:var(--border);overflow:hidden;">
-                        <div id="strength-bar" style="height:100%;width:0%;border-radius:4px;transition:width 0.3s,background 0.3s;"></div>
+                    <div style="margin-top:6px;">
+                        <div class="progress-track" style="height:3px;"><div id="strength-bar" style="height:100%;width:0%;transition:width 0.3s,background 0.3s;"></div></div>
+                        <div id="strength-label" class="form-hint" style="margin-top:3px;"></div>
                     </div>
-                    <div id="strength-label" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+                    @error('password')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
-                @error('password')
-                    <div style="font-size:11.5px;color:var(--coral);margin-top:4px;">{{ $message }}</div>
-                @enderror
-            </div>
 
-            {{-- Confirm password --}}
+                <div style="margin-bottom:28px;">
+                    <label class="form-label">Confirm new password</label>
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="pw-confirm"
+                               class="form-input" style="padding-right:38px;" oninput="checkMatch()">
+                        <button type="button" onclick="togglePw('pw-confirm',this)"
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div id="pw-match-msg" style="font-family:'DM Mono',monospace;font-size:10px;margin-top:4px;min-height:16px;letter-spacing:0.04em;"></div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;">
+                    <button type="submit" class="btn btn-primary btn-sm">Update Password</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    {{-- DANGER ZONE --}}
+    <div class="card fade-up fade-up-3" style="border-color:rgba(140,14,3,0.2);">
+        <div class="card-header" style="border-bottom-color:rgba(140,14,3,0.12);">
+            <div class="card-title" style="color:var(--crimson);">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;margin-right:6px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Danger Zone
+            </div>
+        </div>
+        <div style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
             <div>
-                <label style="display:block;font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:6px;">
-                    Confirm new password
-                </label>
-                <div style="position:relative;">
-                    <input type="password" name="password_confirmation" id="confirm_password"
-                           required
-                           style="width:100%;padding:9px 38px 9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;"
-                           onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
-                    <button type="button" onclick="togglePw('confirm_password', this)"
-                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
-                    </button>
-                </div>
+                <div style="font-size:13.5px;font-weight:500;color:var(--text);">Log out of all sessions</div>
+                <div class="form-hint" style="margin-top:2px;">Sign out from all devices and browsers.</div>
             </div>
-
-            <div style="padding-top:4px;">
-                <button type="submit"
-                        style="padding:9px 22px;background:var(--teal);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;"
-                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Update password
-                </button>
-            </div>
-        </form>
-    </div>
-
-</div>
-
-{{-- DANGER ZONE --}}
-<div class="card" style="margin-top:16px;border-color:rgba(248,113,113,0.2);">
-    <div class="card-header" style="border-bottom-color:rgba(248,113,113,0.15);">
-        <div class="card-title">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:28px;height:28px;border-radius:7px;background:var(--coral-dim);display:flex;align-items:center;justify-content:center;color:var(--coral);">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </div>
-                <span style="color:var(--coral);">Danger zone</span>
-            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-danger btn-sm">Log Out</button>
+            </form>
         </div>
     </div>
-    <div style="padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div>
-            <div style="font-size:13.5px;font-weight:500;color:var(--text);">Log out of all sessions</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:3px;">Sign out from all devices and browsers.</div>
-        </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit"
-                    style="padding:9px 18px;background:none;border:1px solid var(--coral);color:var(--coral);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.15s;"
-                    onmouseover="this.style.background='var(--coral-dim)'" onmouseout="this.style.background='none'">
-                Log out
-            </button>
-        </form>
-    </div>
+
 </div>
 
 <script>
-    // Toggle password visibility
     function togglePw(id, btn) {
         const input = document.getElementById(id);
         const isText = input.type === 'text';
         input.type = isText ? 'password' : 'text';
-        btn.style.color = isText ? 'var(--muted)' : 'var(--gold)';
+        btn.style.color = isText ? 'var(--muted)' : 'var(--crimson)';
     }
 
-    // Password strength checker
+    const pwMain    = document.getElementById('pw-main');
+    const pwConfirm = document.getElementById('pw-confirm');
+    const pwMsg     = document.getElementById('pw-match-msg');
+
+    function checkMatch() {
+        if (!pwConfirm.value) { pwMsg.textContent = ''; return; }
+        if (pwMain.value === pwConfirm.value) {
+            pwMsg.textContent = '✓ passwords match';
+            pwMsg.style.color = '#34d399';
+            pwConfirm.style.borderColor = '#34d399';
+        } else {
+            pwMsg.textContent = '✕ passwords do not match';
+            pwMsg.style.color = 'var(--crimson)';
+            pwConfirm.style.borderColor = 'var(--crimson)';
+        }
+    }
+    if (pwMain) pwMain.addEventListener('input', checkMatch);
+
     function checkStrength(val) {
         const bar   = document.getElementById('strength-bar');
         const label = document.getElementById('strength-label');
         if (!val) { bar.style.width = '0%'; label.textContent = ''; return; }
-
         let score = 0;
         if (val.length >= 8)          score++;
         if (/[A-Z]/.test(val))        score++;
         if (/[0-9]/.test(val))        score++;
         if (/[^A-Za-z0-9]/.test(val)) score++;
-
         const levels = [
-            { w: '25%', color: 'var(--coral)',  text: 'Weak' },
-            { w: '50%', color: 'var(--gold)',   text: 'Fair' },
-            { w: '75%', color: 'var(--blue)',   text: 'Good' },
-            { w: '100%',color: 'var(--teal)',   text: 'Strong' },
+            { w: '25%', color: 'var(--crimson)',    text: 'Weak' },
+            { w: '50%', color: 'var(--gold-color)', text: 'Fair' },
+            { w: '75%', color: 'var(--blue-color)', text: 'Good' },
+            { w: '100%',color: 'var(--teal-color)', text: 'Strong' },
         ];
-        const l = levels[score - 1] || levels[0];
+        const l = levels[Math.min(score - 1, 3)] || levels[0];
         bar.style.width      = l.w;
         bar.style.background = l.color;
         label.textContent    = l.text;
         label.style.color    = l.color;
     }
 </script>
-
 @endsection

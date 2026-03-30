@@ -4,8 +4,8 @@
 
 @section('content')
 
-{{-- Greeting --}}
-<div class="greeting" style="margin-bottom:24px;">
+{{-- GREETING --}}
+<div class="greeting fade-up">
     <div class="greeting-sub">{{ now()->format('l, F j, Y') }}</div>
     <div class="greeting-title">
         Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }},
@@ -13,254 +13,241 @@
     </div>
 </div>
 
-{{-- ── TOP STAT CARDS ── --}}
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+{{-- STAT CARDS --}}
+<div class="stats-grid fade-up fade-up-1" style="grid-template-columns:repeat(3,1fr);">
 
     {{-- Application Status --}}
-    <div class="card" style="padding:20px;">
-        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">
-            Application
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon {{ $application ? ($application->status === 'approved' ? 'teal' : ($application->status === 'rejected' ? 'coral' : 'gold')) : 'steel' }}">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                </svg>
+            </div>
+            <span class="stat-tag">application</span>
         </div>
         @if($application)
+            <div class="stat-num" style="font-size:16px;margin-bottom:6px;">{{ $application->company->name }}</div>
             @php
-                $statusColor = match($application->status) {
-                    'approved' => 'var(--color-text-success)',
-                    'rejected' => 'var(--coral)',
-                    default    => 'var(--color-text-warning)',
-                };
-                $statusBg = match($application->status) {
-                    'approved' => 'var(--color-background-success)',
-                    'rejected' => 'var(--coral-dim)',
-                    default    => 'var(--color-background-warning)',
+                $sCls = match($application->status) {
+                    'approved' => 'green', 'rejected' => 'crimson', default => 'gold'
                 };
             @endphp
-            <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">
-                {{ $application->company->name }}
-            </div>
-            <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;background:{{ $statusBg }};color:{{ $statusColor }};">
-                {{ $application->status_label }}
-            </span>
-            <div style="font-size:11px;color:var(--muted);margin-top:8px;">
-                {{ $application->program }} · {{ $application->semester }} {{ $application->school_year }}
-            </div>
+            <span class="status-pill {{ $sCls }}">{{ $application->status_label }}</span>
         @else
-            <div style="font-size:15px;font-weight:600;color:var(--muted);margin-bottom:8px;">No application yet</div>
-            <a href="{{ route('student.application.create') }}"
-               style="font-size:12px;font-weight:500;color:var(--gold);text-decoration:none;">
-                Apply now →
-            </a>
+            <div class="stat-num" style="font-size:16px;color:var(--muted);">No application</div>
+            <a href="{{ route('student.application.create') }}" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--crimson);text-decoration:none;">Apply now →</a>
         @endif
     </div>
 
     {{-- Hours Progress --}}
-    <div class="card" style="padding:20px;">
-        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">
-            OJT Hours
-        </div>
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px;">
-            <div style="font-size:28px;font-weight:700;color:var(--text);line-height:1;">
-                {{ number_format($totalLogged, 1) }}
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon blue">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
             </div>
-            <div style="font-size:13px;color:var(--muted);">/ {{ $requiredHours }} hrs</div>
+            <span class="stat-tag">hours</span>
         </div>
-        {{-- Progress bar --}}
-        <div style="height:6px;background:var(--border2);border-radius:4px;overflow:hidden;margin-bottom:6px;">
-            <div style="height:100%;width:{{ $progressPct }}%;background:var(--color-text-success);border-radius:4px;transition:width 0.8s ease;"></div>
+        <div class="stat-num">{{ number_format($totalLogged, 1) }}</div>
+        <div class="stat-label" style="margin-bottom:10px;">of {{ $requiredHours }} hours</div>
+        <div class="progress-track">
+            <div class="progress-fill blue" style="width:{{ $progressPct }}%;"></div>
         </div>
-        <div style="font-size:11px;color:var(--muted);">
-            {{ $progressPct }}% complete
-            @if($application && $application->isApproved())
-                · {{ number_format($application->remaining_hours, 1) }} hrs remaining
-            @endif
-        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px;">{{ $progressPct }}% complete</div>
     </div>
 
     {{-- Student Info --}}
-    <div class="card" style="padding:20px;">
-        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">
-            Student Info
+    <div class="stat-card">
+        <div class="stat-top">
+            <div class="stat-icon steel">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+            </div>
+            <span class="stat-tag">student</span>
         </div>
         @if($profile)
-            <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">
-                {{ $profile->student_id }}
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;">
-                <div style="font-size:12px;color:var(--muted2);">
-                    <span style="color:var(--muted);">Course</span> · {{ $profile->course }}
-                </div>
-                <div style="font-size:12px;color:var(--muted2);">
-                    <span style="color:var(--muted);">Year & Section</span> · {{ $profile->year_level }} — {{ $profile->section }}
-                </div>
-            </div>
+            <div class="stat-num" style="font-size:18px;">{{ $profile->student_id }}</div>
+            <div class="stat-label" style="margin-bottom:4px;">{{ $profile->course }}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $profile->year_level }} — {{ $profile->section }}</div>
         @else
-            <div style="font-size:13px;color:var(--muted);">No profile found.</div>
+            <div class="stat-num" style="font-size:16px;color:var(--muted);">No profile</div>
+            <div class="stat-label">Contact your coordinator</div>
         @endif
     </div>
 
 </div>
 
-{{-- ── BOTTOM ROW ── --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+{{-- BOTTOM GRID --}}
+<div style="display:grid;grid-template-columns:1fr 320px;gap:16px;" class="fade-up fade-up-2">
 
-    {{-- Recent Hour Logs --}}
+    {{-- RECENT HOUR LOGS --}}
     <div class="card">
-        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-header">
             <div class="card-title">Recent Hour Logs</div>
             @if($application && $application->isApproved())
-                <a href="{{ route('student.hours.index') }}"
-                   style="font-size:12px;color:var(--gold);text-decoration:none;">
-                    View all →
-                </a>
+                <a href="{{ route('student.hours.index') }}" class="card-action">View all →</a>
             @endif
         </div>
-
-        <div style="padding:0 16px 16px;">
-            @if($recentLogs->isEmpty())
-                <div style="padding:24px 0;text-align:center;color:var(--muted);font-size:13px;">
-                    @if(!$application)
-                        No application submitted yet.
-                    @elseif($application->isPending())
-                        Waiting for application approval before logging hours.
-                    @elseif($application->isRejected())
-                        Application was rejected. Please re-apply.
-                    @else
-                        No hour logs yet.
-                        <a href="{{ route('student.hours.index') }}"
-                           style="display:block;margin-top:8px;color:var(--gold);font-size:12px;font-weight:500;text-decoration:none;">
-                            Log your first hours →
-                        </a>
-                    @endif
-                </div>
-            @else
-                <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                    <thead>
-                        <tr style="border-bottom:1px solid var(--border2);">
-                            <th style="text-align:left;padding:8px 0;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Date</th>
-                            <th style="text-align:left;padding:8px 0;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Hours</th>
-                            <th style="text-align:left;padding:8px 0;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentLogs as $log)
-                        <tr style="border-bottom:1px solid var(--border2);">
-                            <td style="padding:10px 0;color:var(--text);">
-                                {{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}
-                            </td>
-                            <td style="padding:10px 0;color:var(--text);font-weight:500;">
-                                {{ $log->total_hours }} hrs
-                            </td>
-                            <td style="padding:10px 0;">
-                                @php
-                                    $logColor = match($log->status ?? 'pending') {
-                                        'approved' => ['bg' => 'var(--color-background-success)', 'text' => 'var(--color-text-success)'],
-                                        'rejected' => ['bg' => 'var(--coral-dim)',                'text' => 'var(--coral)'],
-                                        default    => ['bg' => 'var(--color-background-warning)', 'text' => 'var(--color-text-warning)'],
-                                    };
-                                @endphp
-                                <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:{{ $logColor['bg'] }};color:{{ $logColor['text'] }};">
-                                    {{ ucfirst($log->status ?? 'pending') }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentLogs as $log)
+                    <tr>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;">{{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}</td>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;">{{ \Carbon\Carbon::parse($log->time_in)->format('h:i A') }}</td>
+                        <td style="font-family:'DM Mono',monospace;font-size:11px;">{{ \Carbon\Carbon::parse($log->time_out)->format('h:i A') }}</td>
+                        <td style="font-weight:600;color:var(--blue-color);">{{ $log->total_hours }} hrs</td>
+                        <td>
+                            @php
+                                $cls = match($log->status ?? 'pending') {
+                                    'approved' => 'green', 'rejected' => 'crimson', default => 'gold'
+                                };
+                            @endphp
+                            <span class="status-pill {{ $cls }}">{{ ucfirst($log->status ?? 'pending') }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:36px;color:var(--muted);">
+                            @if(!$application)
+                                No application submitted yet.
+                            @elseif($application->isPending())
+                                Waiting for application approval.
+                            @elseif($application->isRejected())
+                                Application was rejected.
+                            @else
+                                No hour logs yet.
+                                <a href="{{ route('student.hours.create') }}" style="color:var(--crimson);text-decoration:none;font-weight:500;">Log hours →</a>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    {{-- Recent Weekly Reports --}}
-    <div class="card">
-        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
-            <div class="card-title">Weekly Reports</div>
-            @if($application && $application->isApproved())
-                <a href="{{ route('student.reports.index') }}"
-                   style="font-size:12px;color:var(--gold);text-decoration:none;">
-                    View all →
-                </a>
-            @endif
-        </div>
+    {{-- RIGHT COLUMN --}}
+    <div style="display:flex;flex-direction:column;gap:14px;">
 
-        <div style="padding:0 16px 16px;">
-            @if($recentReports->isEmpty())
-                <div style="padding:24px 0;text-align:center;color:var(--muted);font-size:13px;">
-                    @if(!$application)
-                        No application submitted yet.
-                    @elseif($application->isPending())
-                        Waiting for application approval.
-                    @elseif($application->isRejected())
-                        Application was rejected. Please re-apply.
-                    @else
-                        No reports submitted yet.
-                        <a href="{{ route('student.reports.index') }}"
-                           style="display:block;margin-top:8px;color:var(--gold);font-size:12px;font-weight:500;text-decoration:none;">
-                            Submit your first report →
-                        </a>
-                    @endif
-                </div>
-            @else
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    @foreach($recentReports as $report)
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border2);">
-                        <div>
-                            <div style="font-size:13px;font-weight:500;color:var(--text);">
-                                Week {{ $report->week_number }}
-                            </div>
-                            <div style="font-size:11px;color:var(--muted);margin-top:2px;">
-                                {{ \Carbon\Carbon::parse($report->created_at)->format('M d, Y') }}
-                            </div>
-                        </div>
-                        @php
-                            $rColor = match($report->status ?? 'pending') {
-                                'approved' => ['bg' => 'var(--color-background-success)', 'text' => 'var(--color-text-success)'],
-                                'returned' => ['bg' => 'var(--coral-dim)',                'text' => 'var(--coral)'],
-                                default    => ['bg' => 'var(--color-background-warning)', 'text' => 'var(--color-text-warning)'],
-                            };
-                        @endphp
-                        <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:{{ $rColor['bg'] }};color:{{ $rColor['text'] }};">
-                            {{ ucfirst($report->status ?? 'pending') }}
-                        </span>
+        {{-- QUICK ACTIONS --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Quick actions</div>
+            </div>
+            <div class="quick-actions">
+                <a href="{{ route('student.application.create') }}" class="qa-btn">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
                     </div>
-                    @endforeach
-                </div>
-            @endif
+                    <span class="qa-label">Application</span>
+                </a>
+                <a href="{{ route('student.hours.create') }}" class="qa-btn">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <span class="qa-label">Log Hours</span>
+                </a>
+                <a href="{{ route('student.reports.create') }}" class="qa-btn">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                        </svg>
+                    </div>
+                    <span class="qa-label">New Report</span>
+                </a>
+                <a href="{{ route('student.evaluation.show') }}" class="qa-btn">
+                    <div class="qa-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span class="qa-label">Evaluation</span>
+                </a>
+            </div>
         </div>
-    </div>
 
+        {{-- RECENT WEEKLY REPORTS --}}
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Weekly reports</div>
+                @if($application && $application->isApproved())
+                    <a href="{{ route('student.reports.index') }}" class="card-action">View all →</a>
+                @endif
+            </div>
+            <div class="activity-list">
+                @forelse($recentReports as $report)
+                <div class="activity-item">
+                    @php
+                        $rDot = match($report->status ?? 'pending') {
+                            'approved' => 'green', 'returned' => 'crimson', default => 'gold'
+                        };
+                    @endphp
+                    <div class="activity-dot {{ $rDot }}" style="margin-top:5px;"></div>
+                    <div>
+                        <div class="activity-text">Week {{ $report->week_number }}</div>
+                        <div class="activity-time">{{ \Carbon\Carbon::parse($report->created_at)->format('M d, Y') }} · {{ ucfirst($report->status ?? 'pending') }}</div>
+                    </div>
+                </div>
+                @empty
+                <div class="activity-item">
+                    <div class="activity-dot steel" style="margin-top:5px;"></div>
+                    <div>
+                        <div class="activity-text" style="color:var(--muted);">No reports yet.</div>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+    </div>
 </div>
 
-{{-- ── APPLICATION STATUS BANNER (if pending/rejected) ── --}}
+{{-- APPLICATION STATUS BANNERS --}}
 @if($application && $application->isPending())
-    <div style="margin-top:14px;background:var(--color-background-warning);border:1px solid var(--color-text-warning);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--color-text-warning);">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div>
-            <span style="font-weight:600;">Application pending review.</span>
-            Your application to <strong>{{ $application->company->name }}</strong> is waiting for coordinator approval.
-            Hour logging will be unlocked once approved.
-        </div>
+<div class="alert warning fade-up fade-up-3" style="margin-top:16px;">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+        <strong>Application pending review.</strong>
+        Your application to <strong>{{ $application->company->name }}</strong> is awaiting coordinator approval. Hour logging will be unlocked once approved.
     </div>
+</div>
 @endif
 
 @if($application && $application->isRejected())
-    <div style="margin-top:14px;background:var(--coral-dim);border:1px solid var(--coral);border-radius:8px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--coral);">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-            <div>
-                <span style="font-weight:600;">Application rejected.</span>
-                @if($application->remarks)
-                    Reason: {{ $application->remarks }}
-                @endif
-            </div>
+<div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;" class="alert error fade-up fade-up-3">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <div>
+            <strong>Application rejected.</strong>
+            @if($application->remarks) Reason: {{ $application->remarks }} @endif
         </div>
-        <a href="{{ route('student.application.create') }}"
-           style="white-space:nowrap;font-size:12px;font-weight:600;padding:6px 14px;background:var(--coral);color:#fff;border-radius:6px;text-decoration:none;">
-            Re-apply
-        </a>
     </div>
+    <a href="{{ route('student.application.create') }}" class="btn btn-primary btn-sm" style="white-space:nowrap;">Re-apply</a>
+</div>
 @endif
 
 @endsection

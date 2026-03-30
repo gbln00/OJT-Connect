@@ -1,134 +1,121 @@
+{{-- resources/views/student/reports/edit.blade.php --}}
 @extends('layouts.student-app')
-@section('title', 'Submit Weekly Report')
-@section('page-title', 'Submit Weekly Report')
+@section('title', 'Edit Weekly Report')
+@section('page-title', 'Edit Weekly Report')
+
 @section('content')
+<div style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
 
-<div style="max-width:720px;">
+    <div class="fade-up" style="display:flex;align-items:center;gap:8px;">
+        <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+            Reports / Edit — Week {{ $report->week_number }}
+        </span>
+    </div>
 
-    {{-- Back link --}}
-    <a href="{{ route('student.reports.index') }}"
-       style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:20px;">
-        ← Back to Weekly Reports
-    </a>
-
-    <div class="card" style="padding:28px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">New Weekly Report</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:24px;">
-            Fill in the details for this week's internship report.
+    <div class="card fade-up fade-up-1">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Edit Weekly Report</div>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">
+                    // Week {{ $report->week_number }} · {{ $report->week_start?->format('M d') }} – {{ $report->week_end?->format('M d, Y') }}
+                </div>
+            </div>
+            <a href="{{ route('student.reports.index') }}" class="btn btn-ghost btn-sm">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back
+            </a>
         </div>
 
-        @if($errors->any())
-        <div style="background:var(--red-dim);border:1px solid var(--red);border-radius:8px;padding:12px 16px;margin-bottom:20px;">
-            <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:6px;">Please fix the following errors:</div>
-            <ul style="margin:0;padding-left:18px;">
-                @foreach($errors->all() as $error)
-                    <li style="font-size:12px;color:var(--red);">{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        <form action="{{ route('student.reports.update', $report->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('student.reports.update', $report->id) }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
             @csrf
             @method('PATCH')
 
-            {{-- Week number + date range --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;">
+            @if($errors->any())
+            <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.3);color:var(--crimson);padding:13px 16px;margin-bottom:24px;font-size:13px;">
+                <strong style="display:block;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;font-size:11px;">Please fix the following:</strong>
+                @foreach($errors->all() as $error)
+                    <div style="margin-top:3px;font-size:12.5px;">· {{ $error }}</div>
+                @endforeach
+            </div>
+            @endif
+
+            <div class="form-section-divider"><span>Week Information</span></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                        WEEK NUMBER
-                    </label>
+                    <label class="form-label">Week Number <span style="color:var(--crimson);">✦</span></label>
                     <input type="number" name="week_number" min="1"
-                           value="{{ old('week_number', $report->week_number ?? '') }}"
-                           style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                  color:var(--text);font-size:13px;box-sizing:border-box;"
-                           placeholder="e.g. 1" required>
+                           value="{{ old('week_number', $report->week_number) }}"
+                           class="form-input {{ $errors->has('week_number') ? 'is-invalid' : '' }}" required>
+                    @error('week_number')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                        DATE FROM
-                    </label>
-                    <input type="date" name="week_start" value="{{ old('date_from') }}"
-                           style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                  color:var(--text);font-size:13px;box-sizing:border-box;" required>
+                    <label class="form-label">Date From <span style="color:var(--crimson);">✦</span></label>
+                    <input type="date" name="week_start" value="{{ old('week_start', $report->week_start?->format('Y-m-d')) }}"
+                           class="form-input {{ $errors->has('week_start') ? 'is-invalid' : '' }}" required>
+                    @error('week_start')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                        DATE TO
-                    </label>
-                    <input type="date" name="week_end" value="{{ old('date_to') }}"
-                           style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                  color:var(--text);font-size:13px;box-sizing:border-box;" required>
+                    <label class="form-label">Date To <span style="color:var(--crimson);">✦</span></label>
+                    <input type="date" name="week_end" value="{{ old('week_end', $report->week_end?->format('Y-m-d')) }}"
+                           class="form-input {{ $errors->has('week_end') ? 'is-invalid' : '' }}" required>
+                    @error('week_end')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
             </div>
 
-            {{-- Hours this week --}}
-            <div style="margin-bottom:18px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                    HOURS RENDERED THIS WEEK
-                </label>
-                <input type="number" name="hours_this_week" min="0" max="168" step="0.5"
-                       value="{{ old('hours_this_week') }}"
-                       style="width:200px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                              color:var(--text);font-size:13px;"
-                       placeholder="e.g. 40" required>
-            </div>
-
-            {{-- Activities summary --}}
-            <div style="margin-bottom:18px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                    ACTIVITIES SUMMARY
-                </label>
-                <textarea name="description" rows="4"
-                          style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                 color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"
-                          placeholder="Briefly describe the tasks and activities you did this week…" required>{{ old('description', $report->description ?? '') }}</textarea>
-            </div>
-
-            {{-- Learnings / Reflections --}}
-            <div style="margin-bottom:18px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                    LEARNINGS & REFLECTIONS
-                </label>
-                <textarea name="learnings" rows="4"
-                          style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                 color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"
-                          placeholder="What did you learn this week? Any challenges or highlights?">{{ old('learnings') }}</textarea>
-            </div>
-
-            {{-- Challenges --}}
-            <div style="margin-bottom:18px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                    CHALLENGES ENCOUNTERED
-                </label>
-                <textarea name="challenges" rows="3"
-                          style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                                 color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"
-                          placeholder="Any difficulties or problems you encountered…">{{ old('challenges') }}</textarea>
-            </div>
-
-            {{-- File attachment --}}
             <div style="margin-bottom:28px;">
-                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">
-                    ATTACHMENT <span style="font-weight:400;">(optional — PDF, DOC, image)</span>
-                </label>
-                <input type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                       style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                              color:var(--text);font-size:13px;box-sizing:border-box;">
+                <label class="form-label">Hours Rendered This Week <span style="color:var(--crimson);">✦</span></label>
+                <input type="number" name="hours_this_week" min="0" max="168" step="0.5"
+                       value="{{ old('hours_this_week', $report->hours_this_week) }}"
+                       class="form-input {{ $errors->has('hours_this_week') ? 'is-invalid' : '' }}" style="max-width:200px;" required>
+                @error('hours_this_week')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            {{-- Actions --}}
-            <div style="display:flex;gap:12px;">
-                <button type="submit"
-                        style="padding:10px 28px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;
-                               font-size:13px;font-weight:600;cursor:pointer;">
-                    Submit Report
-                </button>
-                <a href="{{ route('student.reports.index') }}"
-                   style="padding:10px 20px;background:transparent;color:var(--muted);border:1px solid var(--border2);
-                          border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
-                    Cancel
-                </a>
+            <div class="form-section-divider"><span>Report Content</span></div>
+
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Activities Summary <span style="color:var(--crimson);">✦</span></label>
+                <textarea name="description" rows="4"
+                          class="form-input {{ $errors->has('description') ? 'is-invalid' : '' }}"
+                          style="resize:vertical;font-family:inherit;" required>{{ old('description', $report->description) }}</textarea>
+                @error('description')<div class="form-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Learnings & Reflections</label>
+                <textarea name="learnings" rows="4"
+                          class="form-input"
+                          style="resize:vertical;font-family:inherit;">{{ old('learnings', $report->learnings) }}</textarea>
+            </div>
+
+            <div style="margin-bottom:28px;">
+                <label class="form-label">Challenges Encountered</label>
+                <textarea name="challenges" rows="3"
+                          class="form-input"
+                          style="resize:vertical;font-family:inherit;">{{ old('challenges', $report->challenges) }}</textarea>
+            </div>
+
+            <div class="form-section-divider"><span>Attachment</span></div>
+
+            <div style="margin-bottom:28px;">
+                @if($report->file_path)
+                <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+                    <span class="form-hint">Current file:</span>
+                    <a href="{{ Storage::url($report->file_path) }}" target="_blank" class="btn btn-ghost btn-sm">View File</a>
+                </div>
+                @endif
+                <label class="form-label">Replace File <span style="color:var(--muted);">(optional)</span></label>
+                <input type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                       class="form-input" style="cursor:pointer;">
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:4px;">
+                <p class="form-hint">// Changes are applied immediately on save.</p>
+                <div style="display:flex;gap:8px;">
+                    <a href="{{ route('student.reports.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                </div>
             </div>
         </form>
     </div>
