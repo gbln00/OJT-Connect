@@ -126,11 +126,11 @@
                             @if ($log->isPending())
                                 <div style="display:flex;gap:4px;">
                                     <form method="POST" action="{{ route('supervisor.hours.approve', $log) }}">
-                                        @csrf @method('PATCH')
+                                       @csrf
                                         <button type="submit" class="btn btn-approve btn-sm">Approve</button>
                                     </form>
                                     <form method="POST" action="{{ route('supervisor.hours.reject', $log) }}">
-                                        @csrf @method('PATCH')
+                                        @csrf
                                         <button type="submit" class="btn btn-danger btn-sm">Reject</button>
                                     </form>
                                 </div>
