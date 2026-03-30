@@ -694,9 +694,12 @@
             <div class="brand-icon"><span>O</span></div>
             <div class="brand-text">OJT<em>Connect</em></div>
         </a>
+        
 
         <nav class="sidebar-nav">
+        
             <div class="nav-section-label">Main</div>
+            
 
             <a href="{{ route('student.dashboard') }}"
                class="nav-item {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">

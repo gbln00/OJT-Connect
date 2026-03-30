@@ -27,7 +27,7 @@
             </a>
         </div>
 
-        <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
+        <form action="{{ route('student.reports.store') }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
             @csrf
 
             @if($errors->any())
