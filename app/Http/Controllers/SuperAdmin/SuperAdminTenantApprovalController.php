@@ -10,12 +10,13 @@ use App\Mail\TenantApproved;
 use App\Mail\TenantRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;              // 👈 add this
+use Illuminate\Support\Str;
 
 class SuperAdminTenantApprovalController extends Controller
 {
     public function pending()
     {
+        // Show pending tenant registrations
         $registrations = TenantRegistration::where('status', 'pending')
             ->latest()
             ->paginate(20);
@@ -34,13 +35,14 @@ class SuperAdminTenantApprovalController extends Controller
             'created_by' => null,
         ]);
 
+        // Create the tenant's domain
         $tenant->domains()->create([
             'domain' => $registration->subdomain . '.' . config('app.base_domain', 'ojtconnect.com'),
         ]);
 
         $registration->update(['status' => 'approved']);
 
-        $plainPassword = Str::password(12);  // 👈 generate random password
+        $plainPassword = Str::password(12); // Generate a random password for the tenant admin
 
         $tenant->run(function () use ($registration, $plainPassword) {
             \Artisan::call('tenants:migrate', [
@@ -48,7 +50,7 @@ class SuperAdminTenantApprovalController extends Controller
                 '--force'   => true,
             ]);
 
-            (new \Database\Seeders\TenantAdminSeeder(   // 👈 pass via constructor
+            (new \Database\Seeders\TenantAdminSeeder( 
                 name:     $registration->contact_person,
                 email:    $registration->email,
                 password: $plainPassword,
