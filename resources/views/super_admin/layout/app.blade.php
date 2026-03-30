@@ -426,7 +426,7 @@
                 <div class="user-name">{{ auth()->user()->name }}</div>
                 <div class="user-role">Super Admin</div>
             </div>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('central.logout') }}">
                 @csrf
                 <button class="logout-btn" title="Logout" type="submit">
                     <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

@@ -12,6 +12,6 @@ class StudentEvaluationController extends Controller
         $user        = Auth::user();
         $application = $user->activeApplication()->with('evaluation')->first();
         $evaluation  = $application?->evaluation;
-        return view('student.evaluation.show', compact('application','evaluation'));
+        return view('student.evaluations.show', compact('application','evaluation'));
     }
 }

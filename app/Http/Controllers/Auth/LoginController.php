@@ -66,8 +66,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        $cookie = cookie()->forget('laravel_session');
 
-        return redirect()->to('/login')->withCookie($cookie);
+        return redirect('/login');
     }
 }

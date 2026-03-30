@@ -839,6 +839,7 @@
                         </a>
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="{{ route('logout') }}" id="logout-form">@csrf</form>
+                        @csrf
                         <a href="#" class="dropdown-item danger"
                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
