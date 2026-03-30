@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\TenantRegistration;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -177,6 +178,11 @@ class SuperAdminTenantManagementController extends Controller
     public function destroy(Tenant $tenant)
     {
         $tenantId = $tenant->id;
+
+        // Delete the matching registration record too
+        TenantRegistration::where('subdomain', $tenant->id)
+            ->orWhere('email', $tenant->email)
+            ->delete();
 
         // Stancl\Tenancy will cascade-delete the database and domains
         $tenant->delete();

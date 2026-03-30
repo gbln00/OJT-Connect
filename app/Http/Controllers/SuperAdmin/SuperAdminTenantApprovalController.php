@@ -10,6 +10,7 @@ use App\Mail\TenantApproved;
 use App\Mail\TenantRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;              // 👈 add this
 
 class SuperAdminTenantApprovalController extends Controller
 {
@@ -39,24 +40,23 @@ class SuperAdminTenantApprovalController extends Controller
 
         $registration->update(['status' => 'approved']);
 
-         $tenant->run(function () use ($registration) {
-            // Run migrations
+        $plainPassword = Str::password(12);  // 👈 generate random password
+
+        $tenant->run(function () use ($registration, $plainPassword) {
             \Artisan::call('tenants:migrate', [
                 '--tenants' => [tenant('id')],
                 '--force'   => true,
             ]);
 
-            // Seed the default admin using the registration's contact info
-            (new \Database\Seeders\TenantAdminSeeder)->run(
+            (new \Database\Seeders\TenantAdminSeeder(   // 👈 pass via constructor
                 name:     $registration->contact_person,
                 email:    $registration->email,
-                password: 'password', // default password
-            );
+                password: $plainPassword,
+            ))->run();
         });
 
-        Mail::to($registration->email)->send(new TenantApproved($registration));
+        Mail::to($registration->email)->send(new TenantApproved($registration, $plainPassword));  // 👈 pass password to mail
 
-        // 🔔 Notification
         SuperAdminNotification::notify(
             type:    'approval',
             title:   'Tenant Approved',
@@ -81,7 +81,6 @@ class SuperAdminTenantApprovalController extends Controller
 
         Mail::to($registration->email)->send(new TenantRejected($registration));
 
-        // 🔔 Notification
         SuperAdminNotification::notify(
             type:    'approval',
             title:   'Registration Rejected',

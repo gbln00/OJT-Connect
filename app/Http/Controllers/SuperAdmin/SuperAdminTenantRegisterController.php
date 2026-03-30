@@ -18,19 +18,30 @@ class SuperAdminTenantRegisterController extends Controller
     {
         $request->validate([
             'company_name'   => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email', 'unique:tenant_registrations,email'],
-            'subdomain'      => ['required', 'alpha_dash', 'min:3', 'max:30', 'unique:tenant_registrations,subdomain'],
+            'email'          => [
+                'required', 
+                'email', 
+                'unique:tenant_registrations,email',
+                'unique:tenants,email',                 // 👈 check active tenants
+            ],
+            'subdomain'      => [
+                'required', 
+                'alpha_dash', 
+                'min:3', 
+                'max:30', 
+                'unique:tenant_registrations,subdomain',
+                'unique:tenants,id',                    // 👈 check active tenants
+            ],
             'contact_person' => ['required', 'string', 'max:255'],
             'phone'          => ['nullable', 'string', 'max:20'],
             'plan'           => ['required', 'in:basic,standard,premium'],
         ]);
 
-        $registration = TenantRegistration::create($request->only([ 
+        $registration = TenantRegistration::create($request->only([
             'company_name', 'email', 'subdomain',
             'contact_person', 'phone', 'plan',
         ]));
 
-        // 🔔 Notify super admin
         SuperAdminNotification::notify(
             type:    'registration',
             title:   'New Registration Submitted',

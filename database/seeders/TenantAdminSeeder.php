@@ -8,16 +8,19 @@ use App\Models\User;
 
 class TenantAdminSeeder extends Seeder
 {
-    public function run(
-        string $name,
-        string $email,
-        string $password
-    ): void {
+    public function __construct(
+        private string $name     = 'Tenant Admin',
+        private string $email    = 'tenantadmin@ojtconnect.edu',
+        private string $password = 'password',
+    ) {}
+
+    public function run(): void
+    {
         User::firstOrCreate(
-            ['email' => $email],
+            ['email' => $this->email],
             [
-                'name'      => $name,
-                'password'  => Hash::make($password),
+                'name'      => $this->name,
+                'password'  => Hash::make($this->password),
                 'role'      => 'admin',
                 'is_active' => true,
             ]

@@ -59,7 +59,7 @@
                       </tr>
                       <tr>
                         <td style="color:#ABABAB;font-size:13px;padding-bottom:0.75rem;">Password</td>
-                        <td style="color:#0D0D0D;font-size:14px;font-weight:600;padding-bottom:0.75rem;font-family:monospace;">password</td>
+                        <td style="color:#0D0D0D;font-size:14px;font-weight:600;padding-bottom:0.75rem;font-family:monospace;">{{ $plainPassword }}</td>
                       </tr>
                     </table>
                     <p style="color:#8C0E03;font-size:12px;font-weight:600;margin:0;">⚠ Please change your password immediately after your first login.</p>
