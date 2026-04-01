@@ -33,7 +33,7 @@ class SupervisorEvaluationController extends Controller
             'recommendation'     => ['required','in:pass,fail'],
             'remarks'            => ['nullable','string','max:2000'],
         ]);
-        
+
         $evaluation = Evaluation::create([
             'student_id'         => $application->student_id,
             'application_id'     => $application->id,
@@ -46,15 +46,15 @@ class SupervisorEvaluationController extends Controller
             'submitted_at'       => now(),
         ]);
 
-        // Send email to student
-        $evaluation->load(['student', 'application.company']);
-        Mail::to($evaluation->student->email)->send(new EvaluationSubmitted($evaluation));
-
-        // Notify the coordinator
         $coordinator = \App\Models\User::where('role', 'ojt_coordinator')->first();
         if ($coordinator) {
-            Mail::to($coordinator->email)->send(new EvaluationSubmitted($evaluation));
-        }
+            try {
+                Mail::to($coordinator->email)->send(new EvaluationSubmitted($evaluation));
+                \Log::info('EvaluationSubmitted email sent to coordinator: ' . $coordinator->email);
+            } catch (\Exception $e) {
+                \Log::error('EvaluationSubmitted coordinator email failed: ' . $e->getMessage());
+            }
+}
 
 
         return redirect()->route('supervisor.dashboard')
