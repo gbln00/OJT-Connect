@@ -10,6 +10,11 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use App\Mail\ApplicationApproved;
+use App\Mail\ApplicationRejected;
+use Illuminate\Support\Facades\Mail;
+
+
 class ApplicationController extends Controller
 {
     public function index(Request $request)
@@ -64,10 +69,16 @@ class ApplicationController extends Controller
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
             'remarks'     => $request->validated()['remarks'] ?? null,
+            
         ]);
+
+        // Send approval email
+        Mail::to($application->student->email)->send(new ApplicationApproved($application));
 
         return back()->with('success', "Application for {$application->student->name} has been approved.");
     }
+
+    
 
     public function reject(RejectApplicationRequest $request, OjtApplication $application)
     {
@@ -77,6 +88,11 @@ class ApplicationController extends Controller
             'reviewed_at' => now(),
             'remarks'     => $request->validated()['remarks'],
         ]);
+
+
+        // Send rejection email
+        Mail::to($application->student->email)->send(new ApplicationRejected($application));
+
 
         return back()->with('success', "Application for {$application->student->name} has been rejected.");
     }

@@ -4,6 +4,12 @@ use App\Http\Controllers\Controller;
 use App\Models\{OjtApplication, Company};
 use Illuminate\Http\Request;
 
+use App\Mail\ApplicationApproved;
+use App\Mail\ApplicationRejected;
+use Illuminate\Support\Facades\Mail;
+
+
+
 class CoordinatorApplicationController extends Controller
 {
     public function index(Request $request)
@@ -23,6 +29,8 @@ class CoordinatorApplicationController extends Controller
     {
         $request->validate(['remarks' => ['nullable','string','max:1000']]);
         $application->update(['status'=>'approved','reviewed_by'=>auth()->id(),'reviewed_at'=>now(),'remarks'=>$request->remarks]);
+        // Send approval email
+        Mail::to($application->student->email)->send(new ApplicationApproved($application));
         return back()->with('success', $application->student->name.' has been approved.');
     }
 
@@ -30,6 +38,8 @@ class CoordinatorApplicationController extends Controller
     {
         $request->validate(['remarks' => ['required','string','max:1000']]);
         $application->update(['status'=>'rejected','reviewed_by'=>auth()->id(),'reviewed_at'=>now(),'remarks'=>$request->remarks]);
+        // Send rejection email
+        Mail::to($application->student->email)->send(new ApplicationRejected($application));
         return back()->with('success', $application->student->name.' has been rejected.');
     }
 

@@ -1,12 +1,29 @@
-<x-mail::message>
-# Introduction
+@component('mail::message')
+# Your Week {{ $weekNumber }} Report Needs Revision
 
-The body of your message.
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+Hi {{ $studentName }},
 
-Thanks,<br>
+
+Your **Week {{ $weekNumber }}** weekly report has been reviewed
+and returned for revision.
+
+
+@if($feedback)
+**Coordinator Feedback:**
+{{ $feedback }}
+@endif
+
+
+Please update your report based on the feedback above and resubmit.
+
+
+@component('mail::button', ['url' => $reportsUrl, 'color' => 'primary'])
+View My Reports
+@endcomponent
+
+
+Thanks,
 {{ config('app.name') }}
-</x-mail::message>
+@endcomponent
+

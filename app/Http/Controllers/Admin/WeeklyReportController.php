@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\WeeklyReport;
 use Illuminate\Http\Request;
 
+use App\Mail\ReportReturned;
+use Illuminate\Support\Facades\Mail;
+
+
 class WeeklyReportController extends Controller
 {
     public function index(Request $request)
@@ -61,6 +65,9 @@ class WeeklyReportController extends Controller
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
+
+        // Send approval email
+        Mail::to($report->student->email)->send(new ReportReturned($report));
 
         return back()->with('success', "Week {$report->week_number} report for {$report->student->name} approved.");
     }

@@ -2,8 +2,14 @@
 namespace App\Http\Controllers\Supervisor;
 use App\Http\Controllers\Controller;
 use App\Models\{Evaluation, OjtApplication};
+
+use App\Mail\EvaluationSubmitted;
+use Illuminate\Support\Facades\Mail;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+
 
 class SupervisorEvaluationController extends Controller
 {
@@ -38,6 +44,19 @@ class SupervisorEvaluationController extends Controller
             'remarks'            => $request->remarks,
             'submitted_at'       => now(),
         ]);
+        // Send email to student
+        $evaluation->load(['student', 'application.company']);
+        Mail::to($evaluation->student->email)->send(new EvaluationSubmitted($evaluation));
+
+        // notify the coordinator
+        $coordinator = \App\Models\User
+            ::where('role', 'ojt_coordinator')->first();
+        if ($coordinator) {
+            Mail::to($coordinator->email)
+                ->send(new EvaluationSubmitted($evaluation));
+        }
+
+
         return redirect()->route('supervisor.dashboard')
             ->with('success', 'Evaluation submitted successfully.');
     }

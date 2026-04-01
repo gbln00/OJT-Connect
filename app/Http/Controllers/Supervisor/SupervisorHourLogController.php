@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\HourLog;
 use App\Models\OjtApplication;
 use App\Models\User;
+use App\Mail\HourLogsApproved;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -169,6 +171,34 @@ class SupervisorHourLogController extends Controller
                 'approved_by' => Auth::id(),
                 'approved_at' => now(),
             ]);
+
+            $pendingLogs = HourLog::where('student_id', $student->id)
+                ->where('application_id', $application->id)
+                ->where('status', 'pending');
+
+
+            $count = $pendingLogs->count();
+
+
+            $pendingLogs->update([
+                'status'      => 'approved',
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+
+            // Calculate total approved hours for the email
+            $totalApproved = HourLog::where('student_id', $student->id)
+                ->where('application_id', $application->id)
+                ->where('status', 'approved')
+                ->sum('total_hours');
+
+
+            if ($count > 0) {
+                Mail::to($student->email)
+                    ->send(new HourLogsApproved($student, $count, $totalApproved));
+            }
+
 
         return back()->with('success', "Approved {$count} pending log(s) for {$student->name}.");
     }

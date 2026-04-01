@@ -1,12 +1,33 @@
-<x-mail::message>
-# Introduction
+@component('mail::message')
+# Your OJT Evaluation Is Ready
 
-The body of your message.
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+Hi {{ $studentName }},
 
-Thanks,<br>
+
+Your company supervisor at **{{ $companyName }}** has submitted
+your final OJT evaluation.
+
+
+@component('mail::panel')
+**Overall Grade:** {{ $overallGrade }}
+**Recommendation:** {{ $recommendation }}
+**Performance Rating:** {{ $ratingLabel }}
+@endcomponent
+
+
+Log in to view your full evaluation details.
+
+
+@component('mail::button', ['url' => $dashboardUrl, 'color' => 'success'])
+View My Evaluation
+@endcomponent
+
+
+Congratulations on completing your OJT!
+
+
+Thanks,
 {{ config('app.name') }}
-</x-mail::message>
+@endcomponent
+
