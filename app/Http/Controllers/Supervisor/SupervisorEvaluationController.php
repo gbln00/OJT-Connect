@@ -33,7 +33,8 @@ class SupervisorEvaluationController extends Controller
             'recommendation'     => ['required','in:pass,fail'],
             'remarks'            => ['nullable','string','max:2000'],
         ]);
-        Evaluation::create([
+        
+        $evaluation = Evaluation::create([
             'student_id'         => $application->student_id,
             'application_id'     => $application->id,
             'supervisor_id'      => Auth::id(),
@@ -44,16 +45,15 @@ class SupervisorEvaluationController extends Controller
             'remarks'            => $request->remarks,
             'submitted_at'       => now(),
         ]);
+
         // Send email to student
         $evaluation->load(['student', 'application.company']);
         Mail::to($evaluation->student->email)->send(new EvaluationSubmitted($evaluation));
 
-        // notify the coordinator
-        $coordinator = \App\Models\User
-            ::where('role', 'ojt_coordinator')->first();
+        // Notify the coordinator
+        $coordinator = \App\Models\User::where('role', 'ojt_coordinator')->first();
         if ($coordinator) {
-            Mail::to($coordinator->email)
-                ->send(new EvaluationSubmitted($evaluation));
+            Mail::to($coordinator->email)->send(new EvaluationSubmitted($evaluation));
         }
 
 

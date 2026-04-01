@@ -1,33 +1,18 @@
 @component('mail::message')
-# Your OJT Evaluation Is Ready
-
+# Hour Logs Approved
 
 Hi {{ $studentName }},
 
-
-Your company supervisor at **{{ $companyName }}** has submitted
-your final OJT evaluation.
-
+Your supervisor has approved **{{ $approvedCount }} hour log(s)**.
 
 @component('mail::panel')
-**Overall Grade:** {{ $overallGrade }}
-**Recommendation:** {{ $recommendation }}
-**Performance Rating:** {{ $ratingLabel }}
+**Total Approved Hours So Far:** {{ $totalApprovedHours }} hours
 @endcomponent
 
-
-Log in to view your full evaluation details.
-
-
-@component('mail::button', ['url' => $dashboardUrl, 'color' => 'success'])
-View My Evaluation
+@component('mail::button', ['url' => $logsUrl, 'color' => 'primary'])
+View My Hour Logs
 @endcomponent
-
-
-Congratulations on completing your OJT!
-
 
 Thanks,
 {{ config('app.name') }}
 @endcomponent
-

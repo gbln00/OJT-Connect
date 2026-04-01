@@ -1,29 +1,20 @@
 @component('mail::message')
-# Your Week {{ $weekNumber }} Report Needs Revision
-
+# Your OJT Evaluation Is Ready
 
 Hi {{ $studentName }},
 
+Your company supervisor at **{{ $companyName }}** has submitted your final OJT evaluation.
 
-Your **Week {{ $weekNumber }}** weekly report has been reviewed
-and returned for revision.
-
-
-@if($feedback)
-**Coordinator Feedback:**
-{{ $feedback }}
-@endif
-
-
-Please update your report based on the feedback above and resubmit.
-
-
-@component('mail::button', ['url' => $reportsUrl, 'color' => 'primary'])
-View My Reports
+@component('mail::panel')
+**Overall Grade:** {{ $overallGrade }}
+**Recommendation:** {{ $recommendation }}
+**Performance Rating:** {{ $ratingLabel }}
 @endcomponent
 
+@component('mail::button', ['url' => $dashboardUrl, 'color' => 'success'])
+View My Evaluation
+@endcomponent
 
 Thanks,
 {{ config('app.name') }}
 @endcomponent
-

@@ -163,19 +163,9 @@ class SupervisorHourLogController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        HourLog::where('student_id', $student->id)
-            ->where('application_id', $application->id)
-            ->where('status', 'pending')
-            ->update([
-                'status'      => 'approved',
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
-            ]);
-
-            $pendingLogs = HourLog::where('student_id', $student->id)
+         $pendingLogs = HourLog::where('student_id', $student->id)
                 ->where('application_id', $application->id)
                 ->where('status', 'pending');
-
 
             $count = $pendingLogs->count();
 

@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers\Coordinator;
 use App\Http\Controllers\Controller;
+use App\Mail\ReportReturned;
+use Illuminate\Support\Facades\Mail;
 use App\Models\WeeklyReport;
 use Illuminate\Http\Request;
 
@@ -26,6 +28,15 @@ class CoordinatorReportController extends Controller
     {
         $request->validate(['feedback'=>['required','string','max:1000']]);
         $report->update(['status'=>'returned','feedback'=>$request->feedback,'reviewed_by'=>auth()->id(),'reviewed_at'=>now()]);
+        
+        $report->load('student');
+          try {
+        Mail::to($report->student->email)->send(new ReportReturned($report));
+        \Log::info('ReportReturned email sent to: ' . $report->student->email);
+    } catch (\Exception $e) {
+        \Log::error('ReportReturned email failed: ' . $e->getMessage());
+    }
+        
         return back()->with('success', 'Report returned for revision.');
     }
 }
