@@ -24,7 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
             // Block access to tenant sites when the tenant is set to inactive
             'tenant.active'      => \App\Http\Middleware\CheckTenantActive::class,
         ]);
+
+        $middleware->alias([
+            'role'         => \App\Http\Middleware\RoleMiddleware::class,
+            'tenant.active'=> \App\Http\Middleware\CheckTenantActive::class,
+            'plan'         => \App\Http\Middleware\CheckTenantPlan::class, // <-- add this
+        ]);
     })
+    
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

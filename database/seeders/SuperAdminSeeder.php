@@ -14,13 +14,13 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-         User::firstOrCreate(
-            ['email' => 'superadmin@ojtconnect.edu'],
-            [
-                'name'      => 'Super Admin',
-                'password'  => Hash::make('password'),
-                'role'      => 'super_admin',
-            ]
-        );
+        //  User::firstOrCreate(
+        //     ['email' => 'superadmin@ojtconnect.edu'],
+        //     [
+        //         'name'      => 'Super Admin',
+        //         'password'  => Hash::make('password'),
+        //         'role'      => 'super_admin',
+        //     ]
+        // );
     }
 }

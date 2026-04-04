@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             SuperAdminSeeder::class,
             TenantAdminSeeder::class,
+            PlanSeeder::class,
         ]);
 
         // User::factory()->create([
