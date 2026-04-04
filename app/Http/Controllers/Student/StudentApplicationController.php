@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\OjtApplication;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,6 @@ class StudentApplicationController extends Controller
     {
         $user = Auth::user();
 
-        // Block if already has pending or approved application
         $existing = $user->activeApplication()->first();
         if ($existing) {
             return redirect()->route('student.application.show', $existing->id)
@@ -37,16 +37,37 @@ class StudentApplicationController extends Controller
             return redirect()->route('student.application.show', $existing->id);
         }
 
+        // ── Plan quota check ─────────────────────────────────────────
+        $tenant    = tenancy()->tenant ?? null;
+        $planModel = $tenant
+            ? Plan::where('name', $tenant->plan ?? 'basic')->first()
+            : null;
+
+        $cap = $planModel?->student_cap ?? null;   // null = unlimited (Premium)
+
+        if ($cap !== null) {
+            // Count ALL approved applications in this tenant DB
+            $currentCount = OjtApplication::whereIn('status', ['pending', 'approved'])->count();
+
+            if ($currentCount >= $cap) {
+                return back()->withErrors([
+                    'quota' => "Your institution has reached its student limit ({$cap} students) " .
+                               "for the " . ($planModel->label ?? 'current') . " plan. " .
+                               "Please contact your OJT coordinator or administrator to request a plan upgrade.",
+                ])->withInput();
+            }
+        }
+        // ── End quota check ──────────────────────────────────────────
+
         $request->validate([
             'company_id'     => 'required|exists:companies,id',
             'program'        => 'required|string|max:100',
             'school_year'    => 'required|string|max:20',
             'semester'       => 'required|string|max:50',
             'required_hours' => 'required|integer|min:1',
-            'document'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+            'document'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        // Handle file upload
         $documentPath = null;
         if ($request->hasFile('document')) {
             $documentPath = $request->file('document')
@@ -70,7 +91,6 @@ class StudentApplicationController extends Controller
 
     public function show(OjtApplication $application)
     {
-        // Student can only view their own
         if ($application->student_id !== Auth::id()) {
             abort(403);
         }
