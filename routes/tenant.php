@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\HoursController;
 use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\AdminPlanController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Coordinator\CoordinatorApplicationController;
 use App\Http\Controllers\Coordinator\CoordinatorHourLogController;
 use App\Http\Controllers\Coordinator\CoordinatorReportController;
 use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
+use App\Http\Controllers\Coordinator\CoordinatorPlanController;
 
 // Student
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -148,6 +150,10 @@ Route::middleware([
             Route::get('/exports/pdf/evaluations', [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
             Route::get('/exports/excel',           [ExportController::class, 'excelFull'])->name('export.excel');
         });
+
+        // ── Plans & Promotions ────────────────────────────────────────
+        Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
+
     });
 
     // ══════════════════════════════════════════════════════════════════
@@ -183,6 +189,10 @@ Route::middleware([
             Route::get('/evaluations/{evaluation}',           [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
             Route::post('/evaluations/{evaluation}/complete', [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
         });
+
+        // ── Plan overview ─────────────────────────────────────────────
+        Route::get('/plan', [CoordinatorPlanController::class, 'index'])->name('plan.index');
+        
     });
 
     // ══════════════════════════════════════════════════════════════════

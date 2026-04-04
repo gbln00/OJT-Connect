@@ -10,6 +10,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as Tenant
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantManualController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
 use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
+use App\Http\Controllers\SuperAdmin\SuperAdminPlanController as PlanController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 
 
@@ -48,14 +49,14 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/register/company',  [TenantRegisterController::class, 'showForm'])->name('tenant.register');
             Route::post('/register/company', [TenantRegisterController::class, 'submit'])->name('tenant.register.submit');
 
-            // Google redirect only — 
+            // Google redirect only
             Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         });
 
-        // ── Google callback  ──────────────────────
+        // ── Google callback ───────────────────────────────────────────────
         Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
-         // ── Logout ────────────────────────────────────────────────────────
+        // ── Logout ────────────────────────────────────────────────────────
         Route::post('/logout', [LoginController::class, 'logout'])->name('central.logout');
 
         // ── Super Admin ───────────────────────────────────────────────────
@@ -81,21 +82,21 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
-            // Plans & Promotions
+            // ── Plans & Promotions ────────────────────────────────────────
             Route::get('/plans',                                [PlanController::class, 'index'])->name('plans.index');
             Route::put('/plans/{plan}',                         [PlanController::class, 'update'])->name('plans.update');
             Route::post('/plans/{plan}/promotions',             [PlanController::class, 'storePromotion'])->name('plans.promotions.store');
             Route::delete('/plans/promotions/{promo}',          [PlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
             Route::patch('/plans/promotions/{promo}/toggle',    [PlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
 
-            // Notifications
-            Route::get('notifications',                         [SuperAdminNotificationController::class, 'index'])       ->name('notifications.index');
-            Route::post('notifications/mark-all-read',          [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-            Route::post('notifications/clear-read',             [SuperAdminNotificationController::class, 'clearRead'])  ->name('notifications.clearRead');
-            Route::post('notifications/{notification}/read',    [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
-            Route::delete('notifications/{notification}',       [SuperAdminNotificationController::class, 'destroy'])  ->name('notifications.destroy');
+            // ── Notifications ─────────────────────────────────────────────
+            Route::get('notifications',                      [SuperAdminNotificationController::class, 'index'])->name('notifications.index');
+            Route::post('notifications/mark-all-read',       [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+            Route::post('notifications/clear-read',          [SuperAdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+            Route::post('notifications/{notification}/read', [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
+            Route::delete('notifications/{notification}',    [SuperAdminNotificationController::class, 'destroy'])->name('notifications.destroy');
 
-            });
+        });
 
     });
 }
