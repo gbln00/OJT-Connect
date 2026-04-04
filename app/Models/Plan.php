@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plan extends Model
 {
+    protected $connection = 'mysql'; 
+
     protected $fillable = [
         'name', 'label', 'base_price', 'billing_cycle',
         'student_cap', 'features', 'is_active', 'sort_order',

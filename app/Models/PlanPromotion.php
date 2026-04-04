@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PlanPromotion extends Model
 {
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'plan_id', 'code', 'label', 'discount_type',
         'discount_value', 'starts_at', 'ends_at',

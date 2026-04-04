@@ -16,14 +16,14 @@ class TenantAdminSeeder extends Seeder
 
     public function run(): void
     {
-        // User::firstOrCreate(
-        //     ['email' => $this->email],
-        //     [
-        //         'name'      => $this->name,
-        //         'password'  => Hash::make($this->password),
-        //         'role'      => 'admin',
-        //         'is_active' => true,
-        //     ]
-        // );
+        User::firstOrCreate(
+            ['email' => $this->email],
+            [
+                'name'      => $this->name,
+                'password'  => Hash::make($this->password),
+                'role'      => 'admin',
+                'is_active' => true,
+            ]
+        );
     }
 }
