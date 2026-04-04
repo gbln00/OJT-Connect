@@ -8,7 +8,7 @@
     // Detect which layout to use based on the authenticated user's role
     $role   = auth()->user()?->role ?? 'student_intern';
     $layout = match($role) {
-        'admin'              => 'layouts.admin-app',
+        'admin'              => 'layouts.app',
         'ojt_coordinator'    => 'layouts.coordinator-app',
         'company_supervisor' => 'layouts.supervisor-app',
         default              => 'layouts.student-app',

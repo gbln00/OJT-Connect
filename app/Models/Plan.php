@@ -5,17 +5,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plan extends Model
 {
-    protected $connection = 'mysql'; 
+    protected $connection = 'mysql';
 
     protected $fillable = [
         'name', 'label', 'base_price', 'billing_cycle',
         'student_cap', 'features', 'is_active', 'sort_order',
+        'renewal_date', 'description',
     ];
 
     protected $casts = [
-        'features'   => 'array',
-        'is_active'  => 'boolean',
-        'student_cap'=> 'integer',
+        'features'     => 'array',
+        'is_active'    => 'boolean',
+        'student_cap'  => 'integer',
+        'renewal_date' => 'date',
     ];
 
     public function promotions()
@@ -43,5 +45,22 @@ class Plan extends Model
     public function hasFeature(string $key): bool
     {
         return (bool) ($this->features[$key] ?? false);
+    }
+
+    /**
+     * How many tenants are on this plan.
+     */
+    public function tenantCount(): int
+    {
+        return \App\Models\Tenant::where('plan', $this->name)->count();
+    }
+
+    /**
+     * Days until renewal (null if no renewal date set).
+     */
+    public function daysUntilRenewal(): ?int
+    {
+        if (!$this->renewal_date) return null;
+        return (int) now()->startOfDay()->diffInDays($this->renewal_date, false);
     }
 }

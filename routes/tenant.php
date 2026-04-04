@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
+ use App\Http\Controllers\Admin\AdminPlanRequestController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -153,6 +154,7 @@ Route::middleware([
 
         // ── Plans & Promotions ────────────────────────────────────────
         Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
+        Route::post('/plan/request', [AdminPlanRequestController::class, 'store'])->name('plan.request');
 
     });
 
@@ -192,7 +194,7 @@ Route::middleware([
 
         // ── Plan overview ─────────────────────────────────────────────
         Route::get('/plan', [CoordinatorPlanController::class, 'index'])->name('plan.index');
-        
+
     });
 
     // ══════════════════════════════════════════════════════════════════

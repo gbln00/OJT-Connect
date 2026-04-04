@@ -10,13 +10,53 @@ $planColors = [
     'standard' => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)',    'dot'=>'#c0392b'],
     'premium'  => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)',    'dot'=>'#c9a84c'],
 ];
+
+$featureKeys = [
+    'hour_logs'      => 'Hour Log Tracking',
+    'weekly_reports' => 'Weekly Reports',
+    'evaluations'    => 'Evaluations',
+    'pdf_export'     => 'PDF Export',
+    'excel_export'   => 'Excel Export',
+    'email_notifs'   => 'Email Notifications',
+];
 @endphp
 
+@if(session('success'))
+<div class="flash flash-success" style="margin-bottom:16px;">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+    {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="flash flash-error" style="margin-bottom:16px;">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {{ session('error') }}
+</div>
+@endif
+
+{{-- ── Header action ── --}}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+            // {{ $plans->count() }} plan{{ $plans->count() !== 1 ? 's' : '' }} configured
+        </div>
+    </div>
+    <button onclick="toggleSection('create-plan-form')" class="btn btn-primary btn-sm">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
+        </svg>
+        New Plan
+    </button>
+</div>
+
 {{-- ── Stat strip ── --}}
-<div class="stats-grid fade-up" style="grid-template-columns:repeat(3,1fr);">
+<div class="stats-grid fade-up" style="grid-template-columns:repeat({{ min($plans->count(), 4) }},1fr);margin-bottom:20px;">
     @foreach($plans as $plan)
-    @php $pc = $planColors[$plan->name] ?? ['border'=>'var(--border2)','bg'=>'var(--surface2)','color'=>'var(--muted)','dot'=>'var(--muted)']; @endphp
-    <div class="stat-card">
+    @php
+        $pc = $planColors[$plan->name] ?? ['border'=>'rgba(150,150,150,0.3)','bg'=>'rgba(150,150,150,0.08)','color'=>'rgba(180,180,180,0.85)','dot'=>'#888'];
+        $tenantCount = $plan->tenantCount();
+    @endphp
+    <div class="stat-card" style="border-top:2px solid {{ $pc['dot'] }};">
         <div class="stat-top">
             <div class="stat-icon" style="border-color:{{ $pc['border'] }};background:{{ $pc['bg'] }};color:{{ $pc['color'] }};">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -25,124 +65,286 @@ $planColors = [
             </div>
             <span class="stat-tag">{{ $plan->billing_cycle ?? 'yearly' }}</span>
         </div>
-        <div class="stat-num" style="font-size:1.6rem;">₱{{ number_format($plan->base_price) }}</div>
+        <div class="stat-num" style="font-size:1.5rem;color:{{ $pc['color'] }};">₱{{ number_format($plan->base_price) }}</div>
         <div class="stat-label">{{ $plan->label }}</div>
-        <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
-            <span style="width:5px;height:5px;border-radius:50%;background:{{ $plan->is_active ? '#34d399' : '#ef4444' }};display:inline-block;"></span>
-            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;">
-                {{ $plan->is_active ? 'ACTIVE' : 'INACTIVE' }}
-                @if($plan->student_cap)
-                    · {{ number_format($plan->student_cap) }} student cap
-                @else
-                    · Unlimited students
-                @endif
+        <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+            <div style="display:flex;align-items:center;gap:5px;">
+                <span style="width:5px;height:5px;border-radius:50%;background:{{ $plan->is_active ? '#34d399' : '#ef4444' }};display:inline-block;"></span>
+                <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;">
+                    {{ $plan->is_active ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+            </div>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">
+                {{ $tenantCount }} tenant{{ $tenantCount !== 1 ? 's' : '' }}
             </span>
         </div>
     </div>
     @endforeach
 </div>
 
-{{-- ── Plan cards ── --}}
-@foreach($plans as $plan)
-@php $pc = $planColors[$plan->name] ?? ['border'=>'var(--border2)','bg'=>'var(--surface2)','color'=>'var(--muted)','dot'=>'var(--muted)']; @endphp
-
-<div class="card fade-up fade-up-1" style="margin-bottom:20px;border-top:2px solid {{ $pc['dot'] }};">
-
-    {{-- Plan header --}}
-    <div class="card-header" style="padding:20px 24px;">
-        <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:42px;height:42px;border:1px solid {{ $pc['border'] }};background:{{ $pc['bg'] }};
-                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:16px;color:{{ $pc['color'] }};">
-                    {{ strtoupper(substr($plan->name, 0, 1)) }}
-                </span>
+{{-- ══ CREATE NEW PLAN FORM ══ --}}
+<div id="create-plan-form" style="display:none;margin-bottom:24px;">
+    <div class="card" style="border-top:2px solid var(--crimson);">
+        <div class="card-header">
+            <div class="card-title-main">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right:6px;">
+                    <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
+                </svg>
+                Create New Plan
             </div>
-            <div>
-                <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);">
-                    {{ $plan->label }}
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:400;color:var(--muted);margin-left:8px;">
-                        ₱{{ number_format($plan->base_price) }} / year
-                    </span>
-                </div>
-                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:0.06em;">
-                    Student cap: {{ $plan->student_cap ? number_format($plan->student_cap) : '∞ unlimited' }}
-                    &nbsp;·&nbsp;
-                    {{ $plan->promotions->count() }} promotion{{ $plan->promotions->count() !== 1 ? 's' : '' }}
-                </div>
-            </div>
+            <button type="button" onclick="toggleSection('create-plan-form')" class="btn btn-ghost btn-sm">✕ Cancel</button>
         </div>
-        <button onclick="toggleSection('plan-edit-{{ $plan->id }}')"
-                class="btn btn-ghost btn-sm">
-            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            Edit Plan
-        </button>
-    </div>
 
-    {{-- Edit plan form (collapsed by default) --}}
-    <div id="plan-edit-{{ $plan->id }}" style="display:none;">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface2);">
-            <form method="POST" action="{{ route('super_admin.plans.update', $plan) }}">
-                @csrf @method('PUT')
+        <div style="padding:20px 24px;">
+            <form method="POST" action="{{ route('super_admin.plans.store') }}">
+                @csrf
 
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+                {{-- Row 1: name / label / billing / sort --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:14px;margin-bottom:14px;">
                     <div>
-                        <label class="form-label">Label</label>
-                        <input type="text" name="label" value="{{ old('label', $plan->label) }}"
-                               class="form-input" required>
+                        <label class="form-label">Plan Key <span style="color:var(--crimson);">✦</span>
+                            <span style="text-transform:none;font-weight:300;"> (e.g. basic, gold)</span>
+                        </label>
+                        <input type="text" name="name" class="form-input" required placeholder="e.g. gold"
+                               pattern="[a-z0-9_]+" title="Lowercase letters, numbers, underscores only"
+                               oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
                     </div>
                     <div>
-                        <label class="form-label">Base Price (₱)</label>
-                        <input type="number" name="base_price" value="{{ old('base_price', $plan->base_price) }}"
-                               class="form-input" min="0" required>
+                        <label class="form-label">Display Label <span style="color:var(--crimson);">✦</span></label>
+                        <input type="text" name="label" class="form-input" required placeholder="e.g. Gold Plan">
+                    </div>
+                    <div>
+                        <label class="form-label">Billing Cycle <span style="color:var(--crimson);">✦</span></label>
+                        <select name="billing_cycle" class="form-select">
+                            <option value="yearly">Yearly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Sort #</label>
+                        <input type="number" name="sort_order" class="form-input" min="0" placeholder="0">
+                    </div>
+                </div>
+
+                {{-- Row 2: price / cap / renewal --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+                    <div>
+                        <label class="form-label">Base Price (₱) <span style="color:var(--crimson);">✦</span></label>
+                        <input type="number" name="base_price" class="form-input" required min="0" placeholder="e.g. 5000">
                     </div>
                     <div>
                         <label class="form-label">Student Cap <span style="font-weight:300;text-transform:none;">(blank = unlimited)</span></label>
-                        <input type="number" name="student_cap" value="{{ old('student_cap', $plan->student_cap) }}"
-                               class="form-input" min="1" placeholder="Leave blank for unlimited">
+                        <input type="number" name="student_cap" class="form-input" min="1" placeholder="Leave blank for unlimited">
+                    </div>
+                    <div>
+                        <label class="form-label">Renewal / Due Date <span style="font-weight:300;text-transform:none;">(optional)</span></label>
+                        <input type="date" name="renewal_date" class="form-input">
                     </div>
                 </div>
 
+                {{-- Row 3: description --}}
+                <div style="margin-bottom:14px;">
+                    <label class="form-label">Description <span style="font-weight:300;text-transform:none;">(shown to tenants, optional)</span></label>
+                    <input type="text" name="description" class="form-input" placeholder="A short tagline for this plan..." maxlength="500">
+                </div>
+
+                {{-- Row 4: features --}}
                 <div style="margin-bottom:16px;">
-                    <label class="form-label">Features (one per key=value line)</label>
+                    <label class="form-label" style="margin-bottom:10px;">Included Features</label>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-                        @php
-                        $featureKeys = [
-                            'weekly_reports'   => 'Weekly Reports',
-                            'evaluations'      => 'Evaluations',
-                            'pdf_export'       => 'PDF Export',
-                            'excel_export'     => 'Excel Export',
-                            'hour_logs'        => 'Hour Logs',
-                            'email_notifs'     => 'Email Notifications',
-                        ];
-                        @endphp
                         @foreach($featureKeys as $key => $label)
-                        <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border2);
-                                      background:var(--surface);cursor:pointer;transition:border-color .15s;"
-                               onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
-                            <input type="checkbox" name="features[{{ $key }}]" value="1"
-                                   {{ ($plan->features[$key] ?? false) ? 'checked' : '' }}
-                                   style="accent-color:var(--crimson);flex-shrink:0;">
-                            <span style="font-size:12px;color:var(--text2);">{{ $label }}</span>
+                        <label class="feature-toggle">
+                            <input type="checkbox" name="features[{{ $key }}]" value="1">
+                            <span class="feature-toggle-inner">
+                                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                                {{ $label }}
+                            </span>
                         </label>
                         @endforeach
                     </div>
                 </div>
 
-                <div style="display:flex;align-items:center;gap:12px;">
+                {{-- Row 5: active + submit --}}
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                        <input type="checkbox" name="is_active" value="1"
-                               {{ $plan->is_active ? 'checked' : '' }}
-                               style="accent-color:var(--crimson);">
+                        <input type="checkbox" name="is_active" value="1" checked style="accent-color:var(--crimson);">
                         <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Plan is active (visible to tenants)</span>
                     </label>
-                    <div style="margin-left:auto;display:flex;gap:8px;">
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" onclick="toggleSection('create-plan-form')" class="btn btn-ghost btn-sm">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                            Create Plan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ══ PLAN CARDS (EDIT + PROMOS) ══ --}}
+@foreach($plans as $plan)
+@php
+    $pc = $planColors[$plan->name] ?? ['border'=>'rgba(150,150,150,0.3)','bg'=>'rgba(150,150,150,0.08)','color'=>'rgba(180,180,180,0.85)','dot'=>'#888'];
+    $tenantCount  = $plan->tenantCount();
+    $daysLeft     = $plan->daysUntilRenewal();
+@endphp
+
+<div class="card fade-up" style="margin-bottom:20px;border-top:2px solid {{ $pc['dot'] }};">
+
+    {{-- Plan header --}}
+    <div class="card-header" style="padding:18px 24px;">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;">
+            <div style="width:40px;height:40px;border:1px solid {{ $pc['border'] }};background:{{ $pc['bg'] }};
+                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:15px;color:{{ $pc['color'] }};">
+                    {{ strtoupper(substr($plan->name, 0, 1)) }}
+                </span>
+            </div>
+            <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);">{{ $plan->label }}</span>
+                    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border:1px solid var(--border);">{{ $plan->name }}</span>
+                    @if(!$plan->is_active)
+                    <span class="badge badge-muted">Inactive</span>
+                    @else
+                    <span class="badge badge-active">Active</span>
+                    @endif
+                </div>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;">
+                    <span>₱{{ number_format($plan->base_price) }} / {{ $plan->billing_cycle ?? 'year' }}</span>
+                    <span>·</span>
+                    <span>{{ $plan->student_cap ? number_format($plan->student_cap).' student cap' : '∞ unlimited' }}</span>
+                    <span>·</span>
+                    <span>{{ $tenantCount }} tenant{{ $tenantCount !== 1 ? 's' : '' }}</span>
+                    @if($plan->renewal_date)
+                    <span>·</span>
+                    <span style="color:{{ $daysLeft !== null && $daysLeft <= 30 ? ($daysLeft <= 7 ? '#ef4444' : '#f59e0b') : 'var(--muted)' }};">
+                        Due {{ $plan->renewal_date->format('M d, Y') }}
+                        @if($daysLeft !== null)
+                            ({{ $daysLeft > 0 ? $daysLeft.' days left' : ($daysLeft === 0 ? 'today' : abs($daysLeft).' days overdue') }})
+                        @endif
+                    </span>
+                    @endif
+                    @if($plan->description)
+                    <span>·</span>
+                    <span style="font-style:italic;">{{ $plan->description }}</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+            <form method="POST" action="{{ route('super_admin.plans.toggle', $plan) }}" style="margin:0;">
+                @csrf @method('PATCH')
+                <button type="submit" class="btn btn-ghost btn-sm" title="{{ $plan->is_active ? 'Deactivate' : 'Activate' }}">
+                    {{ $plan->is_active ? 'Deactivate' : 'Activate' }}
+                </button>
+            </form>
+            <button onclick="toggleSection('plan-edit-{{ $plan->id }}')" class="btn btn-ghost btn-sm">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit
+            </button>
+            @if($tenantCount === 0)
+            <form method="POST" action="{{ route('super_admin.plans.destroy', $plan) }}"
+                  onsubmit="return confirm('Delete plan \'{{ $plan->label }}\'? This cannot be undone.')" style="margin:0;">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm" title="Delete plan">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <polyline points="3,6 5,6 21,6"/>
+                        <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
+                    </svg>
+                    Delete
+                </button>
+            </form>
+            @else
+            <button class="btn btn-ghost btn-sm" disabled title="Cannot delete — {{ $tenantCount }} tenant(s) on this plan" style="opacity:0.4;cursor:not-allowed;">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <polyline points="3,6 5,6 21,6"/>
+                    <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
+                </svg>
+                Delete
+            </button>
+            @endif
+        </div>
+    </div>
+
+    {{-- ── Edit Plan Form ── --}}
+    <div id="plan-edit-{{ $plan->id }}" style="display:none;">
+        <div style="padding:20px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">
+                // Editing: {{ $plan->label }}
+            </div>
+            <form method="POST" action="{{ route('super_admin.plans.update', $plan) }}">
+                @csrf @method('PUT')
+
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:14px;margin-bottom:14px;">
+                    <div>
+                        <label class="form-label">Display Label <span style="color:var(--crimson);">✦</span></label>
+                        <input type="text" name="label" value="{{ old('label', $plan->label) }}" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Billing Cycle</label>
+                        <select name="billing_cycle" class="form-select">
+                            <option value="yearly" {{ ($plan->billing_cycle ?? 'yearly') === 'yearly' ? 'selected' : '' }}>Yearly</option>
+                            <option value="monthly" {{ ($plan->billing_cycle ?? '') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Base Price (₱) <span style="color:var(--crimson);">✦</span></label>
+                        <input type="number" name="base_price" value="{{ old('base_price', $plan->base_price) }}" class="form-input" min="0" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Sort #</label>
+                        <input type="number" name="sort_order" value="{{ old('sort_order', $plan->sort_order) }}" class="form-input" min="0">
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                    <div>
+                        <label class="form-label">Student Cap <span style="font-weight:300;text-transform:none;">(blank = unlimited)</span></label>
+                        <input type="number" name="student_cap" value="{{ old('student_cap', $plan->student_cap) }}" class="form-input" min="1" placeholder="Unlimited">
+                    </div>
+                    <div>
+                        <label class="form-label">Renewal / Due Date</label>
+                        <input type="date" name="renewal_date" value="{{ old('renewal_date', $plan->renewal_date?->format('Y-m-d')) }}" class="form-input">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label class="form-label">Description <span style="font-weight:300;text-transform:none;">(shown to tenants)</span></label>
+                    <input type="text" name="description" value="{{ old('description', $plan->description) }}" class="form-input" placeholder="Short plan tagline..." maxlength="500">
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label class="form-label" style="margin-bottom:10px;">Included Features</label>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                        @foreach($featureKeys as $key => $label)
+                        <label class="feature-toggle">
+                            <input type="checkbox" name="features[{{ $key }}]" value="1"
+                                   {{ ($plan->features[$key] ?? false) ? 'checked' : '' }}>
+                            <span class="feature-toggle-inner">
+                                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                                {{ $label }}
+                            </span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" name="is_active" value="1" {{ $plan->is_active ? 'checked' : '' }} style="accent-color:var(--crimson);">
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Plan is active</span>
+                    </label>
+                    <div style="display:flex;gap:8px;">
                         <button type="button" onclick="toggleSection('plan-edit-{{ $plan->id }}')" class="btn btn-ghost btn-sm">Cancel</button>
                         <button type="submit" class="btn btn-primary btn-sm">
                             <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
-                            Save Plan
+                            Save Changes
                         </button>
                     </div>
                 </div>
@@ -150,7 +352,7 @@ $planColors = [
         </div>
     </div>
 
-    {{-- Promotions list --}}
+    {{-- ── Promotions Section ── --}}
     <div style="padding:0 24px 4px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;">
             <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
@@ -169,7 +371,6 @@ $planColors = [
             <form method="POST" action="{{ route('super_admin.plans.promotions.store', $plan) }}"
                   style="padding:16px;background:var(--surface2);border:1px solid var(--border2);">
                 @csrf
-
                 <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">
                     // New promotion for {{ $plan->label }}
                 </div>
@@ -177,8 +378,8 @@ $planColors = [
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label">Code <span style="color:var(--crimson);">✦</span></label>
-                        <input type="text" name="code" placeholder="e.g. BACK2SCHOOL" class="form-input" required
-                               style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+                        <input type="text" name="code" placeholder="BACK2SCHOOL" class="form-input" required
+                               oninput="this.value=this.value.toUpperCase()">
                     </div>
                     <div>
                         <label class="form-label">Label <span style="color:var(--crimson);">✦</span></label>
@@ -244,33 +445,30 @@ $planColors = [
                         <td>
                             <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
                                          background:var(--surface2);border:1px solid var(--border2);
-                                         padding:2px 8px;letter-spacing:0.08em;">
-                                {{ $promo->code }}
-                            </span>
+                                         padding:2px 8px;letter-spacing:0.08em;">{{ $promo->code }}</span>
                         </td>
-                        <td style="font-size:13px;color:var(--text2);">{{ $promo->label }}</td>
                         <td>
-                            <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:15px;
-                                         color:{{ $pc['color'] }};">
+                            <div style="font-size:13px;color:var(--text2);">{{ $promo->label }}</div>
+                            {{-- Inline edit toggle --}}
+                            <button onclick="toggleSection('promo-edit-{{ $promo->id }}')"
+                                    style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;margin-top:2px;">
+                                edit ↓
+                            </button>
+                        </td>
+                        <td>
+                            <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:14px;color:{{ $pc['color'] }};">
                                 {{ $promo->discount_label }}
                             </span>
                         </td>
                         <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
                             @if($promo->starts_at || $promo->ends_at)
-                                {{ $promo->starts_at?->format('M d, Y') ?? '—' }}
-                                →
-                                {{ $promo->ends_at?->format('M d, Y') ?? '∞' }}
+                                {{ $promo->starts_at?->format('M d, Y') ?? '—' }} → {{ $promo->ends_at?->format('M d, Y') ?? '∞' }}
                             @else
-                                <span style="color:var(--muted);">No expiry</span>
+                                No expiry
                             @endif
                         </td>
                         <td style="font-family:'DM Mono',monospace;font-size:11px;">
-                            {{ $promo->used_count }}
-                            @if($promo->max_uses)
-                                / {{ $promo->max_uses }}
-                            @else
-                                / ∞
-                            @endif
+                            {{ $promo->used_count }} / {{ $promo->max_uses ?? '∞' }}
                         </td>
                         <td>
                             @if($promo->isCurrentlyActive())
@@ -283,7 +481,7 @@ $planColors = [
                             @endif
                         </td>
                         <td>
-                            <div style="display:flex;gap:4px;">
+                            <div style="display:flex;gap:4px;flex-wrap:wrap;">
                                 <form method="POST" action="{{ route('super_admin.plans.promotions.toggle', $promo) }}" style="margin:0;">
                                     @csrf @method('PATCH')
                                     <button type="submit" class="btn btn-sm {{ $promo->is_active ? 'btn-danger' : 'btn-approve' }}">
@@ -303,12 +501,53 @@ $planColors = [
                             </div>
                         </td>
                     </tr>
+                    {{-- Inline edit row --}}
+                    <tr id="promo-edit-{{ $promo->id }}" style="display:none;background:var(--surface2);">
+                        <td colspan="7" style="padding:14px 16px;">
+                            <form method="POST" action="{{ route('super_admin.plans.promotions.update', $promo) }}">
+                                @csrf @method('PUT')
+                                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:flex-end;">
+                                    <div>
+                                        <label class="form-label">Code</label>
+                                        <input type="text" name="code" value="{{ $promo->code }}" class="form-input"
+                                               oninput="this.value=this.value.toUpperCase()" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Label</label>
+                                        <input type="text" name="label" value="{{ $promo->label }}" class="form-input" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Type</label>
+                                        <select name="discount_type" class="form-select">
+                                            <option value="percent" {{ $promo->discount_type === 'percent' ? 'selected' : '' }}>%</option>
+                                            <option value="fixed" {{ $promo->discount_type === 'fixed' ? 'selected' : '' }}>₱ Fixed</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Value</label>
+                                        <input type="number" name="discount_value" value="{{ $promo->discount_value }}" class="form-input" min="1" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Starts</label>
+                                        <input type="date" name="starts_at" value="{{ $promo->starts_at?->format('Y-m-d') }}" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Ends</label>
+                                        <input type="date" name="ends_at" value="{{ $promo->ends_at?->format('Y-m-d') }}" class="form-input">
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @else
-        <div style="padding:20px 0;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-bottom:16px;">
+        <div style="padding:16px 0;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-bottom:16px;">
             // No promotions yet for this plan.
         </div>
         @endif
@@ -316,12 +555,23 @@ $planColors = [
 </div>
 @endforeach
 
+@if($plans->isEmpty())
+<div class="card" style="text-align:center;padding:48px 24px;">
+    <div style="font-size:32px;margin-bottom:12px;">📋</div>
+    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;">No plans yet</div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:16px;">Create your first plan to get started.</div>
+    <button onclick="toggleSection('create-plan-form');window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary btn-sm">
+        Create First Plan
+    </button>
+</div>
+@endif
+
 {{-- Info note --}}
-<div class="flash flash-info fade-up fade-up-2" style="margin-top:8px;">
+<div class="flash flash-info fade-up" style="margin-top:8px;">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    Plan changes apply to newly assigned tenants. Existing tenants keep their current plan until manually changed via the Tenant edit page. Promotions apply a one-time discount at the time of plan assignment.
+    Plans with active tenants cannot be deleted. Deactivated plans remain for existing tenants but are hidden from new assignments. Promotions apply a one-time discount at plan assignment time.
 </div>
 
 @endsection
@@ -344,6 +594,25 @@ $planColors = [
     font-size: 10px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
 }
+/* Feature toggle checkboxes */
+.feature-toggle { display: block; cursor: pointer; }
+.feature-toggle input { display: none; }
+.feature-toggle-inner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px; color: var(--muted);
+    transition: all 0.15s;
+}
+.feature-toggle-inner svg { opacity: 0; transition: opacity 0.15s; color: var(--muted); }
+.feature-toggle:hover .feature-toggle-inner { border-color: var(--border2); color: var(--text2); }
+.feature-toggle input:checked + .feature-toggle-inner {
+    border-color: rgba(var(--crimson-rgb, 192,38,38), 0.5);
+    background: rgba(var(--crimson-rgb, 192,38,38), 0.06);
+    color: var(--text);
+}
+.feature-toggle input:checked + .feature-toggle-inner svg { opacity: 1; color: var(--crimson); }
 </style>
 @endpush
 
@@ -352,7 +621,7 @@ $planColors = [
 function toggleSection(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    if (el.style.display === 'none') {
+    if (el.style.display === 'none' || el.style.display === '') {
         el.style.display = 'block';
         el.style.opacity = '0';
         el.style.transform = 'translateY(-4px)';
@@ -363,13 +632,18 @@ function toggleSection(id) {
         });
     } else {
         el.style.opacity = '0';
-        setTimeout(() => el.style.display = 'none', 200);
+        el.style.transform = 'translateY(-4px)';
+        setTimeout(() => { el.style.display = 'none'; el.style.transform = ''; }, 200);
     }
 }
 
 function updateDTypeHint(planId, type) {
     const label = document.getElementById('dval-label-' + planId);
-    if (label) label.textContent = type === 'percent' ? 'Discount (%) ✦' : 'Discount (₱) ✦';
+    if (label) {
+        label.innerHTML = type === 'percent'
+            ? 'Discount (%) <span style="color:var(--crimson);">✦</span>'
+            : 'Discount (₱) <span style="color:var(--crimson);">✦</span>';
+    }
 }
 </script>
 @endpush

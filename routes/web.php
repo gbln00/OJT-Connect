@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// Authentication Controllers
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+
+// Super Admin Controllers
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManagementController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as TenantApprovalController;
@@ -11,6 +15,8 @@ use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantMa
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
 use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController as PlanController;
+use App\Http\Controllers\SuperAdmin\SuperAdminPlanController;
+
 use App\Http\Controllers\Auth\GoogleAuthController;
 
 
@@ -82,12 +88,20 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
-            // ── Plans & Promotions ────────────────────────────────────────
-            Route::get('/plans',                                [PlanController::class, 'index'])->name('plans.index');
-            Route::put('/plans/{plan}',                         [PlanController::class, 'update'])->name('plans.update');
-            Route::post('/plans/{plan}/promotions',             [PlanController::class, 'storePromotion'])->name('plans.promotions.store');
-            Route::delete('/plans/promotions/{promo}',          [PlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
-            Route::patch('/plans/promotions/{promo}/toggle',    [PlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
+            // ── Plans ─────────────────────────────────────────────────
+            Route::get   ('/plans',                [SuperAdminPlanController::class, 'index'])->name('plans.index');
+            Route::get   ('/plans/create',         [SuperAdminPlanController::class, 'create'])->name('plans.create');
+            Route::post  ('/plans',                [SuperAdminPlanController::class, 'store'])->name('plans.store');
+            Route::get   ('/plans/{plan}/edit',    [SuperAdminPlanController::class, 'edit'])->name('plans.edit');
+            Route::put   ('/plans/{plan}',         [SuperAdminPlanController::class, 'update'])->name('plans.update');
+            Route::delete('/plans/{plan}',         [SuperAdminPlanController::class, 'destroy'])->name('plans.destroy');
+            Route::patch ('/plans/{plan}/toggle',  [SuperAdminPlanController::class, 'toggle'])->name('plans.toggle');
+  
+            // ── Promotions ─────────────────────────────────────────────
+            Route::post  ('/plans/{plan}/promotions',         [SuperAdminPlanController::class, 'storePromotion'])->name('plans.promotions.store');
+            Route::put   ('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'updatePromotion'])->name('plans.promotions.update');
+            Route::patch ('/plans/promotions/{promo}/toggle', [SuperAdminPlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
+            Route::delete('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
 
             // ── Notifications ─────────────────────────────────────────────
             Route::get('notifications',                      [SuperAdminNotificationController::class, 'index'])->name('notifications.index');
