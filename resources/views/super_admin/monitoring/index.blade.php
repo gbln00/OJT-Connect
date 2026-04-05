@@ -77,9 +77,13 @@
                             </div>
                             <div>
                                 <div style="font-family:'DM Mono',monospace;font-size:12px;
-                                     color:var(--text);font-weight:500;">{{ $tenant->id }}</div>
+                                     color:var(--text);font-weight:500;">{{ $tenant->id }} -
+                                     {{ $tenant->domains->first()?->domain ?? '—' }}</div>
                                 <div style="font-size:10px;color:var(--muted);">
-                                    {{ $tenant->domains->first()?->domain ?? '—' }}
+                                    
+                                     @if($tenant->name)
+                                        <div style="font-size:11px;color:var(--muted);margin-top:1px;">{{ $tenant->name }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

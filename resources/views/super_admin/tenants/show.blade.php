@@ -92,7 +92,7 @@
             <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.16em;text-transform:uppercase;flex-shrink:0;">Domain</span>
             <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;">
                 @forelse($tenant->domains as $domain)
-                    <a href="https://{{ $domain->domain }}" target="_blank" rel="noopener"
+                    <a href="https://{{ $domain->domain }}:8000" target="_blank" rel="noopener"
                        style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
                               border:1px solid rgba(140,14,3,0.3);background:rgba(140,14,3,0.06);
                               font-family:'DM Mono',monospace;font-size:11px;color:rgba(200,100,90,0.9);

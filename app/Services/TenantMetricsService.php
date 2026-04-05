@@ -89,7 +89,7 @@ class TenantMetricsService
         try {
             return $tenant->run(function () {
                 return [
-                    'students'      => DB::table('users')->where('role', 'student')->count(),
+                    'students' => DB::table('users')->where('role', 'student_intern')->count(),
                     'applications'  => DB::table('applications')->count(),
                     'hour_logs'     => DB::table('hour_logs')->count(),
                     'weekly_reports'=> DB::table('weekly_reports')->count(),

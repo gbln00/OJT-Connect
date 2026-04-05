@@ -97,4 +97,24 @@ class StudentApplicationController extends Controller
 
         return view('student.application.show', compact('application'));
     }
+
+    private function getStorageMb(string $tenantId): float
+    {
+        try {
+            $disk  = Storage::disk('public');
+            $total = 0;
+
+            // Check all folders that tenant uploads go into
+            foreach (['ojt-documents', 'weekly-reports'] as $folder) {
+                if ($disk->exists($folder)) {
+                    $files = $disk->allFiles($folder);
+                    $total += array_sum(array_map(fn($f) => $disk->size($f), $files));
+                }
+            }
+
+            return round($total / 1024 / 1024, 2);
+        } catch (\Throwable) {
+            return 0.0;
+        }
+    }
 }
