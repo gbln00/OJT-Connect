@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.active' => \App\Http\Middleware\CheckTenantActive::class,
             'plan'          => \App\Http\Middleware\CheckTenantPlan::class,
         ]);
+        
+        // Global middleware for API requests
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
 
         // Global middleware for tenant request logging
         $middleware->web(append: [
