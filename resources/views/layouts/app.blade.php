@@ -690,6 +690,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
     </style>
+    @stack('styles')
 </head>
 <body>
 
@@ -793,6 +794,24 @@
                 </svg>
                 Export Reports
             </a>
+
+            {{-- Analytics — Premium only. Show link for all but it leads to plan-required page --}}
+            <a href="{{ route('admin.analytics.index') }}"
+            class="nav-item {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor"
+                    stroke-width="1.8" viewBox="0 0 24 24">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6"  y1="20" x2="6"  y2="14"/>
+                </svg>
+                Analytics
+                @if((tenancy()->tenant?->plan ?? 'basic') === 'premium')
+                    {{-- No badge needed for Premium --}}
+                @else
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PRO</span>
+                @endif
+            </a>
+
 
             <div class="nav-section-label">Plan & Promotions</div>
 
@@ -968,6 +987,8 @@
     mq.addEventListener('change', handleMq);
     handleMq(mq);
 </script>
+
+ @stack('scripts')
 
 </body>
 </html>

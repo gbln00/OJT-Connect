@@ -30,13 +30,6 @@ $currentPlan   = $tenant->plan ?? '';
         </span>
     </div>
 
-    {{-- Flash --}}
-    @if(session('success'))
-    <div class="flash flash-success fade-up">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
-        {{ session('success') }}
-    </div>
-    @endif
 
     {{-- Main edit card --}}
     <div class="card fade-up fade-up-1">

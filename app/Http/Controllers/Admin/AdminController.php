@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateProfileRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
+use App\Services\AnalyticsService;
 use App\Models\User;
 use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
@@ -47,13 +48,37 @@ class AdminController extends Controller
         ));
     }
 
+    // ── ANALYTICS ───────────────────────────────────────────────────────────
+    public function analytics(AnalyticsService $analytics)
+    {
+        // All data is JSON-encoded and passed to Chart.js via Blade
+        $kpis         = $analytics->summaryKpis();
+        $appsPerMonth = $analytics->applicationsPerMonth();
+        $logsPerWeek  = $analytics->hourLogsPerWeek();
+        $passFailRate = $analytics->passFailRate();
+        $perCompany   = $analytics->progressPerCompany();
+        $recentEvals  = $analytics->recentEvaluations(6);
+        $topStudents  = $analytics->topStudentsByHours(5);
+    
+        return view('admin.analytics.index', compact(
+            'kpis',
+            'appsPerMonth',
+            'logsPerWeek',
+            'passFailRate',
+            'perCompany',
+            'recentEvals',
+            'topStudents'
+        ));
+    }
+
+
     // ── SETTINGS ─────────────────────────────────────────────────────────────
 
     public function settings()
     {
         return view('admin.profile.settings');
     }
-
+    
     public function updateProfile(UpdateProfileRequest $request)
     {
         auth()->user()->update($request->validated());

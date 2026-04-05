@@ -70,11 +70,6 @@
     </form>
 </div>
 
-@if (session('success'))
-    <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:12px 16px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:12px;" class="fade-up">
-        ✓ {{ session('success') }}
-    </div>
-@endif
 
 {{-- Logs table --}}
 <div class="card fade-up fade-up-2">

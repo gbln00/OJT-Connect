@@ -22,7 +22,7 @@ use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
- use App\Http\Controllers\Admin\AdminPlanRequestController;
+use App\Http\Controllers\Admin\AdminPlanRequestController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -134,8 +134,8 @@ Route::middleware([
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
-            Route::get('/reports',              [WeeklyReportController::class, 'index'])->name('reports.index');
-            Route::get('/reports/{report}',     [WeeklyReportController::class, 'show'])->name('reports.show');
+            Route::get('/reports',                   [WeeklyReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/{report}',          [WeeklyReportController::class, 'show'])->name('reports.show');
             Route::post('/reports/{report}/approve', [WeeklyReportController::class, 'approve'])->name('reports.approve');
             Route::post('/reports/{report}/return',  [WeeklyReportController::class, 'return'])->name('reports.return');
 
@@ -150,6 +150,10 @@ Route::middleware([
             Route::get('/exports/pdf/students',    [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
             Route::get('/exports/pdf/evaluations', [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
             Route::get('/exports/excel',           [ExportController::class, 'excelFull'])->name('export.excel');
+            
+            // ── Analytics Dashboard (Premium only) ──────────────────────────
+            Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics.index');
+            
         });
 
         // ── Plans & Promotions ────────────────────────────────────────
