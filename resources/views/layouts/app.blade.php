@@ -812,6 +812,18 @@
                 @endif
             </a>
 
+            @php $tenantNotifCount = \App\Models\TenantNotification::unread()->count(); @endphp
+            <a href="{{ route('admin.notifications.index') }}"
+                class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.437L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                <span style="flex:1;">Notifications</span>
+                @if($tenantNotifCount > 0)
+                    <span class="nav-badge">{{ $tenantNotifCount }}</span>
+                @endif
+            </a>
+
 
             <div class="nav-section-label">Plan & Promotions</div>
 
@@ -880,6 +892,98 @@
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
 
             <div class="topbar-actions">
+                @php
+                    $tenantUnread  = \App\Models\TenantNotification::unread()->count();
+                    $tenantNotifs  = \App\Models\TenantNotification::latest()->take(5)->get();
+                @endphp
+                
+                <div style="position:relative;" id="tenant-notif-wrapper">
+                    <button class="topbar-btn" id="tenant-notif-btn"
+                            onclick="toggleTenantNotif()" title="Notifications"
+                            style="position:relative;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.437L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        @if($tenantUnread > 0)
+                        <span style="position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 3px;
+                                    background:var(--crimson);color:#fff;font-family:'DM Mono',monospace;
+                                    font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1;">
+                            {{ $tenantUnread > 9 ? '9+' : $tenantUnread }}
+                        </span>
+                        @endif
+                    </button>
+                
+                    <div id="tenant-notif-dropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;
+                        width:300px;background:var(--surface);border:1px solid var(--border2);
+                        box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:400;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">
+                            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+                                        letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);">
+                                Notifications
+                                @if($tenantUnread > 0)
+                                    <span style="color:var(--crimson);">({{ $tenantUnread }})</span>
+                                @endif
+                            </span>
+                            <a href="{{ route('admin.notifications.index') }}"
+                            style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
+                                    text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.15s;"
+                            onmouseover="this.style.color='var(--text)'"
+                            onmouseout="this.style.color='var(--muted)'">
+                            View all
+                            </a>
+                        </div>
+                        <div style="max-height:320px;overflow-y:auto;">
+                            @forelse($tenantNotifs as $tn)
+                            @php
+                                $tnc = match($tn->type) {
+                                    'success' => ['color'=>'#34d399','border'=>'rgba(52,211,153,0.2)','bg'=>'rgba(52,211,153,0.06)'],
+                                    'warning' => ['color'=>'#c9a84c','border'=>'rgba(201,168,76,0.25)','bg'=>'rgba(201,168,76,0.06)'],
+                                    default   => ['color'=>'#60a5fa','border'=>'rgba(96,165,250,0.2)','bg'=>'rgba(96,165,250,0.06)'],
+                                };
+                            @endphp
+                            <div style="display:flex;align-items:flex-start;gap:10px;padding:11px 16px;
+                                        border-bottom:1px solid var(--border);
+                                        background:{{ !$tn->is_read ? 'rgba(140,14,3,0.03)' : 'transparent' }};
+                                        {{ !$tn->is_read ? 'border-left:2px solid rgba(140,14,3,0.4);padding-left:14px;' : '' }}
+                                        cursor:default;">
+                                <div style="width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                                            border:1px solid {{ $tnc['border'] }};background:{{ $tnc['bg'] }};margin-top:2px;">
+                                    <span style="width:5px;height:5px;border-radius:50%;background:{{ $tnc['color'] }};display:inline-block;"></span>
+                                </div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:12px;font-weight:600;color:{{ $tn->is_read ? 'var(--text2)' : 'var(--text)' }};line-height:1.3;">
+                                        {{ $tn->title }}
+                                    </div>
+                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;
+                                                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        {{ $tn->message }}
+                                    </div>
+                                    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;opacity:0.6;">
+                                        {{ $tn->created_at->diffForHumans() }}
+                                    </div>
+                                </div>
+                                @if(!$tn->is_read)
+                                <span style="width:5px;height:5px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:5px;"></span>
+                                @endif
+                            </div>
+                            @empty
+                            <div style="padding:28px 16px;text-align:center;font-family:'DM Mono',monospace;
+                                        font-size:11px;color:var(--muted);">
+                                // No notifications
+                            </div>
+                            @endforelse
+                        </div>
+                        <div style="padding:10px 16px;border-top:1px solid var(--border);text-align:center;">
+                            <a href="{{ route('admin.notifications.index') }}"
+                            style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;
+                                    text-transform:uppercase;color:var(--muted);text-decoration:none;">
+                                View all notifications →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topbar-divider"></div>
 
                 {{-- Theme toggle --}}
                 <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
@@ -986,6 +1090,19 @@
     }
     mq.addEventListener('change', handleMq);
     handleMq(mq);
+
+    // ── Tenant notifications dropdown ─────────────────────────────
+    function toggleTenantNotif() {
+        const dd = document.getElementById('tenant-notif-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+        // Close user dropdown if open
+        document.getElementById('user-dropdown')?.classList.remove('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('tenant-notif-wrapper');
+        const dd = document.getElementById('tenant-notif-dropdown');
+        if (wrapper && dd && !wrapper.contains(e.target)) dd.style.display = 'none';
+    });
 </script>
 
  @stack('scripts')

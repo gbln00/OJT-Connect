@@ -990,6 +990,7 @@
                                 <a href="{{ route('super_admin.notifications.index') }}">View all notifications</a>
                             </div>
                         @endif
+                        
                     </div>
                 </div>
 

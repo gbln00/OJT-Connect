@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminPlanRequestController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -130,6 +131,13 @@ Route::middleware([
         Route::get('/hours/{student}',             [HoursController::class, 'show'])->name('hours.show');
         Route::post('/hours/{hourLog}/approve',    [HoursController::class, 'approve'])->name('hours.approve');
         Route::post('/hours/{student}/approve-all',[HoursController::class, 'approveAll'])->name('hours.approve-all');
+
+        // Notifications
+        Route::get('/notifications',                       [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/mark-all-read',        [AdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',           [AdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',  [AdminNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',     [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
 
         // ── Standard plan and above ─────────────────────────────────────
 

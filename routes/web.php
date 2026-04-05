@@ -17,6 +17,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController as PlanController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantMonitoringController;
+use App\Http\Controllers\SuperAdmin\SuperAdminPlanRequestController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
@@ -89,6 +90,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
+            // Plan Requests
+            Route::post('/plan-requests/{planRequest}/approve', [SuperAdminPlanRequestController::class, 'approve'])->name('plan_requests.approve');
+            Route::post('/plan-requests/{planRequest}/reject',  [SuperAdminPlanRequestController::class, 'reject'])->name('plan_requests.reject');
+            
             // ── Tenant Monitoring ─────────────────────────────────────────────────
             Route::get('/monitoring',              [SuperAdminTenantMonitoringController::class, 'index'])->name('monitoring.index');
             Route::get('/monitoring/{tenant}',     [SuperAdminTenantMonitoringController::class, 'show'])->name('monitoring.show');
