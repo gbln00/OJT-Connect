@@ -16,6 +16,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as Tenant
 use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController as PlanController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController;
+use App\Http\Controllers\SuperAdmin\SuperAdminTenantMonitoringController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
@@ -74,12 +75,12 @@ foreach (config('tenancy.central_domains') as $domain) {
             // Dashboard
             Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
 
-            // ── Approval queue ── (must come BEFORE {tenant} wildcard)
+            // ── Approval queue for new tenant registrations ─────────────────────────────────
             Route::get('/approvals',                            [TenantApprovalController::class, 'pending'])->name('approvals.pending');
             Route::post('/approvals/{registration}/approve',    [TenantApprovalController::class, 'approve'])->name('approvals.approve');
             Route::post('/approvals/{registration}/reject',     [TenantApprovalController::class, 'reject'])->name('approvals.reject');
 
-            // ── Tenant CRUD ──
+            // ── Tenant CRUD ─────────────────────────────────────────────────
             Route::get('/tenants',               [SuperAdminTenantManagementController::class, 'index'])->name('tenants.index');
             Route::get('/tenants/create',        [SuperAdminTenantManagementController::class, 'create'])->name('tenants.create');
             Route::post('/tenants',              [SuperAdminTenantManagementController::class, 'store'])->name('tenants.store');
@@ -87,6 +88,11 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/tenants/{tenant}/edit', [SuperAdminTenantManagementController::class, 'edit'])->name('tenants.edit');
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
+
+            // ── Tenant Monitoring ─────────────────────────────────────────────────
+            Route::get('/monitoring',              [SuperAdminTenantMonitoringController::class, 'index'])->name('monitoring.index');
+            Route::get('/monitoring/{tenant}',     [SuperAdminTenantMonitoringController::class, 'show'])->name('monitoring.show');
+
 
             // ── Plans ─────────────────────────────────────────────────
             Route::get   ('/plans',                [SuperAdminPlanController::class, 'index'])->name('plans.index');
