@@ -4,10 +4,14 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SuperAdminNotification;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
 use Illuminate\Http\Request;
 
 class SuperAdminNotificationController extends Controller
 {
+
+    use CentralConnection;
+    
     public function index()
     {
         $notifications = SuperAdminNotification::latest()->paginate(20);

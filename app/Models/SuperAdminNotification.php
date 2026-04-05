@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuperAdminNotification extends Model
 {
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'type', 'title', 'message', 'icon', 'link', 'is_read',
     ];

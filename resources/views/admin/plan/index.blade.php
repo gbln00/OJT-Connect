@@ -39,12 +39,11 @@ $featureLabels = [
     'email_notifs'   => ['label' => 'Email Notifications',  'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
 ];
 @endphp
-
-@if(session('success'))
-<div class="flash flash-success" style="margin-bottom:16px;">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
-    {{ session('success') }}
-</div>
+{{-- Flash messages --}}
+@if (session('success'))
+    <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:12px 16px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:12px;" class="fade-up">
+        ✓ {{ session('success') }}
+    </div>
 @endif
 
 {{-- ══ CURRENT PLAN HERO ══ --}}

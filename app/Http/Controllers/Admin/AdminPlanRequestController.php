@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SuperAdminNotification;
+use App\Models\PlanRequest;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -21,11 +23,21 @@ class AdminPlanRequestController extends Controller
             'message'        => ['required', 'string', 'max:2000'],
             'contact_email'  => ['required', 'email'],
         ]);
-
+        
         $tenant      = tenancy()->tenant;
         $requestType = $request->request_type;
         $targetPlan  = $request->requested_plan;
         $user        = auth()->user();
+
+        PlanRequest::create([
+            'tenant_id'      => $tenant?->id,
+            'current_plan'   => $tenant?->plan,
+            'requested_plan' => $targetPlan,
+            'request_type'   => $requestType,
+            'contact_email'  => $request->contact_email,
+            'message'        => $request->message,
+            'status'         => 'pending',
+        ]);
 
         // ── Create super-admin notification ──────────────────────────────
         if (class_exists(SuperAdminNotification::class)) {
@@ -33,7 +45,7 @@ class AdminPlanRequestController extends Controller
                 type:    'tenant',
                 title:   ucfirst($requestType) . ' Request — ' . ($tenant?->id ?? 'unknown'),
                 message: "Tenant \"" . ($tenant?->id ?? 'unknown') . "\" requested a plan {$requestType} to \"{$targetPlan}\". " .
-                         "Contact: {$request->contact_email}. Message: " . \Str::limit($request->message, 120),
+                         "Contact: {$request->contact_email}. Message: " . Str::limit($request->message, 120),
                 icon:    $requestType === 'upgrade' ? 'arrow-up' : 'arrow-down',
                 link:    route('super_admin.tenants.show', $tenant?->id ?? ''),
             );
