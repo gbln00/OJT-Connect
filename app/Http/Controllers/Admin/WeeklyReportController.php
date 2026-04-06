@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WeeklyReport;
 use Illuminate\Http\Request;
-
+use App\Mail\ReportApproved;
 use App\Mail\ReportReturned;
 use Illuminate\Support\Facades\Mail;
 
@@ -67,7 +67,11 @@ class WeeklyReportController extends Controller
         ]);
 
         // Send approval email
-        Mail::to($report->student->email)->send(new ReportReturned($report));
+        try {
+            Mail::to($report->student->email)->send(new ReportApproved($report));
+        } catch (\Exception $e) {
+            \Log::error('ReportApproved email failed: ' . $e->getMessage());
+        }
 
         return back()->with('success', "Week {$report->week_number} report for {$report->student->name} approved.");
     }
