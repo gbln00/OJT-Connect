@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ojt_applications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_profile_id')->constrained('student_profiles')->onDelete('cascade');
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->text('rejection_reason')->nullable();  // coordinator fills this if rejected
-            $table->date('start_date')->nullable();         // coordinator fills on approval
-            $table->date('end_date')->nullable();           // coordinator fills on approval
-            $table->timestamps();
-        });
+        // Schema::create('ojt_applications', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('student_profile_id')->constrained('student_profiles')->onDelete('cascade');
+        //     $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+        //     $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+        //     $table->text('rejection_reason')->nullable();  // coordinator fills this if rejected
+        //     $table->date('start_date')->nullable();         // coordinator fills on approval
+        //     $table->date('end_date')->nullable();           // coordinator fills on approval
+        //     $table->timestamps();
+        // });
     }
 
     /**
