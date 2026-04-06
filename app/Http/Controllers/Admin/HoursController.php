@@ -89,8 +89,12 @@ class HoursController extends Controller
     public function approveAll(Request $request, User $student)
     {
         HourLog::where('student_id', $student->id)
-               ->where('status', 'pending')
-               ->update(['status' => 'approved']);
+            ->where('status', 'pending')
+            ->update([
+                'status'      => 'approved',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
 
         return back()->with('success', 'All pending logs approved for ' . $student->name . '.');
     }
