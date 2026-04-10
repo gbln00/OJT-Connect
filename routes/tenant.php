@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
+// Tenant Notifications
+use App\Http\Controllers\TenantNotificationController;
+
 // Auth
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -23,7 +26,6 @@ use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminPlanRequestController;
-use App\Http\Controllers\Admin\AdminNotificationController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -132,12 +134,13 @@ Route::middleware([
         Route::post('/hours/{hourLog}/approve',    [HoursController::class, 'approve'])->name('hours.approve');
         Route::post('/hours/{student}/approve-all',[HoursController::class, 'approveAll'])->name('hours.approve-all');
 
-        // Notifications
-        Route::get('/notifications',                       [AdminNotificationController::class, 'index'])->name('notifications.index');
-        Route::post('/notifications/mark-all-read',        [AdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-        Route::post('/notifications/clear-read',           [AdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
-        Route::post('/notifications/{notification}/read',  [AdminNotificationController::class, 'markRead'])->name('notifications.markRead');
-        Route::delete('/notifications/{notification}',     [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+        // ── Notifications ─────────────────────────────────────────────
+        Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread-count',                 [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+        Route::post('/notifications/mark-all-read',               [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',                  [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',         [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',            [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
 
         // ── Standard plan and above ─────────────────────────────────────
 
@@ -193,6 +196,14 @@ Route::middleware([
         // Hour log view — read-only, Basic+
         Route::get('/hours', [CoordinatorHourLogController::class, 'index'])->name('hours.index');
 
+        // ── Notifications ─────────────────────────────────────────────
+        Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread-count',                 [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+        Route::post('/notifications/mark-all-read',               [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',                  [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',         [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',            [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
+
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
@@ -233,6 +244,14 @@ Route::middleware([
         Route::patch('/settings/profile',  [SupervisorSettingsController::class, 'updateProfile'])->name('settings.update.profile');
         Route::patch('/settings/password', [SupervisorSettingsController::class, 'updatePassword'])->name('settings.update.password');
 
+        // ── Notifications ─────────────────────────────────────────────
+        Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread-count',                 [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+        Route::post('/notifications/mark-all-read',               [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',                  [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',         [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',            [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
+
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
@@ -267,6 +286,14 @@ Route::middleware([
         Route::get('/settings',            [StudentSettingsController::class, 'index'])->name('settings');
         Route::patch('/settings/profile',  [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::patch('/settings/password', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
+
+        // ── Notifications ─────────────────────────────────────────────
+        Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread-count',                 [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+        Route::post('/notifications/mark-all-read',               [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',                  [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',         [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',            [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
 
         // ── Standard plan and above ─────────────────────────────────────
 

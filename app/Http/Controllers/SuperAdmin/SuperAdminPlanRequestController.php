@@ -55,9 +55,10 @@ class SuperAdminPlanRequestController extends Controller
         $planLabel   = $newPlan->label;
         tenancy()->initialize($tenant);
         \App\Models\TenantNotification::notify(
-            title:   'Plan ' . ucfirst($requestType) . ' Approved',
-            message: "Your {$requestType} request to the \"{$planLabel}\" plan has been approved. Your new plan is now active.",
-            type:    'success',
+            title:      'Plan ' . ucfirst($requestType) . ' Approved',
+            message:    "Your {$requestType} request to the \"{$planLabel}\" plan has been approved.",
+            type:       'success',
+            targetRole: 'admin'
         );
         tenancy()->end();
 
@@ -94,10 +95,11 @@ class SuperAdminPlanRequestController extends Controller
         if ($tenant) {
             tenancy()->initialize($tenant);
             \App\Models\TenantNotification::notify(
-                title:   'Plan Request Rejected',
-                message: "Your " . $planRequest->request_type . " request to \"" . $planRequest->requested_plan . "\" was not approved." .
-                         ($data['admin_notes'] ? " Note: " . $data['admin_notes'] : " Please contact support for more information."),
-                type:    'warning',
+                title:      'Plan Request Rejected',
+                message:    "Your " . $planRequest->request_type . " request to \"" . $planRequest->requested_plan . "\" was not approved." .
+                            ($data['admin_notes'] ? " Note: " . $data['admin_notes'] : " Please contact support."),
+                type:       'warning',
+                targetRole: 'admin'
             );
             tenancy()->end();
         }
