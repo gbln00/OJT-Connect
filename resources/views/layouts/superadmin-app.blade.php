@@ -845,6 +845,7 @@
                 @endif
             </a>
 
+            @php $notifUnread = \App\Models\SuperAdminNotification::unread()->count(); @endphp
             <a href="{{ route('super_admin.notifications.index') }}"
                class="nav-item {{ request()->routeIs('super_admin.notifications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -921,7 +922,6 @@
 
                 {{-- 🔔 Notification Bell --}}
                 @php
-                    $notifUnread  = \App\Models\SuperAdminNotification::unread()->count();
                     $notifPreview = \App\Models\SuperAdminNotification::latest()->take(6)->get();
 
                     $notifIcons = [

@@ -193,6 +193,15 @@
             width: 2px; background: var(--crimson);
         }
 
+        .nav-badge {
+            margin-left: auto;
+            background: var(--crimson); color: #fff;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; padding: 1px 6px;
+            border-radius: 0;
+            line-height: 1.5;
+        }
+
         .sidebar-footer {
             padding: 14px 12px;
             border-top: 1px solid var(--border);
