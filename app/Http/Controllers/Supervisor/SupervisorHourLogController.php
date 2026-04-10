@@ -132,14 +132,19 @@ class SupervisorHourLogController extends Controller
         return back()->with('success', ucfirst($hourLog->session) . ' log approved.');
     }
 
-    public function reject(HourLog $hourLog)
+    public function reject(Request $request, HourLog $hourLog)
     {
         $this->authorizeLog($hourLog);
 
+        $request->validate([
+            'rejection_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
         $hourLog->update([
-            'status'      => 'rejected',
-            'approved_by' => null,
-            'approved_at' => null,
+            'status'           => 'rejected',
+            'approved_by'      => null,
+            'approved_at'      => null,
+            'rejection_reason' => $request->rejection_reason,
         ]);
 
         return back()->with('success', ucfirst($hourLog->session) . ' log rejected.');

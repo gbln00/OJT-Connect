@@ -57,12 +57,17 @@ class CoordinatorHourLogController extends Controller
     /**
      * Reject a single hour log.
      */
-    public function reject(HourLog $hourLog)
+    public function reject(Request $request, HourLog $hourLog)
     {
+        $request->validate([
+            'rejection_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
         $hourLog->update([
-            'status'      => 'rejected',
-            'approved_by' => null,
-            'approved_at' => null,
+            'status'           => 'rejected',
+            'approved_by'      => null,
+            'approved_at'      => null,
+            'rejection_reason' => $request->rejection_reason,
         ]);
 
         return back()->with('success', 'Hour log rejected.');

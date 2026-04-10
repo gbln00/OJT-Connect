@@ -260,6 +260,8 @@ Route::middleware([
         Route::get('/hours',        [StudentHourLogController::class, 'index'])->name('hours.index');
         Route::get('/hours/create', [StudentHourLogController::class, 'create'])->name('hours.create');
         Route::post('/hours',       [StudentHourLogController::class, 'store'])->name('hours.store');
+        Route::get('/hours/{hourLog}/edit', [StudentHourLogController::class, 'edit'])->name('hours.edit');
+        Route::patch('/hours/{hourLog}',    [StudentHourLogController::class, 'update'])->name('hours.update');
 
         Route::get('/settings',            [StudentSettingsController::class, 'index'])->name('settings');
         Route::patch('/settings/profile',  [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');

@@ -177,4 +177,62 @@ class StudentHourLogController extends Controller
                 ? 'Morning and afternoon hour logs submitted successfully.'
                 : 'Hour log submitted successfully.');
     }
+
+    // Edit and update are only allowed for rejected logs, to let students fix issues and resubmit.
+    public function edit(HourLog $hourLog)
+    {
+        $user = Auth::user();
+
+        if ($hourLog->student_id !== $user->id) {
+            abort(403);
+        }
+
+        if (!$hourLog->isRejected()) {
+            return redirect()->route('student.hours.index')
+                ->with('error', 'You can only edit rejected hour logs.');
+        }
+
+        $application = $user->activeApplication()->first();
+
+        return view('student.hours.edit', compact('hourLog', 'application'));
+    }
+    
+    // Update the log after editing. Only allowed if the log is currently rejected.
+    public function update(Request $request, HourLog $hourLog)
+    {
+        $user = Auth::user();
+
+        if ($hourLog->student_id !== $user->id) {
+            abort(403);
+        }
+
+        if (!$hourLog->isRejected()) {
+            return redirect()->route('student.hours.index')
+                ->with('error', 'You can only edit rejected hour logs.');
+        }
+
+        $request->validate([
+            'time_in'     => ['required', 'date_format:H:i'],
+            'time_out'    => ['required', 'date_format:H:i', 'after:time_in'],
+            'description' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $in    = \Carbon\Carbon::createFromFormat('H:i', $request->time_in);
+        $out   = \Carbon\Carbon::createFromFormat('H:i', $request->time_out);
+        $hours = round($in->diffInMinutes($out) / 60, 2);
+
+        $hourLog->update([
+            'time_in'          => $request->time_in,
+            'time_out'         => $request->time_out,
+            'total_hours'      => $hours,
+            'description'      => $request->description,
+            'status'           => 'pending',
+            'rejection_reason' => null,
+            'approved_by'      => null,
+            'approved_at'      => null,
+        ]);
+
+        return redirect()->route('student.hours.index')
+            ->with('success', 'Hour log resubmitted successfully.');
+    }
 }
