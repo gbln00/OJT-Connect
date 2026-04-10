@@ -295,4 +295,38 @@ class ExportController extends Controller
             $writer->save('php://output');
         }, $filename, ['Content-Type'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
     }
+
+    public function certificate(OjtApplication $application)
+    {
+        $application->load(['student', 'company', 'evaluation']);
+
+        // Guard: must be completed with a passing evaluation
+        if (!$application->evaluation || $application->evaluation->recommendation !== 'pass') {
+            return back()->with('error', 'Certificate is only available for students with a passing evaluation.');
+        }
+
+        $approvedHours = HourLog::where('application_id', $application->id)
+            ->where('status', 'approved')
+            ->sum('total_hours');
+
+        // Get coordinator name
+        $coordinator = User::where('role', 'ojt_coordinator')->first();
+
+        $pdf = OJTPdf::certificate(
+            studentName:     $application->student->name,
+            program:         $application->program,
+            companyName:     $application->company->name,
+            semester:        $application->semester,
+            schoolYear:      $application->school_year,
+            hoursCompleted:  $approvedHours,
+            coordinatorName: $coordinator?->name ?? 'OJT Coordinator',
+        );
+
+        $filename = 'certificate_' . str_replace(' ', '_', $application->student->name) . '_' . now()->format('Ymd') . '.pdf';
+
+        return response($pdf->Output('S'), 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
 }

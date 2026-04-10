@@ -147,4 +147,132 @@ class OJTPdf extends FPDF
         $this->_out(sprintf('%.2F %.2F %.2F %.2F %.2F %.2F c',
             $x1*$k,($h-$y1)*$k,$x2*$k,($h-$y2)*$k,$x3*$k,($h-$y3)*$k));
     }
+    
+    public static function certificate(
+        string $studentName,
+        string $program,
+        string $companyName,
+        string $semester,
+        string $schoolYear,
+        float  $hoursCompleted,
+        string $coordinatorName = 'OJT Coordinator'
+    ): self {
+        $pdf = new self('L', 'mm', 'A4');
+        $pdf->AliasNbPages();
+        $pdf->reportTitle  = 'Certificate of Completion';
+        $pdf->reportSub    = '';
+        $pdf->totalRecords = 1;
+        $pdf->SetMargins(0, 0, 0);
+        $pdf->SetAutoPageBreak(false);
+        $pdf->AddPage();
+
+        // Background
+        $pdf->SetFillColor(15, 17, 23);
+        $pdf->Rect(0, 0, 297, 210, 'F');
+
+        // Gold border frame
+        $pdf->SetDrawColor(240, 180, 41);
+        $pdf->SetLineWidth(1.5);
+        $pdf->Rect(10, 10, 277, 190);
+        $pdf->SetLineWidth(0.5);
+        $pdf->Rect(13, 13, 271, 184);
+
+        // Header brand
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->SetTextColor(240, 180, 41);
+        $pdf->SetXY(0, 22);
+        $pdf->Cell(297, 8, 'OJTCONNECT', 0, 1, 'C');
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 30);
+        $pdf->Cell(297, 5, 'OJT Management System — Bukidnon State University', 0, 1, 'C');
+
+        // Decorative line
+        $pdf->SetFillColor(240, 180, 41);
+        $pdf->Rect(88, 37, 121, 0.5, 'F');
+
+        // Title
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 42);
+        $pdf->Cell(297, 6, 'THIS IS TO CERTIFY THAT', 0, 1, 'C');
+
+        // Student Name
+        $pdf->SetFont('Arial', 'B', 28);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetXY(0, 50);
+        $pdf->Cell(297, 16, $studentName, 0, 1, 'C');
+
+        // Gold underline
+        $pdf->SetFillColor(240, 180, 41);
+        $nameWidth = $pdf->GetStringWidth($studentName) + 20;
+        $pdf->Rect((297 - $nameWidth) / 2, 67, $nameWidth, 0.8, 'F');
+
+        // Body text
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetTextColor(200, 203, 210);
+        $pdf->SetXY(0, 73);
+        $pdf->Cell(297, 7, 'has successfully completed the On-the-Job Training program', 0, 1, 'C');
+
+        $pdf->SetXY(0, 80);
+        $pdf->Cell(297, 7, 'enrolled under ' . $program . ' — ' . $semester . ', S.Y. ' . $schoolYear, 0, 1, 'C');
+
+        // Company highlight box
+        $pdf->SetFillColor(25, 28, 38);
+        $pdf->SetDrawColor(240, 180, 41);
+        $pdf->SetLineWidth(0.4);
+        $pdf->RoundedRect(74, 90, 149, 14, 2, 'DF');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 92);
+        $pdf->Cell(297, 4, 'TRAINING ESTABLISHMENT', 0, 1, 'C');
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->SetTextColor(240, 180, 41);
+        $pdf->SetXY(0, 97);
+        $pdf->Cell(297, 6, $companyName, 0, 1, 'C');
+
+        // Hours completed
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetTextColor(200, 203, 210);
+        $pdf->SetXY(0, 108);
+        $pdf->Cell(297, 6, 'having completed a total of', 0, 1, 'C');
+        $pdf->SetFont('Arial', 'B', 18);
+        $pdf->SetTextColor(45, 212, 191);
+        $pdf->SetXY(0, 114);
+        $pdf->Cell(297, 10, number_format($hoursCompleted, 1) . ' HOURS', 0, 1, 'C');
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 124);
+        $pdf->Cell(297, 5, 'of supervised on-the-job training', 0, 1, 'C');
+
+        // Decorative divider
+        $pdf->SetFillColor(240, 180, 41);
+        $pdf->Rect(88, 132, 121, 0.3, 'F');
+
+        // Date
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 136);
+        $pdf->Cell(297, 5, 'Issued on ' . now()->format('F d, Y'), 0, 1, 'C');
+
+        // Signature line
+        $pdf->SetDrawColor(240, 180, 41);
+        $pdf->SetLineWidth(0.5);
+        $pdf->Line(99, 162, 198, 162);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetXY(0, 164);
+        $pdf->Cell(297, 5, $coordinatorName, 0, 1, 'C');
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->SetTextColor(156, 163, 175);
+        $pdf->SetXY(0, 170);
+        $pdf->Cell(297, 4, 'OJT COORDINATOR', 0, 1, 'C');
+
+        // Bottom brand strip
+        $pdf->SetFillColor(240, 180, 41);
+        $pdf->Rect(0, 195, 297, 3, 'F');
+
+        return $pdf;
+    }
 }

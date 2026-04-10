@@ -154,10 +154,11 @@ Route::middleware([
         // ── Premium plan only ───────────────────────────────────────────
 
         Route::middleware('plan:premium')->group(function () {
-            Route::get('/exports',                 [ExportController::class, 'index'])->name('export.index');
-            Route::get('/exports/pdf/students',    [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
-            Route::get('/exports/pdf/evaluations', [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
-            Route::get('/exports/excel',           [ExportController::class, 'excelFull'])->name('export.excel');
+            Route::get('/exports',                              [ExportController::class, 'index'])->name('export.index');
+            Route::get('/exports/pdf/students',                 [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
+            Route::get('/exports/pdf/evaluations',              [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
+            Route::get('/exports/excel',                        [ExportController::class, 'excelFull'])->name('export.excel');
+            Route::get('/exports/certificate/{application}',    [ExportController::class, 'certificate'])->name('export.certificate');
             
             // ── Analytics Dashboard (Premium only) ──────────────────────────
             Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics.index');
