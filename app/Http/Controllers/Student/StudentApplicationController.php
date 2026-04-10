@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\OjtApplication;
 use App\Models\Plan;
+use App\Models\TenantNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -84,6 +85,20 @@ class StudentApplicationController extends Controller
             'document_path'  => $documentPath,
             'status'         => 'pending',
         ]);
+
+        TenantNotification::notify(
+            title:      'New OJT Application',
+            message:    auth()->user()->name . " submitted an OJT application for {$application->company->name}.",
+            type:       'info',
+            targetRole: 'ojt_coordinator'
+        );
+
+        TenantNotification::notify(
+            title:      'New OJT Application',
+            message:    auth()->user()->name . " submitted an OJT application for {$application->company->name}.",
+            type:       'info',
+            targetRole: 'admin'
+        );
 
         return redirect()->route('student.application.show', $application->id)
             ->with('success', 'Application submitted! Waiting for coordinator review.');

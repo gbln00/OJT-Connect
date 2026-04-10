@@ -9,7 +9,7 @@ use App\Models\OjtApplication;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\TenantNotification;
 use App\Mail\ApplicationApproved;
 use App\Mail\ApplicationRejected;
 use Illuminate\Support\Facades\Mail;
@@ -72,6 +72,13 @@ class ApplicationController extends Controller
             
         ]);
 
+        TenantNotification::notify(
+            title:      'Application Approved',
+            message:    "Your OJT application for {$application->company->name} has been approved.",
+            type:       'success',
+            targetRole: 'student_intern'
+        );
+
         // Send approval email
         Mail::to($application->student->email)->send(new ApplicationApproved($application));
 
@@ -89,6 +96,12 @@ class ApplicationController extends Controller
             'remarks'     => $request->validated()['remarks'],
         ]);
 
+        TenantNotification::notify(
+            title:      'Application Rejected',
+            message:    "Your OJT application for {$application->company->name} was rejected. Remarks: {$application->remarks}",
+            type:       'warning',
+            targetRole: 'student_intern'
+        );
 
         // Send rejection email
         Mail::to($application->student->email)->send(new ApplicationRejected($application));

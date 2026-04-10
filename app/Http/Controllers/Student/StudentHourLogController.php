@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\HourLog;
 use App\Models\OjtApplication;
+use App\Models\TenantNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -167,6 +168,23 @@ class StudentHourLogController extends Controller
                 }
             }
         });
+
+        if ($created > 0) {
+            TenantNotification::notify(
+                title:      'New Hour Log Submitted',
+                message:    auth()->user()->name . " submitted {$created} hour log(s) for " . $request->date . '.',
+                type:       'info',
+                targetRole: 'company_supervisor'
+            );
+
+            // Also notify admin and coordinator
+            TenantNotification::notify(
+                title:      'New Hour Log Submitted',
+                message:    auth()->user()->name . " submitted {$created} hour log(s) for " . $request->date . '.',
+                type:       'info',
+                targetRole: 'ojt_coordinator'
+            );
+        }
 
         if ($created === 0) {
             return back()->with('info', 'Hour logs for the selected session(s) already exist for this date.');

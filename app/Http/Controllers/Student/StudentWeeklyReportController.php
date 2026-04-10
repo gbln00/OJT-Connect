@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\WeeklyReport;
+use App\Models\OjtApplication;
+use App\Models\TenantNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -86,6 +88,21 @@ class StudentWeeklyReportController extends Controller
             'file_path'      => $filePath,
             'status'         => 'pending',
         ]);
+
+        TenantNotification::notify(
+            title:      'New Weekly Report Submitted',
+            message:    auth()->user()->name . " submitted Week {$request->week_number} report.",
+            type:       'info',
+            targetRole: 'ojt_coordinator'
+        );
+
+        TenantNotification::notify(
+            title:      'New Weekly Report Submitted',
+            message:    auth()->user()->name . " submitted Week {$request->week_number} report.",
+            type:       'info',
+            targetRole: 'admin'
+        );
+
         return redirect()->route('student.reports.index')
             ->with('success', 'Weekly report submitted successfully.');
     }

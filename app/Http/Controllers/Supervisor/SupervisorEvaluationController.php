@@ -2,7 +2,8 @@
 namespace App\Http\Controllers\Supervisor;
 use App\Http\Controllers\Controller;
 use App\Models\{Evaluation, OjtApplication};
-
+use App\Models\User;    
+use App\Models\TenantNotification;
 use App\Mail\EvaluationSubmitted;
 use Illuminate\Support\Facades\Mail;
 
@@ -46,6 +47,30 @@ class SupervisorEvaluationController extends Controller
             'submitted_at'       => now(),
         ]);
 
+        // Notify student of their evaluation result
+        TenantNotification::notify(
+            title:      'Evaluation Submitted',
+            message:    "Your supervisor has submitted your OJT evaluation. Result: " . ucfirst($request->recommendation) . ". Grade: {$request->overall_grade}.",
+            type:       $request->recommendation === 'pass' ? 'success' : 'warning',
+            targetRole: 'student_intern'
+        );
+
+        // Notify coordinator
+        TenantNotification::notify(
+            title:      'New Evaluation Submitted',
+            message:    "A supervisor submitted an evaluation for {$application->student->name}. Result: " . ucfirst($request->recommendation) . '.',
+            type:       'info',
+            targetRole: 'ojt_coordinator'
+        );
+
+        // Notify admin
+        TenantNotification::notify(
+            title:      'New Evaluation Submitted',
+            message:    "A supervisor submitted an evaluation for {$application->student->name}. Result: " . ucfirst($request->recommendation) . '.',
+            type:       'info',
+            targetRole: 'admin'
+        );
+
         $coordinator = \App\Models\User::where('role', 'ojt_coordinator')->first();
         if ($coordinator) {
             try {
@@ -54,8 +79,7 @@ class SupervisorEvaluationController extends Controller
             } catch (\Exception $e) {
                 \Log::error('EvaluationSubmitted coordinator email failed: ' . $e->getMessage());
             }
-}
-
+        }
 
         return redirect()->route('supervisor.dashboard')
             ->with('success', 'Evaluation submitted successfully.');

@@ -51,6 +51,14 @@ class CoordinatorHourLogController extends Controller
             'approved_at' => now(),
         ]);
 
+        TenantNotification::notify(
+            title:      'Weekly Report Approved',
+            message:    "Your Week {$report->week_number} report has been approved." .
+                        ($request->feedback ? " Feedback: {$request->feedback}" : ''),
+            type:       'success',
+            targetRole: 'student_intern'
+        );
+
         return back()->with('success', 'Hour log approved.');
     }
 
@@ -69,6 +77,13 @@ class CoordinatorHourLogController extends Controller
             'approved_at'      => null,
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        TenantNotification::notify(
+            title:      'Weekly Report Returned',
+            message:    "Your Week {$report->week_number} report was returned for revision. Feedback: {$request->feedback}",
+            type:       'warning',
+            targetRole: 'student_intern'
+        );
 
         return back()->with('success', 'Hour log rejected.');
     }

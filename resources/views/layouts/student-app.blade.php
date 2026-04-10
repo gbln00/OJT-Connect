@@ -854,7 +854,7 @@
                 </button>
                 
                 <div class="topbar-divider"></div>
-                
+
                 @php
                     $tenantUnread = \App\Models\TenantNotification::forRole('student_intern')->unread()->count();
                     $tenantNotifs = \App\Models\TenantNotification::forRole('student_intern')->latest()->take(5)->get();
@@ -893,7 +893,7 @@
                                     <span style="color:var(--crimson);">({{ $tenantUnread }})</span>
                                 @endif
                             </span>
-                            <a href="{{ route('coordinator.notifications.index') }}"
+                            <a href="{{ route('student.notifications.index') }}"
                             style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
                                     text-transform:uppercase;color:var(--muted);text-decoration:none;"
                             onmouseover="this.style.color='var(--text)'"

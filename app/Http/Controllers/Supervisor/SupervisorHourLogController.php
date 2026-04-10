@@ -7,6 +7,7 @@ use App\Models\HourLog;
 use App\Models\OjtApplication;
 use App\Models\User;
 use App\Mail\HourLogsApproved;
+use App\Models\TenantNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -129,6 +130,14 @@ class SupervisorHourLogController extends Controller
             'approved_at' => now(),
         ]);
 
+        // Notify student (runs inside tenant context)
+        TenantNotification::notify(
+            title:      'Hour Log Approved',
+            message:    "Your {$hourLog->session} hour log for {$hourLog->date->format('M d, Y')} has been approved.",
+            type:       'success',
+            targetRole: 'student_intern'
+        );
+
         return back()->with('success', ucfirst($hourLog->session) . ' log approved.');
     }
 
@@ -146,6 +155,15 @@ class SupervisorHourLogController extends Controller
             'approved_at'      => null,
             'rejection_reason' => $request->rejection_reason,
         ]);
+
+        //
+        TenantNotification::notify(
+            title:      'Hour Log Rejected',
+            message:    "Your {$hourLog->session} hour log for {$hourLog->date->format('M d, Y')} was rejected." .
+                        ($request->rejection_reason ? " Reason: {$request->rejection_reason}" : ''),
+            type:       'warning',
+            targetRole: 'student_intern'
+        );
 
         return back()->with('success', ucfirst($hourLog->session) . ' log rejected.');
     }
@@ -181,6 +199,16 @@ class SupervisorHourLogController extends Controller
                 'approved_at' => now(),
             ]);
 
+            //
+            if ($count > 0) {
+                TenantNotification::notify(
+                    title:      'Hour Logs Approved',
+                    message:    "{$count} pending hour log(s) for {$student->name} have been approved.",
+                    type:       'success',
+                    targetRole: 'student_intern'
+                );
+            }
+            
 
             // Calculate total approved hours for the email
             $totalApproved = HourLog::where('student_id', $student->id)

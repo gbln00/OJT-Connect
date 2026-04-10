@@ -7,6 +7,7 @@ use App\Models\WeeklyReport;
 use Illuminate\Http\Request;
 use App\Mail\ReportApproved;
 use App\Mail\ReportReturned;
+use App\Models\TenantNotification;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -66,6 +67,14 @@ class WeeklyReportController extends Controller
             'reviewed_at' => now(),
         ]);
 
+        TenantNotification::notify(
+            title:      'Weekly Report Approved',
+            message:    "Your Week {$report->week_number} report has been approved." .
+                        ($request->feedback ? " Feedback: {$request->feedback}" : ''),
+            type:       'success',
+            targetRole: 'student_intern'
+        );
+
         // Send approval email
         try {
             Mail::to($report->student->email)->send(new ReportApproved($report));
@@ -88,6 +97,13 @@ class WeeklyReportController extends Controller
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
+
+        TenantNotification::notify(
+            title:      'Weekly Report Returned',
+            message:    "Your Week {$report->week_number} report was returned for revision. Feedback: {$request->feedback}",
+            type:       'warning',
+            targetRole: 'student_intern'
+        );
 
         return back()->with('success', "Week {$report->week_number} report for {$report->student->name} returned.");
     }
