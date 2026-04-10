@@ -571,6 +571,18 @@
         .btn-submit svg { transition: transform .2s; }
         .btn-submit:hover svg { transform: translateX(3px); }
 
+        .recaptcha-wrap {
+            display: inline-flex;
+            padding: .75rem 1rem;
+            border: 1px solid rgba(171,171,171,0.1);
+            background: rgba(14,17,38,0.6);
+            transition: border-color .2s;
+        }
+        .recaptcha-wrap:focus-within {
+            border-color: rgba(140,14,3,0.7);
+            box-shadow: 0 0 0 3px rgba(140,14,3,0.1);
+        }
+
         /* Login link */
         .login-link {
             grid-column: 1 / -1;
@@ -624,6 +636,9 @@
             .nav-badge { display: none; }
         }
     </style>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 </head>
 <body>
 
@@ -925,6 +940,20 @@
                     </div>
                     @error('plan')
                     <span class="field-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+               {{-- reCAPTCHA --}}
+                <div class="field full" style="margin-top:.5rem;">
+                    <label class="field-label">Security Check <span class="req">✦</span></label>
+                    <div class="recaptcha-wrap">
+                        <div class="g-recaptcha"
+                            data-sitekey="{{ config('services.recaptcha.site_key') }}"
+                            data-theme="dark">
+                        </div>
+                    </div>
+                    @error('g-recaptcha-response')
+                        <span class="field-error">{{ $message }}</span>
                     @enderror
                 </div>
 

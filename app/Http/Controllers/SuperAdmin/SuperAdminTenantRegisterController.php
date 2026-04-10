@@ -4,7 +4,8 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TenantRegistration;
-use App\Models\SuperAdminNotification;  // ← add this
+use App\Services\RecaptchaService;
+use App\Models\SuperAdminNotification;
 use Illuminate\Http\Request;
 
 class SuperAdminTenantRegisterController extends Controller
@@ -14,28 +15,38 @@ class SuperAdminTenantRegisterController extends Controller
         return view('auth.tenant-register');
     }
 
-    public function submit(Request $request)
+    public function submit(Request $request, RecaptchaService $recaptcha)
     {
         $request->validate([
-            'company_name'   => ['required', 'string', 'max:255'],
-            'email'          => [
-                'required', 
-                'email', 
+            'company_name'        => ['required', 'string', 'max:255'],
+            'email'               => [
+                'required',
+                'email',
                 'unique:tenant_registrations,email',
-                'unique:tenants,email',                 // 👈 check active tenants
+                'unique:tenants,email',
             ],
-            'subdomain'      => [
-                'required', 
-                'alpha_dash', 
-                'min:3', 
-                'max:30', 
+            'subdomain'           => [
+                'required',
+                'alpha_dash',
+                'min:3',
+                'max:30',
                 'unique:tenant_registrations,subdomain',
-                'unique:tenants,id',                    // 👈 check active tenants
+                'unique:tenants,id',
             ],
-            'contact_person' => ['required', 'string', 'max:255'],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'plan'           => ['required', 'in:basic,standard,premium'],
+            'contact_person'      => ['required', 'string', 'max:255'],
+            'phone'               => ['nullable', 'string', 'max:20'],
+            'plan'                => ['required', 'in:basic,standard,premium'],
+            'g-recaptcha-response'=> ['required'],
+        ], [
+            'g-recaptcha-response.required' => 'Please complete the CAPTCHA.',
         ]);
+
+        // Verify reCAPTCHA
+        if (!$recaptcha->verify($request->input('g-recaptcha-response'))) {
+            return back()->withErrors([
+                'g-recaptcha-response' => 'CAPTCHA verification failed. Please try again.',
+            ])->withInput();
+        }
 
         $registration = TenantRegistration::create($request->only([
             'company_name', 'email', 'subdomain',

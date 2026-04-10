@@ -134,6 +134,29 @@
             border-color: rgba(171,171,171,0.3); color: rgba(171,171,171,0.9);
             background: rgba(171,171,171,0.05); transform: translateY(-2px);
         }
+        .btn-ghost-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border: 1px solid rgba(171,171,171,0.15);
+            color: rgba(171,171,171,0.6);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            background: transparent;
+            transition: border-color .2s, color .2s, background .2s, transform .15s;
+        }
+
+        .btn-ghost-nav:hover {
+            border-color: rgba(171,171,171,0.3);
+            color: rgba(171,171,171,0.9);
+            background: rgba(171,171,171,0.05);
+            transform: translateY(-2px);
+        }
 
         /* ── PAGE SHELL ── */
         .page {
@@ -422,6 +445,43 @@
             transform: translateY(-2px);
         }
 
+        /* reCAPTCHA — auth layout */
+        .recaptcha-group { margin-top: 8px; }
+
+        .recaptcha-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(171,171,171,0.45);
+            margin-bottom: 8px;
+        }
+
+        .recaptcha-frame {
+            display: block;
+            min-width: 304px;  
+            min-height: 78px;  
+            padding: 10px 12px;
+            border: 1px solid rgba(171,171,171,0.12);
+            background: rgba(14,17,38,0.55);
+            transition: border-color .2s, box-shadow .2s;
+            overflow: visible; 
+        }
+        .recaptcha-frame:focus-within {
+            border-color: rgba(140,14,3,0.6);
+            box-shadow: 0 0 0 3px rgba(140,14,3,0.09);
+        }
+
+        .recaptcha-error {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #8C0E03;
+        }
+        .g-recaptcha {
+            transform-origin: left top;  
+        }
+
         /* ── Footer link ── */
         .form-footer {
             text-align: center;
@@ -585,5 +645,6 @@
         });
     }
 </script>
+@stack('scripts')
 </body>
 </html>
