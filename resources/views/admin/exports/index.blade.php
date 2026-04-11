@@ -86,6 +86,80 @@
 
 </div>
 
+{{-- ── FILTER FORM ── --}}
+<div class="fade-up fade-up-2" style="margin-bottom:24px;">
+    <form method="GET" action="{{ route('admin.export.index') }}">
+
+        <div style="padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--crimson);">
+
+            {{-- Filter header --}}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--crimson);flex-shrink:0;">
+                    <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3"/>
+                </svg>
+                <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">
+                    Filter exports
+                </span>
+                @if(request('semester') || request('school_year'))
+                    <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+                        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;">Active:</span>
+                        @if(request('semester'))
+                            <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
+                                {{ request('semester') }}
+                            </span>
+                        @endif
+                        @if(request('school_year'))
+                            <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
+                                {{ request('school_year') }}
+                            </span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
+            {{-- Fields row --}}
+            <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+
+                <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;">
+                    <label class="form-label">Semester</label>
+                    <select name="semester" class="form-select">
+                        <option value="">All Semesters</option>
+                        <option value="1st Semester" {{ request('semester') === '1st Semester' ? 'selected' : '' }}>1st Semester</option>
+                        <option value="2nd Semester" {{ request('semester') === '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
+                        <option value="Summer"       {{ request('semester') === 'Summer'       ? 'selected' : '' }}>Summer</option>
+                    </select>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;">
+                    <label class="form-label">School Year</label>
+                    <input type="text" name="school_year" class="form-input"
+                           placeholder="e.g. 2024-2025"
+                           value="{{ request('school_year') }}">
+                </div>
+
+                <div style="display:flex;gap:8px;padding-bottom:1px;">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        Apply
+                    </button>
+                    @if(request('semester') || request('school_year'))
+                        <a href="{{ route('admin.export.index') }}" class="btn btn-ghost btn-sm">
+                            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Clear
+                        </a>
+                    @endif
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+</div>
+
 {{-- SECTION LABEL --}}
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;" class="fade-up fade-up-2">
     <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);">Available exports</span>
@@ -127,6 +201,11 @@
                 <span class="export-pill">{{ $stats['total_students'] }} students</span>
                 <span class="export-pill">Landscape A4</span>
                 <span class="export-pill">Table format</span>
+                @if(request('semester') || request('school_year'))
+                    <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
+                        Filtered
+                    </span>
+                @endif
             </div>
 
             {{-- Divider --}}
@@ -148,7 +227,7 @@
                     <span class="export-field-sep">·</span>
                     <span class="export-field">Hours</span>
                 </div>
-                <a href="{{ route('admin.export.pdf.students') }}" class="export-btn coral-btn">
+                <a href="{{ route('admin.export.pdf.students', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn coral-btn">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -191,6 +270,11 @@
                 <span class="export-pill">Ratings + grades</span>
                 <span class="export-pill">Landscape A4</span>
                 <span class="export-pill">Pass/Fail</span>
+                @if(request('semester') || request('school_year'))
+                    <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
+                        Filtered
+                    </span>
+                @endif
             </div>
 
             {{-- Divider --}}
@@ -212,7 +296,7 @@
                     <span class="export-field-sep">·</span>
                     <span class="export-field">Grade</span>
                 </div>
-                <a href="{{ route('admin.export.pdf.evaluations') }}" class="export-btn crimson-btn">
+                <a href="{{ route('admin.export.pdf.evaluations', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn crimson-btn">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -297,7 +381,22 @@
                 <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Format</div>
                 <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--teal-color);margin-bottom:2px;">.xlsx</div>
                 <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">Excel 2007+</div>
-                <a href="{{ route('admin.export.excel') }}" class="export-btn teal-btn" style="width:100%;justify-content:center;">
+
+                @if(request('semester') || request('school_year'))
+                <div style="width:100%;margin-bottom:12px;padding:8px 10px;background:rgba(140,14,3,0.06);
+                            border:1px solid rgba(140,14,3,0.18);border-left:2px solid var(--crimson);">
+                    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+                                color:var(--crimson);margin-bottom:4px;">Filtered</div>
+                    @if(request('semester'))
+                        <div style="font-size:11px;color:var(--text2);">{{ request('semester') }}</div>
+                    @endif
+                    @if(request('school_year'))
+                        <div style="font-size:11px;color:var(--text2);">{{ request('school_year') }}</div>
+                    @endif
+                </div>
+                @endif
+
+                <a href="{{ route('admin.export.excel', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn teal-btn" style="width:100%;justify-content:center;">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -321,7 +420,16 @@
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     <p style="font-size:12px;color:var(--muted);line-height:1.6;">
-        All exports reflect <strong style="color:var(--text2);font-weight:500;">live data</strong> at the time of download. Re-download periodically to keep records current. Data includes only approved applications unless otherwise noted.
+        All exports reflect <strong style="color:var(--text2);font-weight:500;">live data</strong> at the time of download.
+        @if(request('semester') || request('school_year'))
+            Currently filtered by
+            @if(request('semester'))<strong style="color:var(--text2);font-weight:500;">{{ request('semester') }}</strong>@endif
+            @if(request('semester') && request('school_year')) · @endif
+            @if(request('school_year'))<strong style="color:var(--text2);font-weight:500;">{{ request('school_year') }}</strong>@endif.
+        @else
+            Re-download periodically to keep records current.
+        @endif
+        Data includes only approved applications unless otherwise noted.
     </p>
 </div>
 

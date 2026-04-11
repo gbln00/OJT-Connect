@@ -37,9 +37,15 @@ class ExportController extends Controller
 
     public function pdfStudents()
     {
-        $applications = OjtApplication::with(['student', 'company'])
-            ->where('status', 'approved')->get();
+        $semester   = request('semester');
+        $schoolYear = request('school_year');
 
+        $applications = OjtApplication::with(['student', 'company'])
+            ->where('status', 'approved')
+            ->when($semester,   fn($q) => $q->where('semester', $semester))
+            ->when($schoolYear, fn($q) => $q->where('school_year', $schoolYear))
+            ->get();
+            
         $pdf = new OJTPdf('L', 'mm', 'A4');
         $pdf->AliasNbPages();
         $pdf->reportTitle  = 'Student OJT Summary';
@@ -121,7 +127,16 @@ class ExportController extends Controller
 
     public function pdfEvaluations()
     {
-        $evaluations = Evaluation::with(['student','application.company','supervisor'])->get();
+        $$semester   = request('semester');
+        $schoolYear = request('school_year');
+
+        $evaluations = Evaluation::with(['student','application.company','supervisor'])
+            ->whereHas('application', function($q) use ($semester, $schoolYear) {
+                $q->when($semester,   fn($q) => $q->where('semester', $semester))
+                ->when($schoolYear, fn($q) => $q->where('school_year', $schoolYear));
+            })
+            ->get();
+            
         $passed   = $evaluations->where('recommendation','pass')->count();
         $avgGrade = round($evaluations->avg('overall_grade') ?? 0, 1);
 
@@ -220,7 +235,16 @@ class ExportController extends Controller
             $sheet->getStyle($col.'1')->applyFromArray($headerStyle);
             $sheet->getRowDimension(1)->setRowHeight(20);
         }
-        $applications = OjtApplication::with(['student','company'])->where('status','approved')->get();
+
+        $semester   = request('semester');
+        $schoolYear = request('school_year');
+
+        $applications = OjtApplication::with(['student', 'company'])
+            ->where('status', 'approved')
+            ->when($semester,   fn($q) => $q->where('semester', $semester))
+            ->when($schoolYear, fn($q) => $q->where('school_year', $schoolYear))
+            ->get();
+
         foreach ($applications as $i => $app) {
             $row = $i+2;
             $approved = HourLog::where('application_id',$app->id)->where('status','approved')->sum('total_hours');
