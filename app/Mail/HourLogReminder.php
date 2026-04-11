@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\OjtApplication;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -14,10 +15,8 @@ class HourLogReminder extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public User  $student,
-        public int   $pendingDays,
-        public float $totalApprovedHours,
-        public float $requiredHours,
+        public User           $student,
+        public OjtApplication $application,
     ) {}
 
     public function envelope(): Envelope
@@ -32,11 +31,14 @@ class HourLogReminder extends Mailable
         return new Content(
             markdown: 'emails.hourlogs.reminder',
             with: [
-                'studentName'         => $this->student->name,
-                'pendingDays'         => $this->pendingDays,
-                'totalApprovedHours'  => number_format($this->totalApprovedHours, 1),
-                'requiredHours'       => number_format($this->requiredHours, 1),
-                'logsUrl'             => url('/student/hours'),
+                'studentName'    => $this->student->name,
+                'companyName'    => $this->application->company->name,
+                'approvedHours'  => number_format(
+                    \App\Models\HourLog::where('application_id', $this->application->id)
+                        ->where('status', 'approved')->sum('total_hours'), 1
+                ),
+                'requiredHours'  => number_format($this->application->required_hours),
+                'logsUrl'        => url('/student/hours'),
             ],
         );
     }
