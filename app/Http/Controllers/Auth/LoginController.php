@@ -38,7 +38,7 @@ class LoginController extends Controller
         $host = $request->getSchemeAndHttpHost();
 
         $credentials = $request->only('email', 'password');
-
+        
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
             $request->session()->regenerate();
@@ -55,8 +55,9 @@ class LoginController extends Controller
                 default              => '/',
             };
 
+            $url = 'http://' . tenant('id') . '.' . config('app.base_domain', 'localhost') . ':8000' . $path;
             
-           return redirect()->away($host . $path);
+            return redirect()->away($url);
         }
 
         return back()->withErrors([
