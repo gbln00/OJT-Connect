@@ -37,11 +37,40 @@ class StudentSettingsController extends Controller
 
     public function updateAvatar(Request $request)
     {
-        $request->validate(['avatar' => 'required|image|max:2048']);
+        $request->validate([
+            'avatar' => ['required', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+        ]);
 
-        $path = $request->file('avatar')->store('avatars/' . Auth::id(), 'public');
-        Auth::user()->update(['avatar' => $path]);
+        $user = Auth::user();
 
-        return back()->with('success', 'Avatar updated.');
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $path = $request->file('avatar')->store('avatars/' . $user->id, 'public');
+
+        $user->update(['avatar' => $path]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'path'    => Storage::url($path),
+                'stored'  => $path,
+            ]);
+        }
+
+        return back()->with('avatar_success', 'Avatar updated.');
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+            $user->update(['avatar' => null]);
+        }
+
+        return back()->with('avatar_success', 'Avatar removed.');
     }
 }

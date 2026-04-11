@@ -290,7 +290,8 @@ Route::middleware([
         Route::get('/settings',                 [StudentSettingsController::class, 'index'])->name('settings');
         Route::patch('/settings/profile',       [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::patch('/settings/password',      [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
-        Route::post('/settings/avatar',         [StudentSettingsController::class, 'updateAvatar'])->name('settings.avatar');
+        Route::post('/settings/avatar',   [StudentSettingsController::class, 'updateAvatar'])->name('settings.avatar');
+        Route::delete('/settings/avatar', [StudentSettingsController::class, 'deleteAvatar'])->name('settings.avatar.delete');
 
         // ── Notifications ─────────────────────────────────────────────
         Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
