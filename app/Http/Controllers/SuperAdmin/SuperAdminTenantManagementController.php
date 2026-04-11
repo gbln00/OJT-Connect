@@ -51,7 +51,9 @@ class SuperAdminTenantManagementController extends Controller
             'plan' => $data['plan'] ?? 'basic',
         ]);
 
-        $tenant->domains()->create(['domain' => $data['domain']]);
+        $$tenant->domains()->create([
+            'domain' => $registration->subdomain . '.' . config('app.base_domain'),
+        ]);
 
         $tenant->run(function () use ($data) {
             \Artisan::call('tenants:migrate', [

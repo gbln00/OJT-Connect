@@ -20,11 +20,11 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://ojtconnect.com:8000',
+        'http://localhost:8000',
     ],
 
     'allowed_origins_patterns' => [
-        '^http:\/\/([a-z0-9-]+)\.ojtconnect\.com:8000$',
+        '^http:\/\/([a-z0-9\-]+)\.localhost(:\d+)?$',
     ],
 
     'allowed_headers' => ['*'],

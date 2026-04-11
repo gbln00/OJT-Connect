@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -66,7 +67,7 @@ class StudentSettingsController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->avatar_path) {
+        if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar_path);
             $user->update(['avatar' => null]);
         }

@@ -37,7 +37,7 @@ class SuperAdminTenantApprovalController extends Controller
 
         // Create the tenant's domain
         $tenant->domains()->create([
-            'domain' => $registration->subdomain . '.' . config('app.base_domain', 'ojtconnect.com'),
+            'domain' => $registration->subdomain . '.' . config('app.base_domain', 'localhost'),
         ]);
 
         $registration->update(['status' => 'approved']);
