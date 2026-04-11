@@ -83,7 +83,7 @@
                            class="form-input {{ $errors->has('subdomain') ? 'is-invalid' : '' }}"
                            autocomplete="off" spellcheck="false"
                            oninput="updateSubdomainHint(this.value)">
-                    <div class="form-hint">URL: <strong id="subdomain-preview" style="color:var(--text2);">yourdomain</strong>.ojtconnect.com</div>
+                    <div class="form-hint">URL: <strong id="subdomain-preview" style="color:var(--text2);">yourdomain</strong>.localhost:8000</div>
                     <input type="hidden" name="domain" id="domain-hidden" value="{{ old('domain') }}">
                     @error('subdomain')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
@@ -270,7 +270,7 @@ function updateSubdomainHint(val) {
     const hidden  = document.getElementById('domain-hidden');
     const slug    = val.trim() || 'yourdomain';
     if (preview) preview.textContent = slug;
-    if (hidden)  hidden.value = slug !== 'yourdomain' ? slug + '.ojtconnect.edu.ph' : '';
+    if (hidden)  hidden.value = slug !== 'yourdomain' ? slug + '.localhost' : '';
 }
 const existingSubdomain = document.getElementById('subdomain');
 if (existingSubdomain && existingSubdomain.value) updateSubdomainHint(existingSubdomain.value);

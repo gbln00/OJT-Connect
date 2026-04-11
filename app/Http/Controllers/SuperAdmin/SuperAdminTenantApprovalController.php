@@ -9,6 +9,7 @@ use App\Models\SuperAdminNotification;
 use App\Mail\TenantApproved;
 use App\Mail\TenantRejected;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -26,6 +27,17 @@ class SuperAdminTenantApprovalController extends Controller
 
     public function approve(TenantRegistration $registration)
     {
+
+        if ($registration->status !== 'pending') {
+            return back()->with('error', 'This registration has already been processed.');
+        }
+
+        // Guard: prevent duplicate tenant ID
+        if (DB::table('tenants')->where('id', $registration->subdomain)->exists()) {
+            return back()->with('error', 'A tenant with this subdomain already exists.');
+        }
+
+
         $tenant = Tenant::create([
             'id'         => $registration->subdomain,
             'name'       => $registration->company_name,
@@ -50,7 +62,7 @@ class SuperAdminTenantApprovalController extends Controller
                 '--force'   => true,
             ]);
 
-            (new \Database\Seeders\TenantAdminSeeder( 
+            (new \Database\Seeders\TenantAdminSeeder(
                 name:     $registration->contact_person,
                 email:    $registration->email,
                 password: $plainPassword,

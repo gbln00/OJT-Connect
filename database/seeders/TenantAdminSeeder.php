@@ -9,9 +9,9 @@ use App\Models\User;
 class TenantAdminSeeder extends Seeder
 {
     public function __construct(
-        private string $name     = 'Tenant Admin',
-        private string $email    = 'tenantadmin@ojtconnect.edu',
-        private string $password = 'password',
+        private string $name,
+        private string $email,
+        private string $password,
     ) {}
 
     public function run(): void

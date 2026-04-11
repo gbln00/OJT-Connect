@@ -24,8 +24,10 @@
         <div class="alert alert-error">{{ $errors->first() }}</div>
     @endif
 
-    <form method="POST" action="/login" novalidate>
+    <form method="POST" action="{{ url('/login') }}" novalidate>
         @csrf
+        <div>Form action: {{ url('/login') }}</div>
+        <div>Request host: {{ request()->getHttpHost() }}</div>
 
         <div class="form-group">
             <label for="email">Email address</label>

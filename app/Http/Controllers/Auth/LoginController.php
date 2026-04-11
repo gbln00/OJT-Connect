@@ -28,12 +28,14 @@ class LoginController extends Controller
             'g-recaptcha-response.required' => 'Please complete the CAPTCHA.',
         ]);
 
-        // Verify reCAPTCHA with Google
         if (!$recaptcha->verify($request->input('g-recaptcha-response'))) {
             return back()->withErrors([
                 'email' => 'CAPTCHA verification failed. Please try again.',
             ])->withInput($request->only('email'));
         }
+
+      
+        $host = $request->getSchemeAndHttpHost();
 
         $credentials = $request->only('email', 'password');
 
@@ -53,7 +55,8 @@ class LoginController extends Controller
                 default              => '/',
             };
 
-            return redirect($path);
+            
+           return redirect()->away($host . $path);
         }
 
         return back()->withErrors([

@@ -70,7 +70,7 @@
                   <td style="background:#f9f9f9;border-left:4px solid #8C0E03;border-radius:4px;padding:1rem 1.25rem;">
                     <p style="color:#ABABAB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 0.4rem;">Your Workspace URL</p>
                     <p style="color:#0D0D0D;font-size:16px;font-weight:600;margin:0;">
-                      {{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com:8000') }}
+                      {{ $registration->subdomain }}.{{ config('app.base_domain', '.localhost:8000') }}
                     </p>
                   </td>
                 </tr>
@@ -79,7 +79,7 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 2rem;">
                 <tr>
                   <td align="center">
-                    <a href="https://{{ $registration->subdomain }}.{{ config('app.base_domain', 'ojtconnect.com') }}"
+                    <a href="https://{{ $registration->subdomain }}.{{ config('app.base_domain', 'localhost:8000') }}"
                        style="display:inline-block;background:#8C0E03;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:0.75rem 2rem;border-radius:6px;letter-spacing:0.3px;">
                       Access Your Workspace
                     </a>

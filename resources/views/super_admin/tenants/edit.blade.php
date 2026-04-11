@@ -71,7 +71,7 @@ $currentPlan   = $tenant->plan ?? '';
                 @endif
                 <input type="text" name="domain"
                        value="{{ old('domain', $currentDomain) }}"
-                       placeholder="{{ $currentDomain ?? 'e.g. school.ojtconnect.com' }}"
+                       placeholder="{{ $currentDomain ?? 'e.g. school.localhost' }}"
                        class="form-input {{ $errors->has('domain') ? 'is-invalid' : '' }}">
                 <div class="form-hint">// Full subdomain this tenant will be served on.</div>
                 @error('domain')<div class="form-error">{{ $message }}</div>@enderror
