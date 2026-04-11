@@ -14,7 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
             require base_path('routes/tenant.php');
         },
     )
-    
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->redirectGuestsTo('/login');
 
@@ -22,7 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'login',
         ]);
 
-        $middleware->prependToGroup('web', \App\Http\Middleware\TenantSessionCookie::class);
+        // !! REMOVED: TenantSessionCookie - same problem as SessionBootstrapper,
+        // it also ran before tenancy was initialized so tenant() returned null.
 
         $middleware->alias([
             'role'          => \App\Http\Middleware\RoleMiddleware::class,

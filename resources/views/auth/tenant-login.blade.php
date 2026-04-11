@@ -6,7 +6,6 @@
 @endpush
 
 @section('content')
-   
 
     <h2 class="auth-card-title">Welcome back</h2>
     <p class="auth-card-sub">Sign in to your OJTConnect account to continue.</p>
@@ -20,14 +19,23 @@
         </div>
     @endif
 
-    @if ($errors->any() && !$errors->has('email') && !$errors->has('g-recaptcha-response'))
-        <div class="alert alert-error">{{ $errors->first() }}</div>
+    @if ($errors->has('email'))
+        <div class="alert alert-error">{{ $errors->first('email') }}</div>
     @endif
 
-    <form method="POST" action="{{ url('/login') }}" novalidate>
+    {{--
+        CRITICAL FIX:
+        url('/login') uses APP_URL (http://localhost:8000) and generates
+        http://localhost:8000/login — the CENTRAL domain — so the form was
+        posting to central, where the tenant user does not exist, causing
+        "credentials do not match" and an infinite redirect loop.
+
+        Fix: use action="/login" (a plain relative path) so the browser
+        posts to the CURRENT domain: http://merwin.localhost:8000/login
+        which is the correct tenant route.
+    --}}
+    <form method="POST" action="/login" novalidate>
         @csrf
-        <div>Form action: {{ url('/login') }}</div>
-        <div>Request host: {{ request()->getHttpHost() }}</div>
 
         <div class="form-group">
             <label for="email">Email address</label>
@@ -85,9 +93,7 @@
                 <span class="remember-box"></span>
                 Remember me
             </label>
-            @if (Route::has('tenant.password.request'))
-                <a href="{{ route('tenant.password.request') }}" class="link">Forgot password?</a>
-            @endif
+            <a href="/forgot-password" class="link">Forgot password?</a>
         </div>
 
         {{-- reCAPTCHA v2 --}}
@@ -122,12 +128,10 @@
             Continue with Google
         </a>
 
-        {{-- Footer: no tenant.register link — that's central only --}}
         <div class="form-footer" style="margin-top: 1.5rem;">
             Contact your OJT coordinator if you don't have an account yet.
         </div>
 
-        {{-- Domain indicator --}}
         <div style="margin-top:16px;text-align:center;">
             <span style="font-family:'DM Mono',monospace;font-size:10px;
                          color:rgba(171,171,171,0.2);letter-spacing:0.12em;">
@@ -135,5 +139,6 @@
             </span>
         </div>
     </form>
+
     @stack('scripts')
 @endsection
