@@ -277,13 +277,12 @@ Route::middleware([
         Route::post('/application',              [StudentApplicationController::class, 'store'])->name('application.store');
         Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
 
-        Route::get('/hours',                    [StudentHourLogController::class, 'index'])->name('hours.index');
-        Route::get('/hours/create',             [StudentHourLogController::class, 'create'])->name('hours.create');
-        Route::post('/hours',                   [StudentHourLogController::class, 'store'])->name('hours.store');
-        Route::get('/hours/{hourLog}/edit',     [StudentHourLogController::class, 'edit'])->name('hours.edit');
-        Route::patch('/hours/{hourLog}',        [StudentHourLogController::class, 'update'])->name('hours.update');
-
-        Route::get('/hours/calendar-data',      [StudentHourLogController::class, 'calendarData'])->name('hours.calendar');
+        Route::get('/hours',                 [StudentHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours/create',          [StudentHourLogController::class, 'create'])->name('hours.create');
+        Route::get('/hours/calendar-data',   [StudentHourLogController::class, 'calendarData'])->name('hours.calendar');
+        Route::post('/hours',                [StudentHourLogController::class, 'store'])->name('hours.store');
+        Route::get('/hours/{hourLog}/edit',  [StudentHourLogController::class, 'edit'])->name('hours.edit');
+        Route::patch('/hours/{hourLog}',     [StudentHourLogController::class, 'update'])->name('hours.update');
 
         Route::get('/settings',                 [StudentSettingsController::class, 'index'])->name('settings');
         Route::patch('/settings/profile',       [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');

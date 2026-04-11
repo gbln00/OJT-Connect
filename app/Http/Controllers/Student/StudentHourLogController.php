@@ -253,4 +253,34 @@ class StudentHourLogController extends Controller
         return redirect()->route('student.hours.index')
             ->with('success', 'Hour log resubmitted successfully.');
     }
+
+    public function calendarData(Request $request)
+    {
+        $user        = Auth::user();
+        $application = $user->activeApplication()->first();
+
+        if (!$application) {
+            return response()->json([]);
+        }
+
+        $logs = HourLog::where('student_id', $user->id)
+            ->where('application_id', $application->id)
+            ->get(['id', 'date', 'session', 'status', 'total_hours']);
+
+        $events = $logs->map(function ($log) {
+            return [
+                'id'    => $log->id,
+                'title' => ($log->session === 'morning' ? 'AM' : 'PM') . ' · ' . number_format($log->total_hours, 1) . 'h',
+                'start' => $log->date->format('Y-m-d'),
+                'allDay' => true,
+                'extendedProps' => [
+                    'session' => $log->session,
+                    'status'  => $log->status,
+                    'hours'   => number_format($log->total_hours, 1),
+                ],
+            ];
+        });
+
+        return response()->json($events);
+    }
 }
