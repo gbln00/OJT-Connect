@@ -75,8 +75,14 @@ Route::middleware([
 
     // ── Guest-only ─────────────────────────────────────────────────────
     Route::middleware('guest')->group(function () {
-        Route::get('/login',                  [LoginController::class, 'showLogin'])->name('login');
-        Route::post('/login',                 [LoginController::class, 'login']);
+        Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+        // 👆 GET stays in guest group, POST moves out
+    });
+
+    Route::post('/login', [LoginController::class, 'login']);
+
+    
+    Route::middleware('guest')->group(function () {
         Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
         Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
         Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
