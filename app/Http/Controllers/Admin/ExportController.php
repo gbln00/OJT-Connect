@@ -127,7 +127,7 @@ class ExportController extends Controller
 
     public function pdfEvaluations()
     {
-        $$semester   = request('semester');
+        $semester   = request('semester');
         $schoolYear = request('school_year');
 
         $evaluations = Evaluation::with(['student','application.company','supervisor'])

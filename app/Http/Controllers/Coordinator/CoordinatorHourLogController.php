@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\HourLog;
+use App\Models\TenantNotification;
 use App\Models\OjtApplication;
 use Illuminate\Http\Request;
 
@@ -52,9 +53,8 @@ class CoordinatorHourLogController extends Controller
         ]);
 
         TenantNotification::notify(
-            title:      'Weekly Report Approved',
-            message:    "Your Week {$report->week_number} report has been approved." .
-                        ($request->feedback ? " Feedback: {$request->feedback}" : ''),
+            title:      'Hour Log Approved',
+            message:    'Your hour log for ' . $hourLog->date->format('M d, Y') . ' has been approved.',
             type:       'success',
             targetRole: 'student_intern'
         );
@@ -79,8 +79,9 @@ class CoordinatorHourLogController extends Controller
         ]);
 
         TenantNotification::notify(
-            title:      'Weekly Report Returned',
-            message:    "Your Week {$report->week_number} report was returned for revision. Feedback: {$request->feedback}",
+            title:      'Hour Log Rejected',
+            message:    'Your hour log for ' . $hourLog->date->format('M d, Y') . ' was rejected.' .
+                        ($request->rejection_reason ? ' Reason: ' . $request->rejection_reason : ''),
             type:       'warning',
             targetRole: 'student_intern'
         );
