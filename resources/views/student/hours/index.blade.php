@@ -3,6 +3,9 @@
 @section('title', 'My Hour Logs')
 
 @section('content')
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6/index.global.min.css' rel='stylesheet'>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6/index.global.min.js'></script>
+
 
 {{-- Eyebrow --}}
 <div class="fade-up" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
@@ -11,6 +14,17 @@
         OJT Tracker / Hour Logs
     </span>
 </div>
+
+<div id="calendar"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        events: '{{ route("student.hours.calendar") }}',
+    });
+    cal.render();
+});
+</script>
 
 {{-- Header row --}}
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;" class="fade-up fade-up-1">

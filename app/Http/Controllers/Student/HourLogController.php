@@ -64,4 +64,19 @@ class HourLogController extends Controller
         return redirect()->route('student.hours.index')
             ->with('success', 'Hour log submitted successfully.');
     }
+
+    public function calendarData()
+    {
+        $logs = HourLog::where('student_id', Auth::id())->get();
+
+        return $logs->map(fn($log) => [
+            'title' => ucfirst($log->status) . ' (' . $log->session_label . ')',
+            'start' => $log->date->format('Y-m-d'),
+            'color' => match($log->status) {
+                'approved' => '#1D9E75',
+                'rejected' => '#D85A30',
+                default    => '#BA7517',
+            },
+        ]);
+    }
 }

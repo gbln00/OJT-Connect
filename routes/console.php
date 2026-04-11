@@ -13,3 +13,8 @@ Schedule::call(function () {
         'logged_at', '<', now()->subDays(90)
     )->delete();
 })->dailyAt('03:00')->name('prune-tenant-logs');
+
+Schedule::command('ojt:send-reminders')
+    ->weekdays()
+    ->at('08:00')
+    ->name('ojt-reminders');

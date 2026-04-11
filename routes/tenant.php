@@ -231,14 +231,14 @@ Route::middleware([
 
         // ── Available on ALL plans (Basic+) ────────────────────────────
 
-        Route::get('/dashboard', [SupervisorController::class, 'dashboard'])->name('dashboard');
-        Route::get('/interns',   [SupervisorController::class, 'interns'])->name('interns.index');
+        Route::get('/dashboard',                [SupervisorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/interns',                  [SupervisorController::class, 'interns'])->name('interns.index');
 
-        Route::get('/hours',                     [SupervisorHourLogController::class, 'index'])->name('hours.index');
-        Route::get('/hours/{student}',            [SupervisorHourLogController::class, 'show'])->name('hours.show');
-        Route::post('/hours/{hourLog}/approve',   [SupervisorHourLogController::class, 'approve'])->name('hours.approve');
-        Route::post('/hours/{hourLog}/reject',    [SupervisorHourLogController::class, 'reject'])->name('hours.reject');
-        Route::post('/hours/{student}/approve-all', [SupervisorHourLogController::class, 'approveAll'])->name('hours.approve-all');
+        Route::get('/hours',                                [SupervisorHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours/{student}',                      [SupervisorHourLogController::class, 'show'])->name('hours.show');
+        Route::post('/hours/{hourLog}/approve',             [SupervisorHourLogController::class, 'approve'])->name('hours.approve');
+        Route::post('/hours/{hourLog}/reject',              [SupervisorHourLogController::class, 'reject'])->name('hours.reject');
+        Route::post('/hours/{student}/approve-all',         [SupervisorHourLogController::class, 'approveAll'])->name('hours.approve-all');
 
         Route::get('/profile/settings',    [SupervisorSettingsController::class, 'edit'])->name('profile.settings');
         Route::patch('/settings/profile',  [SupervisorSettingsController::class, 'updateProfile'])->name('settings.update.profile');
@@ -255,9 +255,9 @@ Route::middleware([
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
-            Route::get('/evaluations',                [SupervisorEvaluationController::class, 'index'])->name('evaluations.index');
-            Route::get('/evaluations/{application}',  [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
-            Route::post('/evaluations/{application}', [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
+            Route::get('/evaluations',                      [SupervisorEvaluationController::class, 'index'])->name('evaluations.index');
+            Route::get('/evaluations/{application}',        [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
+            Route::post('/evaluations/{application}',       [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
         });
     });
 
@@ -277,15 +277,17 @@ Route::middleware([
         Route::post('/application',              [StudentApplicationController::class, 'store'])->name('application.store');
         Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
 
-        Route::get('/hours',        [StudentHourLogController::class, 'index'])->name('hours.index');
-        Route::get('/hours/create', [StudentHourLogController::class, 'create'])->name('hours.create');
-        Route::post('/hours',       [StudentHourLogController::class, 'store'])->name('hours.store');
-        Route::get('/hours/{hourLog}/edit', [StudentHourLogController::class, 'edit'])->name('hours.edit');
-        Route::patch('/hours/{hourLog}',    [StudentHourLogController::class, 'update'])->name('hours.update');
+        Route::get('/hours',                    [StudentHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours/create',             [StudentHourLogController::class, 'create'])->name('hours.create');
+        Route::post('/hours',                   [StudentHourLogController::class, 'store'])->name('hours.store');
+        Route::get('/hours/{hourLog}/edit',     [StudentHourLogController::class, 'edit'])->name('hours.edit');
+        Route::patch('/hours/{hourLog}',        [StudentHourLogController::class, 'update'])->name('hours.update');
 
-        Route::get('/settings',            [StudentSettingsController::class, 'index'])->name('settings');
-        Route::patch('/settings/profile',  [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
-        Route::patch('/settings/password', [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
+        Route::get('/hours/calendar-data',      [StudentHourLogController::class, 'calendarData'])->name('hours.calendar');
+
+        Route::get('/settings',                 [StudentSettingsController::class, 'index'])->name('settings');
+        Route::patch('/settings/profile',       [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
+        Route::patch('/settings/password',      [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
 
         // ── Notifications ─────────────────────────────────────────────
         Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
