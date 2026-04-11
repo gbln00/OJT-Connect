@@ -29,7 +29,8 @@ class User extends Authenticatable
         'company_id',
         'google_id',  
         'avatar',   
-        
+        'two_factor_secret',
+        'two_factor_enabled',  
     ];
 
     /**
@@ -51,8 +52,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
+            'password'              => 'hashed',
+            'is_active'             => 'boolean',
+            'two_factor_enabled'    => 'boolean',
         ];
     }
 

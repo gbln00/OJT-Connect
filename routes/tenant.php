@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\TwoFactorController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminController;
@@ -86,6 +87,11 @@ Route::middleware([
     Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])
         ->name('google.tenant.login');
 
+    Route::middleware('auth')->group(function () {
+        Route::get('/2fa/challenge',  [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
+        Route::post('/2fa/verify',    [TwoFactorController::class, 'verify'])->name('2fa.verify');
+    });
+
     Route::post('/logout', [LoginController::class, 'logout'])
         ->name('logout')
         ->middleware('auth');
@@ -94,15 +100,22 @@ Route::middleware([
     // ADMIN  (Basic plan = all core routes; Standard+ = reports/evals;
     //         Premium = exports)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:admin'])
+    Route::middleware(['auth', 'role:admin', '2fa'])
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
 
+        
         // ── Available on ALL plans (Basic+) ────────────────────────────
 
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
+        // ── 2FA setup (admin) ─────────────────────────────────────────────
+        Route::get('/2fa/setup',   [TwoFactorController::class, 'setup'])->name('2fa.setup');
+        Route::post('/2fa/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
+        Route::post('/2fa/disable',[TwoFactorController::class, 'disable'])->name('2fa.disable');
+
+        // ── Profile & password settings ─────────────────────────────────────
         Route::get('/settings',            [AdminController::class, 'settings'])->name('settings');
         Route::patch('/settings/profile',  [AdminController::class, 'updateProfile'])->name('settings.update.profile');
         Route::patch('/settings/password', [AdminController::class, 'updatePassword'])->name('settings.update.password');
@@ -178,7 +191,7 @@ Route::middleware([
     // COORDINATOR  (Basic = applications, hours; Standard+ = reports,
     //               evaluations)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:ojt_coordinator'])
+    Route::middleware(['auth', 'role:ojt_coordinator', '2fa'])
         ->prefix('coordinator')
         ->name('coordinator.')
         ->group(function () {
@@ -227,7 +240,7 @@ Route::middleware([
     // ══════════════════════════════════════════════════════════════════
     // SUPERVISOR  (Basic = hour logs; Standard+ = evaluations)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:company_supervisor'])
+    Route::middleware(['auth', 'role:company_supervisor', '2fa'])
         ->prefix('supervisor')
         ->name('supervisor.')
         ->group(function () {
@@ -267,7 +280,7 @@ Route::middleware([
     // ══════════════════════════════════════════════════════════════════
     // STUDENT  (Basic = application, hours; Standard+ = reports, evals)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:student_intern'])
+    Route::middleware(['auth', 'role:student_intern', '2fa'])
         ->prefix('student')
         ->name('student.')
         ->group(function () {

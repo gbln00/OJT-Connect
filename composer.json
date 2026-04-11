@@ -14,6 +14,7 @@
         "laravel/socialite": "^5.26",
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "^5.5",
+        "pragmarx/google2fa-laravel": "^3.0",
         "setasign/fpdf": "^1.8",
         "stancl/tenancy": "^3.10"
     },

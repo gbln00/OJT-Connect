@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin'   => \App\Http\Middleware\SuperAdminMiddleware::class,
             'tenant.active' => \App\Http\Middleware\CheckTenantActive::class,
             'plan'          => \App\Http\Middleware\CheckTenantPlan::class,
+            '2fa'           => \App\Http\Middleware\Require2FA::class,  
         ]);
         
         // Global middleware for API requests

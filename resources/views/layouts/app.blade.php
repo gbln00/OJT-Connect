@@ -935,6 +935,13 @@
                 @endif
             </a>
 
+            <a href="{{ route('admin.2fa.setup') }}" class="btn btn-ghost btn-sm">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+                {{ auth()->user()->two_factor_enabled ? 'Manage 2FA' : 'Enable 2FA' }}
+            </a>
+
             <div class="nav-section-label">System</div>
 
             <a href="{{ route('admin.settings') }}"
