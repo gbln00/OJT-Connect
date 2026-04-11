@@ -78,6 +78,17 @@
         @endif
     </form>
 </div>
+<form id="bulk-form" method="POST" action="{{ route('coordinator.applications.bulk') }}">
+  @csrf
+  <input type="hidden" name="action" id="bulk-action">
+  <button onclick="setBulkAction('approve')">Bulk Approve</button>
+  <button onclick="setBulkAction('reject')">Bulk Reject</button>
+
+  @foreach($applications as $app)
+    <input type="checkbox" name="ids[]" value="{{ $app->id }}">
+    <!-- existing row content -->
+  @endforeach
+</form>
 
 {{-- TABLE --}}
 <div class="card fade-up fade-up-2">

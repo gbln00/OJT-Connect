@@ -48,4 +48,14 @@ class CoordinatorApplicationController extends Controller
         $application->load(['student', 'company', 'reviewer']);
         return view('coordinator.applications.show', compact('application'));
     }
+
+    public function bulk(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'action' => 'required|in:approve,reject']);
+
+        OjtApplication::whereIn('id', $request->ids)
+            ->each(fn($app) => $this->{$request->action}(new Request, $app));
+
+        return back()->with('success', 'Applications updated.');
+    }
 }

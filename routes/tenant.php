@@ -188,10 +188,13 @@ Route::middleware([
         Route::get('/dashboard',  [CoordinatorController::class, 'dashboard'])->name('dashboard');
         Route::get('/students',   [CoordinatorStudentController::class, 'index'])->name('students.index');
 
+        Route::post('/applications/bulk', [CoordinatorApplicationController::class, 'bulk'])->name('applications.bulk');
+
         Route::get('/applications',                        [CoordinatorApplicationController::class, 'index'])->name('applications.index');
         Route::get('/applications/{application}',          [CoordinatorApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+        
 
         // Hour log view — read-only, Basic+
         Route::get('/hours', [CoordinatorHourLogController::class, 'index'])->name('hours.index');
@@ -287,6 +290,7 @@ Route::middleware([
         Route::get('/settings',                 [StudentSettingsController::class, 'index'])->name('settings');
         Route::patch('/settings/profile',       [StudentSettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::patch('/settings/password',      [StudentSettingsController::class, 'updatePassword'])->name('settings.password');
+        Route::post('/settings/avatar',         [StudentSettingsController::class, 'updateAvatar'])->name('settings.avatar');
 
         // ── Notifications ─────────────────────────────────────────────
         Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');

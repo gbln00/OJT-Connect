@@ -34,4 +34,14 @@ class StudentSettingsController extends Controller
         Auth::user()->update(['password' => Hash::make($request->password)]);
         return back()->with('success', 'Password updated successfully.');
     }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate(['avatar' => 'required|image|max:2048']);
+
+        $path = $request->file('avatar')->store('avatars/' . Auth::id(), 'public');
+        Auth::user()->update(['avatar' => $path]);
+
+        return back()->with('success', 'Avatar updated.');
+    }
 }
