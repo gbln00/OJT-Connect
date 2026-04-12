@@ -94,20 +94,39 @@
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
 }
 .cal-legend-dot { width: 8px; height: 8px; flex-shrink: 0; }
+
+/* ── Back button ──────────────────────────────────────────────── */
+.back-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+    padding: 9px 20px; border: 1px solid var(--border2);
+    color: var(--text2); background: var(--surface2);
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+.back-btn:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+    background: rgba(140,14,3,0.06);
+}
 </style>
 @endpush
 
 @section('content')
 
-{{-- Eyebrow / Breadcrumb --}}
-<div class="fade-up" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <a href="{{ route('supervisor.hours.index') }}"
-       style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;">
-        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
-        Hour Logs
+{{-- Eyebrow / Breadcrumb + Back button --}}
+<div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Hour Logs</span>
+        <span style="color:var(--border2);font-size:10px;">/</span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Intern Detail</span>
+    </div>
+
+    <a href="{{ route('supervisor.hours.index') }}" class="back-btn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to Hour Logs
     </a>
-    <span style="color:var(--border2);font-size:10px;">/</span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Intern Detail</span>
 </div>
 
 {{-- Header --}}
@@ -364,27 +383,28 @@
 </div>
 @endif
 
+@php
+    $calendarEvents = collect($groupedByDate)->flatMap(function($sessions, $date) {
+        return collect($sessions)->map(function($log) use ($date) {
+            return [
+                'title' => ($log->session === 'morning' ? 'AM' : 'PM') . ' · ' . number_format($log->total_hours, 1) . 'h',
+                'start' => $date,
+                'extendedProps' => [
+                    'session' => $log->session,
+                    'status'  => $log->status,
+                    'hours'   => number_format($log->total_hours, 1),
+                ],
+            ];
+        });
+    })->values();
+@endphp
+
 @push('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6/index.global.min.js'></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    {{-- Build calendar events from the grouped log data passed by the controller --}}
-    @php
-        $calendarEvents = collect($groupedByDate)->flatMap(function($sessions, $date) {
-            return collect($sessions)->map(function($log) use ($date) {
-                return [
-                    'title' => ($log->session === 'morning' ? 'AM' : 'PM') . ' · ' . number_format($log->total_hours, 1) . 'h',
-                    'start' => $date,
-                    'extendedProps' => [
-                        'session' => $log->session,
-                        'status'  => $log->status,
-                        'hours'   => number_format($log->total_hours, 1),
-                    ],
-                ];
-            });
-        })->values();
-    @endphp
+    const events = @json($calendarEvents);
 
     const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: 'dayGridMonth',
