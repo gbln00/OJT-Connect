@@ -8,7 +8,22 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    @php
+        $activeFont  = $tenantBrandFont ?? 'barlow';
+        $cssFontName = match($activeFont) {
+            'inter'   => 'Inter',
+            'poppins' => 'Poppins',
+            'roboto'  => 'Roboto',
+            default   => '{{ $cssFontName }}',
+        };
+        $fontQuery = match($activeFont) {
+            'inter'   => 'Inter:wght@300;400;500;600;700',
+            'poppins' => 'Poppins:wght@300;400;500;600;700',
+            'roboto'  => 'Roboto:wght@300;400;500;700',
+            default   => '{{ $cssFontName }}:ital,wght@0,300;0,400;0,500;0,600;1,300',
+        };
+    @endphp
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family={{ $cssFontName }}+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&family={{ $fontQuery }}&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -85,7 +100,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             height: 100%;
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             background: var(--bg);
             color: var(--text);
             overflow-x: hidden;
@@ -153,7 +168,7 @@
             font-weight: 900; font-size: 14px; color: var(--crimson);
         }
         .brand-text {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 16px; font-weight: 700;
             letter-spacing: 0.1em; text-transform: uppercase;
             color: var(--text);
@@ -177,7 +192,7 @@
             border-radius: 0;
             color: var(--text2);
             text-decoration: none;
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             font-size: 13.5px; font-weight: 400;
             transition: all 0.15s;
             margin-bottom: 1px;
@@ -214,7 +229,7 @@
             display: flex; align-items: center; gap: 10px;
             padding: 8px 10px;
             color: var(--muted);
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             font-size: 13.5px; font-weight: 400;
             margin-bottom: 1px;
             position: relative;
@@ -363,7 +378,7 @@
             font-size: 13.5px; font-weight: 700; color: var(--text);
         }
         .card-action {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 12px; font-weight: 600;
             color: var(--crimson); text-decoration: none;
             letter-spacing: 0.08em; text-transform: uppercase;
@@ -422,7 +437,7 @@
             line-height: 1; margin-bottom: 4px;
         }
         .stat-label {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600;
             letter-spacing: 0.1em; text-transform: uppercase;
             color: var(--muted);
@@ -452,7 +467,7 @@
         .role-badge {
             display: inline-flex; align-items: center;
             padding: 2px 8px;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600;
             letter-spacing: 0.08em; text-transform: uppercase;
         }
@@ -476,7 +491,7 @@
         /* Status pill */
         .status-pill {
             display: inline-flex; align-items: center; padding: 3px 9px;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600;
             letter-spacing: 0.07em; text-transform: uppercase;
         }
@@ -495,7 +510,7 @@
         .btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px; cursor: pointer;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 12px; font-weight: 600;
             letter-spacing: 0.1em; text-transform: uppercase;
             border: 1px solid; text-decoration: none;
@@ -519,7 +534,7 @@
             background: var(--surface2);
             border: 1px solid var(--border2);
             color: var(--text); font-size: 13px;
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             outline: none;
             transition: border-color 0.15s;
         }
@@ -573,7 +588,7 @@
         .qa-btn:hover { border-color: rgba(140,14,3,0.35); background: rgba(140,14,3,0.06); }
         .qa-icon { width: 30px; height: 30px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; }
         .qa-btn:hover .qa-icon { border-color: rgba(140,14,3,0.35); color: var(--crimson); }
-        .qa-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2); }
+        .qa-label { font-family: '{{ $cssFontName }} Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2); }
         .qa-btn:hover .qa-label { color: var(--crimson); }
 
         /* ═══════════════════════════════════════════════
@@ -1071,7 +1086,7 @@
                         width:300px;background:var(--surface);border:1px solid var(--border2);
                         box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:400;">
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">
-                            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+                            <span style="font-family:'{{ $cssFontName }} Condensed',sans-serif;font-size:11px;font-weight:700;
                                         letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);">
                                 Notifications
                                 @if($tenantUnread > 0)

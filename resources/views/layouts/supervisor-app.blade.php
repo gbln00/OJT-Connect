@@ -8,7 +8,22 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    @php
+        $activeFont  = $tenantBrandFont ?? 'barlow';
+        $cssFontName = match($activeFont) {
+            'inter'   => 'Inter',
+            'poppins' => 'Poppins',
+            'roboto'  => 'Roboto',
+            default   => '{{ $cssFontName }}',
+        };
+        $fontQuery = match($activeFont) {
+            'inter'   => 'Inter:wght@300;400;500;600;700',
+            'poppins' => 'Poppins:wght@300;400;500;600;700',
+            'roboto'  => 'Roboto:wght@300;400;500;700',
+            default   => '{{ $cssFontName }}:ital,wght@0,300;0,400;0,500;0,600;1,300',
+        };
+    @endphp
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family={{ $cssFontName }}+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&family={{ $fontQuery }}&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -84,7 +99,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             height: 100%;
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             background: var(--bg);
             color: var(--text);
             overflow-x: hidden;
@@ -148,7 +163,7 @@
             font-weight: 900; font-size: 14px; color: var(--crimson);
         }
         .brand-text {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 16px; font-weight: 700;
             letter-spacing: 0.1em; text-transform: uppercase; color: var(--text);
         }
@@ -186,7 +201,7 @@
             padding: 8px 10px;
             color: var(--text2);
             text-decoration: none;
-            font-family: 'Barlow', sans-serif;
+            font-family: '{{ $cssFontName }}', sans-serif;
             font-size: 13.5px; font-weight: 400;
             transition: all 0.15s;
             margin-bottom: 1px;
@@ -329,7 +344,7 @@
         }
         .card-title { font-family: 'Playfair Display', serif; font-size: 13.5px; font-weight: 700; color: var(--text); }
         .card-action {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 12px; font-weight: 600; color: var(--crimson);
             text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase;
         }
@@ -375,7 +390,7 @@
             font-size: 28px; font-weight: 900; color: var(--text); line-height: 1; margin-bottom: 4px;
         }
         .stat-label {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
         }
 
@@ -397,7 +412,7 @@
         .role-badge {
             display: inline-flex; align-items: center;
             padding: 2px 8px;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
         }
         .role-badge.admin       { background: rgba(140,14,3,0.1);    color: #c0392b; border: 1px solid rgba(140,14,3,0.25); }
@@ -407,7 +422,7 @@
 
         .status-pill {
             display: inline-flex; align-items: center; padding: 3px 9px;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
         }
         .status-pill.gold    { background: var(--gold-dim);   color: var(--gold);   border: 1px solid var(--gold-border); }
@@ -420,7 +435,7 @@
         .btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px; cursor: pointer;
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
             border: 1px solid; text-decoration: none; transition: all 0.15s;
         }
@@ -440,7 +455,7 @@
         .form-input, .form-select, .form-textarea {
             width: 100%; padding: 9px 12px;
             background: var(--surface2); border: 1px solid var(--border2);
-            color: var(--text); font-size: 13px; font-family: 'Barlow', sans-serif;
+            color: var(--text); font-size: 13px; font-family: '{{ $cssFontName }}', sans-serif;
             outline: none; transition: border-color 0.15s;
         }
         .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--crimson); }
@@ -513,7 +528,7 @@
         .flash {
             padding: 12px 16px; margin-bottom: 20px;
             display: flex; align-items: center; gap: 10px;
-            font-size: 13px; font-family: 'Barlow', sans-serif;
+            font-size: 13px; font-family: '{{ $cssFontName }}', sans-serif;
         }
         .flash.success { background: var(--teal-dim); border: 1px solid var(--teal-border); color: var(--teal); }
         .flash.error   { background: var(--coral-dim); border: 1px solid var(--coral-border); color: var(--coral); }
@@ -526,7 +541,7 @@
         .form-section-divider::before { content: ''; width: 20px; height: 2px; background: var(--crimson); flex-shrink: 0; }
         .form-section-divider::after  { content: ''; flex: 1; height: 1px; background: var(--border); }
         .form-section-divider span {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: '{{ $cssFontName }} Condensed', sans-serif;
             font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
         }
 
@@ -758,7 +773,7 @@
                         box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:400;">
                         <div style="display:flex;align-items:center;justify-content:space-between;
                                     padding:12px 16px;border-bottom:1px solid var(--border);">
-                            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;
+                            <span style="font-family:'{{ $cssFontName }} Condensed',sans-serif;font-size:11px;
                                         font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
                                         color:var(--muted);">
                                 Notifications

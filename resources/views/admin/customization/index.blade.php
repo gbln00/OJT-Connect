@@ -42,6 +42,7 @@
   </div>
 </div>
 
+{{-- ── MAIN FORM (no nested forms inside) ─────────────────────────────────────────────── --}}
 <form method="POST" action="{{ route('admin.customization.update') }}" enctype="multipart/form-data">
 @csrf
 
@@ -61,10 +62,11 @@
           <img src="{{ $tenantLogoUrl }}" style="height:56px;width:56px;object-fit:contain;border:1px solid var(--border2);padding:4px;background:var(--surface2);" alt="Current Logo">
           <div>
             <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Current logo</div>
-            <form method="POST" action="{{ route('admin.customization.logo.delete') }}" style="display:inline;">
-              @csrf @method('DELETE')
-              <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-            </form>
+            {{-- Triggers the hidden logo-delete-form outside the main form --}}
+            <button type="button" class="btn btn-danger btn-sm"
+                onclick="document.getElementById('logo-delete-form').submit()">
+              Remove
+            </button>
           </div>
         </div>
       @endif
@@ -128,12 +130,11 @@
 
     {{-- Reset --}}
     <div style="padding-top:4px;border-top:1px solid var(--border);">
-      <form method="POST" action="{{ route('admin.customization.reset') }}" style="display:inline;">
-        @csrf @method('DELETE')
-        <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Reset all branding to system defaults?')" style="color:var(--muted);">
-          ↺ Reset branding to defaults
-        </button>
-      </form>
+      {{-- Triggers the hidden reset-branding-form outside the main form --}}
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--muted);"
+          onclick="if(confirm('Reset all branding to system defaults?')) document.getElementById('reset-branding-form').submit()">
+        ↺ Reset branding to defaults
+      </button>
     </div>
 
   </div>
@@ -249,6 +250,18 @@
 </div>
 
 </form>
+{{-- ── END MAIN FORM ───────────────────────────────────────────────────────────────────── --}}
+
+{{-- Logo delete form — standalone, outside main form. Route: DELETE /customization/logo --}}
+<form id="logo-delete-form" method="POST" action="{{ route('admin.customization.logo.delete') }}" style="display:none;">
+  @csrf
+  @method('DELETE')
+</form>
+
+{{-- Reset branding form — standalone, outside main form. Route: POST /customization/reset --}}
+<form id="reset-branding-form" method="POST" action="{{ route('admin.customization.reset') }}" style="display:none;">
+  @csrf
+</form>
 
 @push('scripts')
 <script>
@@ -338,6 +351,12 @@ document.getElementById('announcementInput').addEventListener('input', function(
     const banner = document.getElementById('banner-preview');
     document.getElementById('banner-preview-text').textContent = '📢 ' + this.value;
     banner.style.display = this.value.trim() ? 'flex' : 'none';
+});
+
+document.getElementById('fontSelect').addEventListener('change', function() {
+    const fontName = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    document.getElementById('preview-brand-name').style.fontFamily = fontName + ', sans-serif';
+    document.getElementById('preview-name-display').style.fontFamily = fontName + ', sans-serif';
 });
 </script>
 @endpush
