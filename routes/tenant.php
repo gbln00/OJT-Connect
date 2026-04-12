@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
+// QR Code scanning for clock-ins
+use App\Http\Controllers\QrScanController;
+
 // Tenant Notifications
 use App\Http\Controllers\TenantNotificationController;
 
@@ -28,6 +31,7 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminPlanRequestController;
 use App\Http\Controllers\Admin\TenantCustomizationController;
+use App\Http\Controllers\Admin\AdminQrController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -52,6 +56,7 @@ use App\Http\Controllers\Supervisor\SupervisorController;
 use App\Http\Controllers\Supervisor\SupervisorHourLogController;
 use App\Http\Controllers\Supervisor\SupervisorEvaluationController;
 use App\Http\Controllers\Supervisor\SupervisorSettingsController;
+use App\Http\Controllers\Supervisor\SupervisorQrController;
 
 Route::middleware([
     'web',
@@ -82,7 +87,7 @@ Route::middleware([
 
     Route::post('/login', [LoginController::class, 'login']);
 
-    
+    // ── Password reset & 2FA routes (some overlap with admin) ─────────────────
     Route::middleware('guest')->group(function () {
         Route::get('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
         Route::post('/forgot-password',       [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
@@ -91,9 +96,11 @@ Route::middleware([
         Route::get('/auth/google',            [GoogleAuthController::class, 'redirect'])->name('google.redirect');
     });
 
+    // ── Authenticated routes (all roles) ─────────────────────────────────
     Route::get('/auth/google/tenant-login', [GoogleAuthController::class, 'tenantLogin'])
         ->name('google.tenant.login');
 
+    // 2FA routes (some overlap with admin)
     Route::middleware('auth')->group(function () {
         Route::get('/2fa/challenge',  [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
         Route::post('/2fa/verify',    [TwoFactorController::class, 'verify'])->name('2fa.verify');
@@ -102,9 +109,13 @@ Route::middleware([
         Route::post('/2fa/enable',    [TwoFactorController::class, 'enable'])->name('2fa.enable');
     });
 
+    // ── Logout (all authenticated users) ─────────────────────────────────
     Route::post('/logout', [LoginController::class, 'logout'])
         ->name('logout')
         ->middleware('auth');
+
+    // ── QR Code Scanning (for clock-in) ─────────────────────────────────
+    Route::get('/qr/scan/{token}', [QrScanController::class, 'scan'])->name('qr.scan');
 
     // ══════════════════════════════════════════════════════════════════
     // ADMIN  (Basic plan = all core routes; Standard+ = reports/evals;
@@ -130,6 +141,7 @@ Route::middleware([
         Route::patch('/settings/profile',  [AdminController::class, 'updateProfile'])->name('settings.update.profile');
         Route::patch('/settings/password', [AdminController::class, 'updatePassword'])->name('settings.update.password');
 
+        // ── User account management ─────────────────────────────────────────────
         Route::get('/users',                 [UserController::class, 'index'])->name('users.index');
         Route::get('/users/create',          [UserController::class, 'create'])->name('users.create');
         Route::post('/users',                [UserController::class, 'store'])->name('users.store');
@@ -138,6 +150,7 @@ Route::middleware([
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
         Route::delete('/users/{user}',       [UserController::class, 'destroy'])->name('users.destroy');
 
+        // ── Company management ─────────────────────────────────────────────
         Route::get('/companies',                    [CompanyController::class, 'index'])->name('companies.index');
         Route::get('/companies/create',             [CompanyController::class, 'create'])->name('companies.create');
         Route::post('/companies',                   [CompanyController::class, 'store'])->name('companies.store');
@@ -146,12 +159,14 @@ Route::middleware([
         Route::patch('/companies/{company}/toggle', [CompanyController::class, 'toggleActive'])->name('companies.toggle');
         Route::delete('/companies/{company}',       [CompanyController::class, 'destroy'])->name('companies.destroy');
 
+        // ── OJT Application management ─────────────────────────────────────────────
         Route::get('/applications',                        [ApplicationController::class, 'index'])->name('applications.index');
         Route::get('/applications/{application}',          [ApplicationController::class, 'show'])->name('applications.show');
         Route::delete('/applications/{application}',       [ApplicationController::class, 'destroy'])->name('applications.destroy');
         Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',  [ApplicationController::class, 'reject'])->name('applications.reject');
 
+        // ── Hour log management ─────────────────────────────────────────────
         Route::get('/hours',                       [HoursController::class, 'index'])->name('hours.index');
         Route::get('/hours/{student}',             [HoursController::class, 'show'])->name('hours.show');
         Route::post('/hours/{hourLog}/approve',    [HoursController::class, 'approve'])->name('hours.approve');
@@ -168,11 +183,14 @@ Route::middleware([
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
+            
+            // ── Weekly reports management ─────────────────────────────────────────────
             Route::get('/reports',                   [WeeklyReportController::class, 'index'])->name('reports.index');
             Route::get('/reports/{report}',          [WeeklyReportController::class, 'show'])->name('reports.show');
             Route::post('/reports/{report}/approve', [WeeklyReportController::class, 'approve'])->name('reports.approve');
             Route::post('/reports/{report}/return',  [WeeklyReportController::class, 'return'])->name('reports.return');
 
+            // ── Evaluation management ─────────────────────────────────────────────
             Route::get('/evaluations',                  [EvaluationController::class, 'index'])->name('evaluations.index');
             Route::get('/evaluations/{evaluation}',     [EvaluationController::class, 'show'])->name('evaluations.show');
         });
@@ -180,6 +198,8 @@ Route::middleware([
         // ── Premium plan only ───────────────────────────────────────────
 
         Route::middleware('plan:premium')->group(function () {
+
+            // ── Data exports ─────────────────────────────────────────────
             Route::get('/exports',                              [ExportController::class, 'index'])->name('export.index');
             Route::get('/exports/pdf/students',                 [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
             Route::get('/exports/pdf/evaluations',              [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
@@ -194,11 +214,8 @@ Route::middleware([
             Route::post('/customization',               [TenantCustomizationController::class, 'update'])->name('customization.update');
             Route::delete('/customization/logo',        [TenantCustomizationController::class, 'deleteLogo'])->name('customization.logo.delete');
             Route::post('/customization/reset',         [TenantCustomizationController::class, 'reset'])->name('customization.reset');  
-
-
         });
         
-
         // ── Plans & Promotions ────────────────────────────────────────
         Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
         Route::post('/plan/request', [AdminPlanRequestController::class, 'store'])->name('plan.request');
@@ -289,12 +306,21 @@ Route::middleware([
         Route::get('/dashboard',                [SupervisorController::class, 'dashboard'])->name('dashboard');
         Route::get('/interns',                  [SupervisorController::class, 'interns'])->name('interns.index');
 
+        // Hour log view — read-only, Basic+
         Route::get('/hours',                                [SupervisorHourLogController::class, 'index'])->name('hours.index');
         Route::get('/hours/{student}',                      [SupervisorHourLogController::class, 'show'])->name('hours.show');
         Route::post('/hours/{hourLog}/approve',             [SupervisorHourLogController::class, 'approve'])->name('hours.approve');
         Route::post('/hours/{hourLog}/reject',              [SupervisorHourLogController::class, 'reject'])->name('hours.reject');
         Route::post('/hours/{student}/approve-all',         [SupervisorHourLogController::class, 'approveAll'])->name('hours.approve-all');
 
+        // ── QR Code management for clock-ins ─────────────────────────────
+        Route::prefix('qr')->name('qr.')->group(function () {
+            Route::get('/',             [SupervisorQrController::class, 'show'])       ->name('show');
+            Route::post('/regenerate',  [SupervisorQrController::class, 'regenerate']) ->name('regenerate');
+            Route::post('/toggle',      [SupervisorQrController::class, 'toggle'])     ->name('toggle');
+        });
+
+        // ── Profile & password settings ─────────────────────────────────────
         Route::get('/profile/settings',    [SupervisorSettingsController::class, 'edit'])->name('profile.settings');
         Route::patch('/settings/profile',  [SupervisorSettingsController::class, 'updateProfile'])->name('settings.update.profile');
         Route::patch('/settings/password', [SupervisorSettingsController::class, 'updatePassword'])->name('settings.update.password');

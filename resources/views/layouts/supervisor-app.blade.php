@@ -637,6 +637,15 @@
                 @endif
             </a>
 
+            <a href="{{ route('supervisor.qr.show') }}"
+                class="nav-item {{ request()->routeIs('supervisor.qr.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01"/>
+                </svg>
+                QR Clock-In
+            </a>
+
             <a href="{{ route('supervisor.evaluations.index') }}"
                class="nav-item {{ request()->routeIs('supervisor.evaluations.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

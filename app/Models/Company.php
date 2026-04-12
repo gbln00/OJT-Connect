@@ -23,8 +23,15 @@ class Company extends Model
         'is_active' => 'boolean',
     ];
 
+    // Relationships
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    // 
+    public function qrClockIn()
+    {
+        return $this->hasOne(\App\Models\QrClockIn::class, 'company_id');
     }
 }
