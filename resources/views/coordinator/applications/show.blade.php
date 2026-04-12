@@ -19,18 +19,17 @@
         Applications / Detail
     </span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--border2);">·</span>
-    <a href="{{ route('coordinator.applications.index') }}"
-       style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-decoration:none;letter-spacing:0.1em;"
-       onmouseover="this.style.color='var(--crimson)'" onmouseout="this.style.color='var(--muted)'">
-        ← Back
-    </a>
+    <a href="{{ route('coordinator.companies.index') }}" class="btn btn-ghost btn-sm">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back
+    </a>x`
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;" class="fade-up fade-up-1">
 
     {{-- LEFT COLUMN --}}
     <div style="display:flex;flex-direction:column;gap:16px;">
-
+        
         {{-- Student info card --}}
         <div class="card">
             <div class="card-header">
@@ -44,6 +43,7 @@
                     </div>
                 </div>
                 <span class="status-dot {{ $application->status }}" style="font-size:13px;">{{ $s['label'] }}</span>
+                
             </div>
 
             {{-- Application fields --}}

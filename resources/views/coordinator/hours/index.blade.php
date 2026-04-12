@@ -1,31 +1,44 @@
-{{-- ═══════════════════════════════════════════════════════════════════
-     COORDINATOR / hours / index.blade.php
-═══════════════════════════════════════════════════════════════════ --}}
 @extends('layouts.coordinator-app')
-@section('title', 'Hour Logs')
-@section('page-title', 'Hour Logs')
+@section('title', 'Approved Hour Logs')
+@section('page-title', 'Approved Hour Logs')
 @section('content')
 
-@if($pending > 0)
-<div class="fade-up" style="background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px;">
+{{-- Info banner --}}
+<div class="fade-up" style="background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--blue);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px;">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    <span><strong>{{ $pending }}</strong> hour {{ Str::plural('log', $pending) }} waiting for your approval.</span>
+    <span>
+        Showing supervisor-approved hour logs only. Approval and rejection is handled by company supervisors.
+        <span style="font-family:'DM Mono',monospace;font-size:10px;opacity:0.7;margin-left:8px;">
+            Total approved: <strong>{{ number_format($totalApprovedHours, 1) }} hrs</strong>
+        </span>
+    </span>
 </div>
-@endif
 
-{{-- Filter --}}
-<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;" class="fade-up fade-up-1">
+{{-- Filters --}}
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;" class="fade-up fade-up-1">
     <form method="GET" action="{{ route('coordinator.hours.index') }}" style="display:flex;gap:8px;flex-wrap:wrap;">
-        <select name="status" class="form-input" style="width:auto;">
-            <option value="">All statuses</option>
-            <option value="pending"  {{ request('status')==='pending'  ? 'selected' : '' }}>Pending</option>
-            <option value="approved" {{ request('status')==='approved' ? 'selected' : '' }}>Approved</option>
-            <option value="rejected" {{ request('status')==='rejected' ? 'selected' : '' }}>Rejected</option>
+        <select name="student_id" class="form-input" style="width:auto;">
+            <option value="">All students</option>
+            @foreach($interns as $intern)
+                <option value="{{ $intern->id }}" {{ request('student_id') == $intern->id ? 'selected' : '' }}>
+                    {{ $intern->name }}
+                </option>
+            @endforeach
         </select>
+
+        <select name="company_id" class="form-input" style="width:auto;">
+            <option value="">All companies</option>
+            @foreach($companies as $company)
+                <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                    {{ $company->name }}
+                </option>
+            @endforeach
+        </select>
+
         <button type="submit" class="btn btn-ghost btn-sm">Filter</button>
-        @if(request('status'))
+        @if(request()->hasAny(['student_id','company_id']))
             <a href="{{ route('coordinator.hours.index') }}" class="btn btn-ghost btn-sm">Clear</a>
         @endif
     </form>
@@ -39,12 +52,12 @@
                     <th>Student</th>
                     <th>Company</th>
                     <th>Date</th>
+                    <th>Session</th>
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th>Hours</th>
+                    <th>Approved by</th>
                     <th>Description</th>
-                    <th>Status</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,7 +76,12 @@
                 </td>
                 <td style="font-size:13px;">{{ $log->application->company->name ?? '—' }}</td>
                 <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;">
-                    {{ $log->date instanceof \Carbon\Carbon ? $log->date->format('M d, Y') : \Carbon\Carbon::parse($log->date)->format('M d, Y') }}
+                    {{ $log->date->format('M d, Y') }}
+                </td>
+                <td>
+                    <span class="status-pill {{ $log->session === 'morning' ? 'gold' : 'blue' }}">
+                        {{ $log->session === 'morning' ? 'AM' : 'PM' }}
+                    </span>
                 </td>
                 <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;">
                     {{ \Carbon\Carbon::parse($log->time_in)->format('h:i A') }}
@@ -71,40 +89,31 @@
                 <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;">
                     {{ \Carbon\Carbon::parse($log->time_out)->format('h:i A') }}
                 </td>
-                <td style="font-family:'Playfair Display',serif;font-weight:700;font-size:14px;color:var(--blue);">
-                    {{ $log->total_hours }}
-                    <span style="font-family:'DM Mono',monospace;font-size:9px;font-weight:400;color:var(--muted);">hrs</span>
+                <td>
+                    <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:var(--teal);">
+                        {{ $log->total_hours }}
+                    </span>
+                    <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">hrs</span>
+                </td>
+                <td style="font-size:12px;color:var(--muted);">
+                    {{ $log->approvedBy->name ?? '—' }}
+                    @if($log->approved_at)
+                        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">
+                            {{ $log->approved_at->format('M d, Y') }}
+                        </div>
+                    @endif
                 </td>
                 <td style="font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                     {{ $log->description ?? '—' }}
-                </td>
-                <td>
-                    <span class="status-dot {{ $log->status }}">{{ ucfirst($log->status) }}</span>
-                </td>
-                <td>
-                    @if($log->status === 'pending')
-                    <div style="display:flex;gap:4px;">
-                        <form method="POST" action="{{ route('coordinator.hours.approve', $log->id) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-approve btn-sm"
-                                    onclick="return confirm('Approve this hour log?')">Approve</button>
-                        </form>
-                        <form method="POST" action="{{ route('coordinator.hours.reject', $log->id) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-reject btn-sm"
-                                    onclick="return confirm('Reject this hour log?')">Reject</button>
-                        </form>
-                    </div>
-                    @else
-                    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">—</span>
-                    @endif
                 </td>
             </tr>
             @empty
             <tr>
                 <td colspan="9" style="text-align:center;padding:48px;color:var(--muted);">
-                    No hour logs found.
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;display:block;margin-top:4px;">Try adjusting your filters.</span>
+                    No approved hour logs found.
+                    <span style="font-family:'DM Mono',monospace;font-size:11px;display:block;margin-top:4px;">
+                        // Logs will appear here once supervisors approve them.
+                    </span>
                 </td>
             </tr>
             @endforelse

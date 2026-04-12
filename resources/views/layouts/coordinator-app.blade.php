@@ -682,20 +682,21 @@
     
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-
+        
             <a href="{{ route('coordinator.dashboard') }}"
-               class="nav-item {{ request()->routeIs('coordinator.dashboard') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('coordinator.dashboard') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
                 </svg>
                 Dashboard
             </a>
-
+        
+            {{-- ── MANAGE ───────────────────────────────────────────────── --}}
             <div class="nav-section-label">Manage</div>
-
+        
             <a href="{{ route('coordinator.applications.index') }}"
-               class="nav-item {{ request()->routeIs('coordinator.applications.*') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('coordinator.applications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                     <polyline points="14,2 14,8 20,8"/>
@@ -708,21 +709,57 @@
                     <span class="nav-badge-gold">{{ $pendingAppCount }}</span>
                 @endif
             </a>
-
+        
+            {{-- Students — active interns list --}}
             <a href="{{ route('coordinator.students.index') }}"
-               class="nav-item {{ request()->routeIs('coordinator.students.*') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('coordinator.students.index') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                     <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
-                Students
+                Active Interns
             </a>
-
+        
+            {{-- Account management — students + supervisors --}}
+            <a href="{{ route('coordinator.accounts.index') }}"
+            class="nav-item {{ request()->routeIs('coordinator.accounts.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                </svg>
+                Accounts
+            </a>
+        
+            {{-- Company management --}}
+            <a href="{{ route('coordinator.companies.index') }}"
+            class="nav-item {{ request()->routeIs('coordinator.companies.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
+                Companies
+            </a>
+        
+            {{-- ── REVIEW ───────────────────────────────────────────────── --}}
             <div class="nav-section-label">Review</div>
-
-          
+        
+            {{-- Hour logs — view approved only --}}
+            <a href="{{ route('coordinator.hours.index') }}"
+            class="nav-item {{ request()->routeIs('coordinator.hours.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                Hour Logs
+                {{-- View-only badge --}}
+                <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border:1px solid var(--border2);color:var(--muted);letter-spacing:0.06em;">
+                    view
+                </span>
+            </a>
+        
             <a href="{{ route('coordinator.reports.index') }}"
-               class="nav-item {{ request()->routeIs('coordinator.reports.*') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('coordinator.reports.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
@@ -733,16 +770,19 @@
                     <span class="nav-badge-coral">{{ $pendingReportsCount }}</span>
                 @endif
             </a>
-
+        
             <a href="{{ route('coordinator.evaluations.index') }}"
-               class="nav-item {{ request()->routeIs('coordinator.evaluations.*') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('coordinator.evaluations.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M9 11l3 3L22 4"/>
                     <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
                 </svg>
                 Evaluations
             </a>
-
+        
+            {{-- ── NOTIFICATIONS ────────────────────────────────────────── --}}
+            <div class="nav-section-label">Alerts</div>
+        
             <a href="{{ route('coordinator.notifications.index') }}"
                 class="nav-item {{ request()->routeIs('coordinator.notifications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -755,7 +795,7 @@
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
             </a>
-
+        
         </nav>
 
         <div class="sidebar-footer">

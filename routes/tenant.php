@@ -37,6 +37,7 @@ use App\Http\Controllers\Coordinator\CoordinatorHourLogController;
 use App\Http\Controllers\Coordinator\CoordinatorReportController;
 use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
 use App\Http\Controllers\Coordinator\CoordinatorPlanController;
+use App\Http\Controllers\Coordinator\CoordinatorCompanyController;
 
 // Student
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -215,38 +216,59 @@ Route::middleware([
 
         // ── Available on ALL plans (Basic+) ────────────────────────────
 
-        Route::get('/dashboard',  [CoordinatorController::class, 'dashboard'])->name('dashboard');
-        Route::get('/students',   [CoordinatorStudentController::class, 'index'])->name('students.index');
+        Route::get('/dashboard',                    [CoordinatorController::class, 'dashboard'])->name('dashboard');
 
-        Route::post('/applications/bulk', [CoordinatorApplicationController::class, 'bulk'])->name('applications.bulk');
+        // ── Student active-interns list (existing, unchanged) ──────────────
+        Route::get('/students',                     [CoordinatorStudentController::class, 'index'])->name('students.index');
 
-        Route::get('/applications',                        [CoordinatorApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/{application}',          [CoordinatorApplicationController::class, 'show'])->name('applications.show');
-        Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
-        Route::post('/applications/{application}/reject',  [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+        // ── User account management (students + supervisors) ───────────────
+        Route::get('/accounts',                     [CoordinatorStudentController::class, 'accounts'])->name('accounts.index');
+        Route::get('/accounts/create',              [CoordinatorStudentController::class, 'create'])->name('accounts.create');
+        Route::post('/accounts',                    [CoordinatorStudentController::class, 'store'])->name('accounts.store');
+        Route::get('/accounts/{user}/edit',         [CoordinatorStudentController::class, 'edit'])->name('accounts.edit');
+        Route::put('/accounts/{user}',              [CoordinatorStudentController::class, 'update'])->name('accounts.update');
+        Route::patch('/accounts/{user}/toggle',     [CoordinatorStudentController::class, 'toggleActive'])->name('accounts.toggle');
+        Route::delete('/accounts/{user}',           [CoordinatorStudentController::class, 'destroy'])->name('accounts.destroy');
+
+         // ── Company management ─────────────────────────────────────────────
+        Route::get('/companies',                    [CoordinatorCompanyController::class, 'index'])->name('companies.index');
+        Route::get('/companies/create',             [CoordinatorCompanyController::class, 'create'])->name('companies.create');
+        Route::post('/companies',                   [CoordinatorCompanyController::class, 'store'])->name('companies.store');
+        Route::get('/companies/{company}/edit',     [CoordinatorCompanyController::class, 'edit'])->name('companies.edit');
+        Route::put('/companies/{company}',          [CoordinatorCompanyController::class, 'update'])->name('companies.update');
+        Route::patch('/companies/{company}/toggle', [CoordinatorCompanyController::class, 'toggleActive'])->name('companies.toggle');
+        Route::delete('/companies/{company}',       [CoordinatorCompanyController::class, 'destroy'])->name('companies.destroy');
+
+
+        Route::post('/applications/bulk',                   [CoordinatorApplicationController::class, 'bulk'])->name('applications.bulk');
+
+        Route::get('/applications',                         [CoordinatorApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/{application}',           [CoordinatorApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
+        Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
         
 
         // Hour log view — read-only, Basic+
-        Route::get('/hours', [CoordinatorHourLogController::class, 'index'])->name('hours.index');
+        Route::get('/hours',                                [CoordinatorHourLogController::class, 'index'])->name('hours.index');
 
         // ── Notifications ─────────────────────────────────────────────
-        Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
-        Route::get('/notifications/unread-count',                 [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
-        Route::post('/notifications/mark-all-read',               [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-        Route::post('/notifications/clear-read',                  [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
-        Route::post('/notifications/{notification}/read',         [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
-        Route::delete('/notifications/{notification}',            [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::get('/notifications',                        [TenantNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread-count',           [TenantNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+        Route::post('/notifications/mark-all-read',         [TenantNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/clear-read',            [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+        Route::post('/notifications/{notification}/read',   [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::delete('/notifications/{notification}',      [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
 
         // ── Standard plan and above ─────────────────────────────────────
 
         Route::middleware('plan:standard')->group(function () {
-            Route::get('/reports',                   [CoordinatorReportController::class, 'index'])->name('reports.index');
-            Route::post('/reports/{report}/approve', [CoordinatorReportController::class, 'approve'])->name('reports.approve');
-            Route::post('/reports/{report}/return',  [CoordinatorReportController::class, 'return'])->name('reports.return');
+            Route::get('/reports',                                  [CoordinatorReportController::class, 'index'])->name('reports.index');
+            Route::post('/reports/{report}/approve',                [CoordinatorReportController::class, 'approve'])->name('reports.approve');
+            Route::post('/reports/{report}/return',                 [CoordinatorReportController::class, 'return'])->name('reports.return');
 
-            Route::get('/evaluations',                        [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
-            Route::get('/evaluations/{evaluation}',           [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
-            Route::post('/evaluations/{evaluation}/complete', [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
+            Route::get('/evaluations',                              [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
+            Route::get('/evaluations/{evaluation}',                 [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
+            Route::post('/evaluations/{evaluation}/complete',       [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
         });
 
         // ── Plan overview ─────────────────────────────────────────────

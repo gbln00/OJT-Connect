@@ -1,91 +1,60 @@
 <?php
+
 namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
 use App\Models\HourLog;
-use App\Models\TenantNotification;
 use App\Models\OjtApplication;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CoordinatorHourLogController extends Controller
 {
     /**
-     * Show all hour logs from all interns in this tenant.
-     * Coordinators can view but approval belongs to supervisors.
-     * Admin-level approval is also available here as a fallback.
+     * Show all APPROVED hour logs from all interns in this tenant.
+     * Coordinators can VIEW approved logs only — approval/rejection
+     * belongs to supervisors (and admins as fallback).
+     *
+     * The $pending variable is kept for the sidebar badge on the old
+     * view but is passed as 0 here since coordinator no longer approves.
      */
     public function index(Request $request)
     {
         $query = HourLog::with(['student', 'application.company'])
+            ->where('status', 'approved')           // ← view approved only
             ->orderBy('date', 'desc')
             ->orderByRaw("FIELD(session, 'morning', 'afternoon')");
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->student_id);
         }
 
-        $logs    = $query->paginate(20)->withQueryString();
-        $pending = HourLog::where('status', 'pending')->count();
+        if ($request->filled('company_id')) {
+            $query->whereHas('application', fn($q) =>
+                $q->where('company_id', $request->company_id)
+            );
+        }
 
-        // Intern list for the filter dropdown (approved applications only)
+        $logs = $query->paginate(20)->withQueryString();
+
+        // Sidebar info: total approved hours across all interns
+        $totalApprovedHours = HourLog::where('status', 'approved')->sum('total_hours');
+
+        // Intern list for filter dropdown
         $interns = OjtApplication::with('student')
             ->where('status', 'approved')
             ->get()
             ->map(fn($app) => $app->student)
             ->unique('id');
 
-        return view('coordinator.hours.index', compact('logs', 'pending', 'interns'));
-    }
+        // Company list for filter dropdown
+        $companies = \App\Models\Company::where('is_active', true)->orderBy('name')->get();
 
-    /**
-     * Approve a single hour log (coordinator-level override).
-     */
-    public function approve(HourLog $hourLog)
-    {
-        $hourLog->update([
-            'status'      => 'approved',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
+        // Pass 0 — coordinator no longer has approve action
+        $pending = 0;
 
-        TenantNotification::notify(
-            title:      'Hour Log Approved',
-            message:    'Your hour log for ' . $hourLog->date->format('M d, Y') . ' has been approved.',
-            type:       'success',
-            targetRole: 'student_intern'
-        );
-
-        return back()->with('success', 'Hour log approved.');
-    }
-
-    /**
-     * Reject a single hour log.
-     */
-    public function reject(Request $request, HourLog $hourLog)
-    {
-        $request->validate([
-            'rejection_reason' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        $hourLog->update([
-            'status'           => 'rejected',
-            'approved_by'      => null,
-            'approved_at'      => null,
-            'rejection_reason' => $request->rejection_reason,
-        ]);
-
-        TenantNotification::notify(
-            title:      'Hour Log Rejected',
-            message:    'Your hour log for ' . $hourLog->date->format('M d, Y') . ' was rejected.' .
-                        ($request->rejection_reason ? ' Reason: ' . $request->rejection_reason : ''),
-            type:       'warning',
-            targetRole: 'student_intern'
-        );
-
-        return back()->with('success', 'Hour log rejected.');
+        return view('coordinator.hours.index', compact(
+            'logs', 'pending', 'interns', 'companies', 'totalApprovedHours'
+        ));
     }
 }
