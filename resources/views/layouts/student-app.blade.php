@@ -702,9 +702,11 @@
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
 
-        @stack('styles')
     </style>
+
     @stack('styles')
+    @include('layouts.partials.tenant_inject')
+    
 </head>
 <body>
 
@@ -714,10 +716,8 @@
 
     {{-- ═══ SIDEBAR ═══ --}}
     <aside class="sidebar" id="sidebar">
-        <a href="{{ route('student.dashboard') }}" class="sidebar-brand">
-            <div class="brand-icon"><span>O</span></div>
-            <div class="brand-text">OJT<em>Connect</em></div>
-        </a>
+          
+        @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'student.dashboard'])
 
          <div class="role-pill">
             @if(tenant('name'))
@@ -1006,6 +1006,8 @@
 
         {{-- PAGE CONTENT --}}
         <main class="main-content">
+
+            @include('layouts.partials.tenant_announcement')
 
             {{-- Flash messages --}}
             @if(session('success'))

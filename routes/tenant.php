@@ -96,6 +96,9 @@ Route::middleware([
     Route::middleware('auth')->group(function () {
         Route::get('/2fa/challenge',  [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
         Route::post('/2fa/verify',    [TwoFactorController::class, 'verify'])->name('2fa.verify');
+        Route::post('/2fa/resend',    [TwoFactorController::class, 'resend'])->name('2fa.resend');
+        Route::post('/2fa/disable',   [TwoFactorController::class, 'disable'])->name('2fa.disable');
+        Route::post('/2fa/enable',    [TwoFactorController::class, 'enable'])->name('2fa.enable');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])
@@ -189,6 +192,9 @@ Route::middleware([
             Route::get('/customization',                [TenantCustomizationController::class, 'index'])->name('customization.index');
             Route::post('/customization',               [TenantCustomizationController::class, 'update'])->name('customization.update');
             Route::delete('/customization/logo',        [TenantCustomizationController::class, 'deleteLogo'])->name('customization.logo.delete');
+            Route::post('/customization/reset',         [TenantCustomizationController::class, 'reset'])->name('customization.reset');  
+
+
         });
         
 

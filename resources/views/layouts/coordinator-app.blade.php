@@ -647,10 +647,11 @@
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
-
-        @stack('styles')
+        
     </style>
+
     @stack('styles')
+    @include('layouts.partials.tenant_inject')
 </head>
 <body>
 
@@ -660,17 +661,8 @@
 
     {{-- ═══ SIDEBAR ═══ --}}
     <aside class="sidebar" id="sidebar">
-        <a href="{{ route('coordinator.dashboard') }}" class="sidebar-brand">
-            <div class="brand-icon"><span>O</span></div>
-            <div class="brand-text">OJT<em>Connect</em></div>
-        </a>
-
-        <div class="role-pill">
-            @if(tenant('name'))
-               <span class="role-pill-dot flicker"></span>
-                <span class="role-pill-text"> {{ tenant('name') }}</span>
-            @endif
-        </div>
+        
+        @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'coordinator.dashboard'])
     
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
@@ -939,6 +931,8 @@
         </header>
 
         <main class="main-content">
+
+            @include('layouts.partials.tenant_announcement')
 
             {{-- Flash messages --}}
             @if(session('success'))

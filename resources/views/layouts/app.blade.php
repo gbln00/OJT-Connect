@@ -711,9 +711,11 @@
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
     </style>
-    @stack('styles')
+    
 
     @stack('styles')
+
+    @include('layouts.partials.tenant_inject')
  
         {{-- ── Tenant primary color override (Premium only) ────────── --}}
         @if(!empty($tenantBrandColor))
@@ -724,7 +726,7 @@
                 --crimson-md: rgba({{ implode(',', sscanf($tenantBrandColor, '%02x%02x%02x')) }}, 0.18);
             }
         </style>
-    @endif
+        @endif
 
 </head>
 <body>
@@ -735,24 +737,8 @@
 
     {{-- ═══ SIDEBAR ═══ --}}
     <aside class="sidebar" id="sidebar">
-       <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            @if(!empty($tenantLogoUrl))
-                <img src="{{ $tenantLogoUrl }}" alt="Logo"
-                    style="height:32px;width:32px;object-fit:contain;border:1px solid rgba(255,255,255,0.1);">
-            @else
-                <div class="brand-icon"><span>O</span></div>
-            @endif
-            <div class="brand-text">
-                @if(!empty($tenantBrandName))
-                    <span style="font-size:12px;white-space:nowrap;overflow:hidden;
-                                text-overflow:ellipsis;max-width:160px;">
-                        {{ $tenantBrandName }}
-                    </span>
-                @else
-                    OJT<em>Connect</em>
-                @endif
-            </div>
-        </a>
+
+        @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'admin.dashboard'])
 
         <nav class="sidebar-nav">
             {{-- Tenant name pill --}}
@@ -883,6 +869,7 @@
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
                     Export Reports
+                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
                 </a>
 
                 <a href="{{ route('admin.analytics.index') }}"
@@ -893,44 +880,9 @@
                         <line x1="6"  y1="20" x2="6"  y2="14"/>
                     </svg>
                     Analytics
+                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
                 </a>
-            @else
-                {{-- Locked: Export Reports --}}
-                <span class="nav-item-locked" title="Upgrade to Premium to access Export Reports">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7,10 12,15 17,10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Export Reports
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PRO</span>
-                </span>
-
-                {{-- Locked: Analytics --}}
-                <span class="nav-item-locked" title="Upgrade to Premium to access Analytics">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <line x1="18" y1="20" x2="18" y2="10"/>
-                        <line x1="12" y1="20" x2="12" y2="4"/>
-                        <line x1="6"  y1="20" x2="6"  y2="14"/>
-                    </svg>
-                    Analytics
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PRO</span>
-                </span>
-            @endif
-
-            {{-- ── Customization (Premium only) ── --}}
+                 {{-- ── Customization (Premium only) ── --}}
             <a href="{{ route('admin.customization.index') }}"
                 class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor"
@@ -948,9 +900,66 @@
                             a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
                 </svg>
                 Customization
-                <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PRO</span>
+                <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
             </a>
+            @else
+                {{-- Locked: Export Reports --}}
+                <span class="nav-item-locked" title="Upgrade to Premium to access Export Reports">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export Reports
+                    <span class="nav-lock-icon">
+                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                    </span>
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                </span>
 
+                {{-- Locked: Analytics --}}
+                <span class="nav-item-locked" title="Upgrade to Premium to access Analytics">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6"  y1="20" x2="6"  y2="14"/>
+                    </svg>
+                    Analytics
+                    <span class="nav-lock-icon">
+                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                    </span>
+                </span>
+                 {{-- ── Customization (Premium only) ── --}}
+                <a href="{{ route('admin.customization.index') }}"
+                    class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
+                    <svg width="15" height="15" fill="none" stroke="currentColor"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83
+                                2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0
+                                00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0
+                                00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0
+                                004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0
+                                004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06
+                                A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09
+                                a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0
+                                012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21
+                                a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                    Customization
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                </a>
+                
+            @endif
+
+            <div class="nav-section-label"></div>
+            
 
             {{-- ── Always visible ── --}}
             <a href="{{ route('admin.notifications.index') }}"
@@ -977,7 +986,7 @@
                 Plan
                 {{-- Show current plan badge --}}
                 @if($tenantPlan === 'premium')
-                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;margin-left:auto;">PRO</span>
+                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;margin-left:auto;">PREMIUM</span>
                 @elseif($tenantPlan === 'standard')
                     <span class="nav-badge" style="background:var(--blue-color);font-size:8px;margin-left:auto;">STD</span>
                 @else
@@ -985,12 +994,13 @@
                 @endif
             </a>
 
-            <a href="{{ route('admin.2fa.setup') }}" class="btn btn-ghost btn-sm">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <a href="{{ route('admin.2fa.setup') }}" class="nav-item {{ request()->routeIs('admin.2fa.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
                 </svg>
                 {{ auth()->user()->two_factor_enabled ? 'Manage 2FA' : 'Enable 2FA' }}
             </a>
+
 
             <div class="nav-section-label">System</div>
 
@@ -1012,16 +1022,6 @@
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Admin' }}</div>
                     <div class="sidebar-user-role">{{ str_replace('_', ' ', auth()->user()->role ?? 'admin') }}</div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0;">
-                    @csrf
-                    <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" title="Log out">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                            <polyline points="16,17 21,12 16,7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                    </button>
-                </form>
             </div>
         </div>
     </aside>
