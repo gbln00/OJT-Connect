@@ -28,5 +28,11 @@ class AppServiceProvider extends ServiceProvider
         \Blade::directive('endtenantPlan', function () {
             return "<?php endif; ?>";
         });
+
+        \Blade::directive('tenantSetting', function ($expression) {
+            // Usage: @tenantSetting('brand_name', 'Default Value')
+            return "<?php echo \\App\\Models\\TenantSetting::get($expression); ?>";
+        });
+
     }
 }

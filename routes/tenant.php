@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\EvaluationController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminPlanRequestController;
+use App\Http\Controllers\Admin\TenantCustomizationController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -76,7 +77,6 @@ Route::middleware([
     // ── Guest-only ─────────────────────────────────────────────────────
     Route::middleware('guest')->group(function () {
         Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
-        // 👆 GET stays in guest group, POST moves out
     });
 
     Route::post('/login', [LoginController::class, 'login']);
@@ -183,9 +183,14 @@ Route::middleware([
             Route::get('/exports/certificate/{application}',    [ExportController::class, 'certificate'])->name('export.certificate');
             
             // ── Analytics Dashboard (Premium only) ──────────────────────────
-            Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics.index');
+            Route::get('/analytics',                    [AdminController::class, 'analytics'])->name('analytics.index');
             
+            // ── Tenant Customization (Premium only) ───────────────────────────
+            Route::get('/customization',                [TenantCustomizationController::class, 'index'])->name('customization.index');
+            Route::post('/customization',               [TenantCustomizationController::class, 'update'])->name('customization.update');
+            Route::delete('/customization/logo',        [TenantCustomizationController::class, 'deleteLogo'])->name('customization.logo.delete');
         });
+        
 
         // ── Plans & Promotions ────────────────────────────────────────
         Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');

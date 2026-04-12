@@ -15,31 +15,43 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+
         $middleware->redirectGuestsTo('/login');
 
         $middleware->validateCsrfTokens(except: [
+
             'login',
+
         ]);
 
         // !! REMOVED: TenantSessionCookie - same problem as SessionBootstrapper,
         // it also ran before tenancy was initialized so tenant() returned null.
 
         $middleware->alias([
-            'role'          => \App\Http\Middleware\RoleMiddleware::class,
-            'super_admin'   => \App\Http\Middleware\SuperAdminMiddleware::class,
-            'tenant.active' => \App\Http\Middleware\CheckTenantActive::class,
-            'plan'          => \App\Http\Middleware\CheckTenantPlan::class,
-            '2fa'           => \App\Http\Middleware\Require2FA::class,
+
+            'role'                  => \App\Http\Middleware\RoleMiddleware::class,
+            'super_admin'           => \App\Http\Middleware\SuperAdminMiddleware::class,
+            'tenant.active'         => \App\Http\Middleware\CheckTenantActive::class,
+            'plan'                  => \App\Http\Middleware\CheckTenantPlan::class,
+            '2fa'                   => \App\Http\Middleware\Require2FA::class,
+            'tenant_customize'      => \App\Http\Middleware\ApplyTenantCustomization::class,
+        
         ]);
 
         $middleware->api(prepend: [
+
             \Illuminate\Http\Middleware\HandleCors::class,
+
         ]);
 
         $middleware->web(append: [
+
             \App\Http\Middleware\LogTenantRequest::class,
+            \App\Http\Middleware\ApplyTenantCustomization::class,  
+
         ]);
     })
+    
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

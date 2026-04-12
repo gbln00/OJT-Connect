@@ -712,6 +712,20 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
     </style>
     @stack('styles')
+
+    @stack('styles')
+ 
+        {{-- ── Tenant primary color override (Premium only) ────────── --}}
+        @if(!empty($tenantBrandColor))
+        <style>
+            :root {
+                --crimson:    #{{ $tenantBrandColor }};
+                --crimson-lo: rgba({{ implode(',', sscanf($tenantBrandColor, '%02x%02x%02x')) }}, 0.08);
+                --crimson-md: rgba({{ implode(',', sscanf($tenantBrandColor, '%02x%02x%02x')) }}, 0.18);
+            }
+        </style>
+    @endif
+
 </head>
 <body>
 
@@ -721,9 +735,23 @@
 
     {{-- ═══ SIDEBAR ═══ --}}
     <aside class="sidebar" id="sidebar">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <div class="brand-icon"><span>O</span></div>
-            <div class="brand-text">OJT<em>Connect</em></div>
+       <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
+            @if(!empty($tenantLogoUrl))
+                <img src="{{ $tenantLogoUrl }}" alt="Logo"
+                    style="height:32px;width:32px;object-fit:contain;border:1px solid rgba(255,255,255,0.1);">
+            @else
+                <div class="brand-icon"><span>O</span></div>
+            @endif
+            <div class="brand-text">
+                @if(!empty($tenantBrandName))
+                    <span style="font-size:12px;white-space:nowrap;overflow:hidden;
+                                text-overflow:ellipsis;max-width:160px;">
+                        {{ $tenantBrandName }}
+                    </span>
+                @else
+                    OJT<em>Connect</em>
+                @endif
+            </div>
         </a>
 
         <nav class="sidebar-nav">
@@ -901,6 +929,28 @@
                     <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PRO</span>
                 </span>
             @endif
+
+            {{-- ── Customization (Premium only) ── --}}
+            <a href="{{ route('admin.customization.index') }}"
+                class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor"
+                    stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83
+                            2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0
+                            00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0
+                            00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0
+                            004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0
+                            004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06
+                            A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09
+                            a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0
+                            012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21
+                            a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+                Customization
+                <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PRO</span>
+            </a>
+
 
             {{-- ── Always visible ── --}}
             <a href="{{ route('admin.notifications.index') }}"
@@ -1142,6 +1192,23 @@
 
         {{-- PAGE CONTENT --}}
         <main class="main-content">
+
+            {{-- ── Tenant Announcement Banner ───────────────────────────── --}}
+            @if(!empty($tenantAnnouncementActive) && !empty($tenantAnnouncement))
+            <div id="ojt-announcement"
+                style="background:rgba({{ implode(',', sscanf($tenantBrandColor ?? '8C0E03', '%02x%02x%02x')) }},0.08);
+                        border:1px solid rgba({{ implode(',', sscanf($tenantBrandColor ?? '8C0E03', '%02x%02x%02x')) }},0.25);
+                        padding:10px 16px;margin-bottom:20px;
+                        display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <span style="font-size:13px;color:var(--text);">
+                    📢 {{ $tenantAnnouncement }}
+                </span>
+                <button onclick="document.getElementById('ojt-announcement').style.display='none'"
+                        style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;
+                            line-height:1;flex-shrink:0;" aria-label="Dismiss">✕</button>
+            </div>
+            @endif
+
             @yield('content')
         </main>
 
