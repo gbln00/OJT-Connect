@@ -32,7 +32,7 @@ class TenantCustomizationController extends Controller
 
         $logoPath      = $settings['brand_logo'] ?? null;
         $tenantLogoUrl = $logoPath
-            ? Storage::disk('public')->url($logoPath)
+            ? asset('tenant' . tenancy()->tenant->id . '/' . $logoPath)
             : null;
 
         return view('admin.customization.index', compact('settings', 'fontOptions', 'tenantLogoUrl'));

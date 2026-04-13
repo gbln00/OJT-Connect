@@ -31,11 +31,12 @@ class TenancyServiceProvider extends ServiceProvider
                     Jobs\MigrateDatabase::class,
 
                     // Provision API keys, create S3 buckets, anything you want!
-                    \App\Listeners\CreateTenantStorageLink::class,
-
                 ])->send(function (Events\TenantCreated $event) {
                     return $event->tenant;
                 })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+
+                // Create storage symlink for tenant
+                \App\Listeners\CreateTenantStorageLink::class,
             ],
             Events\SavingTenant::class => [],
             Events\TenantSaved::class => [],

@@ -10,11 +10,6 @@
     $tPrimary   = $tenantBrandColor ?? null;
     $tSecondary = $tenantBrandColorSecondary ?? null;
     $tFont      = $tenantBrandFont ?? 'barlow';
-
-    $tLogoPath      = \App\Models\TenantSetting::get('brand_logo');
-    $tenantLogoUrl  = $tLogoPath
-        ? \Illuminate\Support\Facades\Storage::disk('public')->url($tLogoPath)
-        : null;
     
     $hexToRgb = fn(string $hex): string =>
         implode(',', array_map('hexdec', str_split(ltrim($hex, '#'), 2)));
