@@ -12,6 +12,8 @@ use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
+use Stancl\Tenancy\Events\TenantCreated;
+use Illuminate\Support\Facades\Artisan;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -27,10 +29,9 @@ class TenancyServiceProvider extends ServiceProvider
                 JobPipeline::make([
                     Jobs\CreateDatabase::class,
                     Jobs\MigrateDatabase::class,
-                    // Jobs\SeedDatabase::class,
 
-                    // Your own jobs to prepare the tenant.
                     // Provision API keys, create S3 buckets, anything you want!
+                    \App\Listeners\CreateTenantStorageLink::class,
 
                 ])->send(function (Events\TenantCreated $event) {
                     return $event->tenant;
@@ -89,6 +90,8 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Fired only when a synced resource is changed in a different DB than the origin DB (to avoid infinite loops)
             Events\SyncedResourceChangedInForeignDatabase::class => [],
+
+            
         ];
     }
 

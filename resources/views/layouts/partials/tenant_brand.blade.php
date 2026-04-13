@@ -6,13 +6,16 @@
 
     The $dashboardRoute variable sets where the brand link points.
 --}}
+
 <a href="{{ route($dashboardRoute ?? 'admin.dashboard') }}" class="sidebar-brand">
     @if(!empty($tenantLogoUrl))
         <img src="{{ $tenantLogoUrl }}" alt="Logo"
              style="height:32px;width:32px;object-fit:contain;flex-shrink:0;
                     border:1px solid rgba(255,255,255,0.12);padding:2px;">
     @else
-        <div class="brand-icon"><span>O</span></div>
+        <div class="brand-icon">
+            <span>{{ strtoupper(substr($tenantBrandName ?? 'O', 0, 1)) }}</span>
+        </div>
     @endif
 
     <div class="brand-text" style="overflow:hidden;">

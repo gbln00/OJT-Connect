@@ -27,9 +27,15 @@ class TenantCustomizationController extends Controller
 
     public function index()
     {
-        $settings  = TenantSetting::allAsArray();
+        $settings    = TenantSetting::allAsArray();
         $fontOptions = self::FONT_OPTIONS;
-        return view('admin.customization.index', compact('settings', 'fontOptions'));
+
+        $logoPath      = $settings['brand_logo'] ?? null;
+        $tenantLogoUrl = $logoPath
+            ? Storage::disk('public')->url($logoPath)
+            : null;
+
+        return view('admin.customization.index', compact('settings', 'fontOptions', 'tenantLogoUrl'));
     }
 
     public function update(Request $request)

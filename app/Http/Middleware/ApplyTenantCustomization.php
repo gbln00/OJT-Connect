@@ -19,8 +19,9 @@ class ApplyTenantCustomization
         $settings = TenantSetting::allAsArray();
 
         // ── Logo URL ──────────────────────────────────────────────────────────
-        $logoUrl = isset($settings['brand_logo'])
-            ? Storage::url($settings['brand_logo'])
+        $logoPath = $settings['brand_logo'] ?? null;
+        $logoUrl  = $logoPath
+            ? asset('tenant' . tenant()->getTenantKey() . '/' . $logoPath)
             : null;
 
         // ── Primary color (drives --crimson) ──────────────────────────────────
