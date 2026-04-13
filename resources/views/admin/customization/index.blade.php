@@ -6,7 +6,9 @@
 
 <div class="greeting" style="margin-bottom:24px;">
   <div class="greeting-sub">Premium Feature</div>
-  <div class="greeting-title">Tenant <span>Customization</span></div>
+    <h1 class="greeting-title">
+            Tenant<span>Customization</span>
+        </h1>
 </div>
 
 @if(session('success'))

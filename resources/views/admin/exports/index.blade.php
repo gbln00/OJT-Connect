@@ -4,18 +4,16 @@
 
 @section('content')
 
+@php
+    $brandColor     = '#' . (app(\App\Models\TenantSetting::class)::get('brand_color') ?? '8C0E03');
+    $brandSecondary = '#' . (app(\App\Models\TenantSetting::class)::get('brand_color_secondary') ?? '0E1126');
+    $brandName      = app(\App\Models\TenantSetting::class)::get('brand_name') ?? 'OJTConnect';
+    $logoPath       = app(\App\Models\TenantSetting::class)::get('brand_logo');
+    $tenantLogoUrl  = $logoPath ? tenant_asset($logoPath) : null;
+@endphp
+
 @if(session('success'))
-<div style="
-    display:flex;align-items:center;gap:10px;
-    background:rgba(52,211,153,0.07);
-    border:1px solid rgba(52,211,153,0.2);
-    border-left:3px solid #34d399;
-    color:#34d399;
-    padding:13px 16px;
-    margin-bottom:24px;
-    font-size:13px;
-    animation: fadeUp 0.4s cubic-bezier(.22,.61,.36,1) both;
-">
+<div class="alert-success fade-up">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/>
     </svg>
@@ -23,23 +21,28 @@
 </div>
 @endif
 
-{{-- PAGE HEADER --}}
-<div class="export-page-header fade-up">
-    <div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
-            Data Export Center
-        </div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:clamp(20px,2.5vw,26px);font-weight:900;color:var(--text);line-height:1.1;">
-            Export <span style="color:var(--crimson);font-style:italic;">Reports</span>
+{{-- ── PAGE HEADER ─────────────────────────────────────────────────────────── --}}
+<div class="exp-page-header fade-up">
+    <div class="exp-page-header__left">
+        <div class="greeting-sub">Data Export Center</div>
+        <h1 class="greeting-title">
+            Export <span>Reports</span>
         </h1>
+        <p class="exp-page-header__desc">
+            Download student data, evaluations, and hour logs as styled PDF or Excel reports.
+            All exports reflect <strong>live data</strong> at the time of download.
+        </p>
     </div>
-    <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-align:right;line-height:1.8;">
-        <div>Generated {{ now()->format('M d, Y') }}</div>
-        <div style="color:var(--muted2);">{{ now()->format('H:i') }} local time</div>
+    <div class="exp-page-header__right">
+        <div class="exp-timestamp-block">
+            <div class="exp-timestamp-label">Generated</div>
+            <div class="exp-timestamp-date">{{ now()->format('M d, Y') }}</div>
+            <div class="exp-timestamp-time">{{ now()->format('H:i') }} local</div>
+        </div>
     </div>
 </div>
 
-{{-- STAT STRIP --}}
+{{-- ── STAT STRIP ──────────────────────────────────────────────────────────── --}}
 <div class="stats-grid fade-up fade-up-1" style="grid-template-columns:repeat(3,1fr);margin-bottom:28px;">
 
     <div class="stat-card">
@@ -86,41 +89,61 @@
 
 </div>
 
-{{-- ── FILTER FORM ── --}}
+{{-- ── TENANT BADGE (shows active customization) ──────────────────────────── --}}
+<div class="exp-tenant-badge fade-up fade-up-1">
+    <div class="exp-tenant-badge__inner">
+        @if($tenantLogoUrl)
+            <img src="{{ $tenantLogoUrl }}" alt="{{ $brandName }}" class="exp-tenant-badge__logo">
+        @else
+            <div class="exp-tenant-badge__logo-placeholder">
+                {{ strtoupper(substr($brandName, 0, 1)) }}
+            </div>
+        @endif
+        <div>
+            <div class="exp-tenant-badge__name">{{ $brandName }}</div>
+            <div class="exp-tenant-badge__sub">All exports will be branded with your institution's identity</div>
+        </div>
+    </div>
+    <div class="exp-tenant-badge__features">
+        <span class="exp-tenant-feature">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+            Custom colors
+        </span>
+        <span class="exp-tenant-feature">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+            Institution name
+        </span>
+        @if($tenantLogoUrl)
+        <span class="exp-tenant-feature">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+            Logo included
+        </span>
+        @endif
+    </div>
+</div>
+
+{{-- ── FILTER FORM ─────────────────────────────────────────────────────────── --}}
 <div class="fade-up fade-up-2" style="margin-bottom:24px;">
     <form method="GET" action="{{ route('admin.export.index') }}">
-
-        <div style="padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--crimson);">
-
-            {{-- Filter header --}}
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--crimson);flex-shrink:0;">
+        <div class="exp-filter-bar">
+            <div class="exp-filter-bar__label">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;">
                     <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3"/>
                 </svg>
-                <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);">
-                    Filter exports
-                </span>
+                <span>Filter exports</span>
                 @if(request('semester') || request('school_year'))
-                    <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-                        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;">Active:</span>
+                    <div class="exp-filter-bar__active-pills">
                         @if(request('semester'))
-                            <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
-                                {{ request('semester') }}
-                            </span>
+                            <span class="exp-active-pill">{{ request('semester') }}</span>
                         @endif
                         @if(request('school_year'))
-                            <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
-                                {{ request('school_year') }}
-                            </span>
+                            <span class="exp-active-pill">{{ request('school_year') }}</span>
                         @endif
                     </div>
                 @endif
             </div>
-
-            {{-- Fields row --}}
-            <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
-
-                <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;">
+            <div class="exp-filter-bar__fields">
+                <div class="exp-filter-field">
                     <label class="form-label">Semester</label>
                     <select name="semester" class="form-select">
                         <option value="">All Semesters</option>
@@ -129,15 +152,12 @@
                         <option value="Summer"       {{ request('semester') === 'Summer'       ? 'selected' : '' }}>Summer</option>
                     </select>
                 </div>
-
-                <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;">
+                <div class="exp-filter-field">
                     <label class="form-label">School Year</label>
                     <input type="text" name="school_year" class="form-input"
-                           placeholder="e.g. 2024-2025"
-                           value="{{ request('school_year') }}">
+                           placeholder="e.g. 2024-2025" value="{{ request('school_year') }}">
                 </div>
-
-                <div style="display:flex;gap:8px;padding-bottom:1px;">
+                <div class="exp-filter-bar__actions">
                     <button type="submit" class="btn btn-primary btn-sm">
                         <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -153,81 +173,85 @@
                         </a>
                     @endif
                 </div>
-
             </div>
         </div>
-
     </form>
 </div>
 
-{{-- SECTION LABEL --}}
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;" class="fade-up fade-up-2">
-    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);">Available exports</span>
-    <div style="flex:1;height:1px;background:var(--border);"></div>
-    <span class="export-count-badge">{{ 3 }} formats</span>
+{{-- ── SECTION LABEL ───────────────────────────────────────────────────────── --}}
+<div class="exp-section-label fade-up fade-up-2">
+    <span>Available exports</span>
+    <div class="exp-section-label__line"></div>
+    <span class="exp-count-badge">3 formats</span>
 </div>
 
-{{-- EXPORT CARDS --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="fade-up fade-up-2">
+{{-- ── EXPORT CARDS ────────────────────────────────────────────────────────── --}}
+<div class="exp-grid fade-up fade-up-2">
 
-    {{-- ── PDF: Student Summary ── --}}
-    <div class="export-card" data-accent="coral">
-        <div class="export-card-stripe coral-stripe"></div>
+    {{-- ── PDF: Student Summary ─────────────────────────────────────────────── --}}
+    <div class="exp-card" data-accent="coral">
+        <div class="exp-card__stripe exp-card__stripe--coral"></div>
+        <div class="exp-card__body">
 
-        <div class="export-card-inner">
-            {{-- Header --}}
-            <div class="export-card-header">
-                <div class="export-format-pill pdf-pill">
+            <div class="exp-card__top">
+                <div class="exp-format-pill exp-format-pill--coral">
                     <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                         <polyline points="14,2 14,8 20,8"/>
                     </svg>
                     PDF
                 </div>
-                <div class="export-meta-dots">
-                    <span></span><span></span><span></span>
-                </div>
+                <div class="exp-card__dots"><span></span><span></span><span></span></div>
             </div>
 
-            {{-- Title --}}
-            <div style="margin-bottom:14px;">
-                <div class="export-title">Student OJT Summary</div>
-                <div class="export-subtitle">Approved interns · company placement · hour progress</div>
+            <div class="exp-card__title-block">
+                <div class="exp-card__title">Student OJT Summary</div>
+                <div class="exp-card__subtitle">Approved interns · company placement · hour progress</div>
             </div>
 
-            {{-- Data pills --}}
-            <div class="export-pills">
-                <span class="export-pill">{{ $stats['total_applications'] }} applications</span>
-                <span class="export-pill">{{ $stats['total_students'] }} students</span>
-                <span class="export-pill">Landscape A4</span>
-                <span class="export-pill">Table format</span>
+            <div class="exp-pills">
+                <span class="exp-pill">{{ $stats['total_applications'] }} applications</span>
+                <span class="exp-pill">{{ $stats['total_students'] }} students</span>
+                <span class="exp-pill">Landscape A4</span>
+                <span class="exp-pill">Progress bars</span>
                 @if(request('semester') || request('school_year'))
-                    <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
-                        Filtered
-                    </span>
+                    <span class="exp-pill exp-pill--active">Filtered</span>
                 @endif
             </div>
 
-            {{-- Divider --}}
-            <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+            <div class="exp-card__divider"></div>
 
-            {{-- Description --}}
-            <p class="export-desc">
-                A PDF table of all approved student interns with their company, program, required hours, and approved hours logged. Ideal for coordinators and faculty review.
-            </p>
+            <div class="exp-card__preview">
+                <div class="exp-card__preview-label">// What's included</div>
+                <ul class="exp-card__feature-list">
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Student name, email & program
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Company placement & semester
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Required vs approved hours with visual progress bar
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Branded with {{ $brandName }} identity
+                    </li>
+                </ul>
+            </div>
 
-            {{-- Footer --}}
-            <div class="export-card-footer">
-                <div class="export-field-list">
-                    <span class="export-field">Name</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Company</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Program</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Hours</span>
+            <div class="exp-card__footer">
+                <div class="exp-field-list">
+                    <span>Name</span><span class="sep">·</span>
+                    <span>Company</span><span class="sep">·</span>
+                    <span>Program</span><span class="sep">·</span>
+                    <span>Hours</span>
                 </div>
-                <a href="{{ route('admin.export.pdf.students', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn coral-btn">
+                <a href="{{ route('admin.export.pdf.students', array_filter(request()->only(['semester', 'school_year']))) }}"
+                   class="exp-btn exp-btn--coral">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -239,64 +263,70 @@
         </div>
     </div>
 
-    {{-- ── PDF: Evaluations ── --}}
-    <div class="export-card" data-accent="crimson">
-        <div class="export-card-stripe crimson-stripe"></div>
+    {{-- ── PDF: Evaluations ─────────────────────────────────────────────────── --}}
+    <div class="exp-card" data-accent="crimson">
+        <div class="exp-card__stripe exp-card__stripe--crimson"></div>
+        <div class="exp-card__body">
 
-        <div class="export-card-inner">
-            {{-- Header --}}
-            <div class="export-card-header">
-                <div class="export-format-pill crimson-pill">
+            <div class="exp-card__top">
+                <div class="exp-format-pill exp-format-pill--crimson">
                     <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M9 11l3 3L22 4"/>
                         <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
                     </svg>
                     PDF
                 </div>
-                <div class="export-meta-dots">
-                    <span></span><span></span><span></span>
-                </div>
+                <div class="exp-card__dots"><span></span><span></span><span></span></div>
             </div>
 
-            {{-- Title --}}
-            <div style="margin-bottom:14px;">
-                <div class="export-title">Evaluations Summary</div>
-                <div class="export-subtitle">Attendance · performance · overall grade · recommendation</div>
+            <div class="exp-card__title-block">
+                <div class="exp-card__title">Evaluations Summary</div>
+                <div class="exp-card__subtitle">Attendance · performance · grade · recommendation</div>
             </div>
 
-            {{-- Data pills --}}
-            <div class="export-pills">
-                <span class="export-pill">{{ $stats['total_evaluations'] }} evaluations</span>
-                <span class="export-pill">Ratings + grades</span>
-                <span class="export-pill">Landscape A4</span>
-                <span class="export-pill">Pass/Fail</span>
+            <div class="exp-pills">
+                <span class="exp-pill">{{ $stats['total_evaluations'] }} evaluations</span>
+                <span class="exp-pill">Ratings + grades</span>
+                <span class="exp-pill">Landscape A4</span>
+                <span class="exp-pill">Pass / Fail</span>
                 @if(request('semester') || request('school_year'))
-                    <span class="export-pill" style="color:var(--crimson);border-color:rgba(140,14,3,0.25);background:rgba(140,14,3,0.07);">
-                        Filtered
-                    </span>
+                    <span class="exp-pill exp-pill--active">Filtered</span>
                 @endif
             </div>
 
-            {{-- Divider --}}
-            <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+            <div class="exp-card__divider"></div>
 
-            {{-- Description --}}
-            <p class="export-desc">
-                A PDF table of all student evaluations including attendance rating, performance rating, overall grade, and pass/fail recommendation. Perfect for end-of-term review.
-            </p>
+            <div class="exp-card__preview">
+                <div class="exp-card__preview-label">// What's included</div>
+                <ul class="exp-card__feature-list">
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Attendance & performance ratings (1–5 scale)
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Color-coded overall grade
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Pass / Fail recommendation & descriptive rating
+                    </li>
+                    <li>
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                        Supervisor name + summary statistics
+                    </li>
+                </ul>
+            </div>
 
-            {{-- Footer --}}
-            <div class="export-card-footer">
-                <div class="export-field-list">
-                    <span class="export-field">Student</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Attendance</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Performance</span>
-                    <span class="export-field-sep">·</span>
-                    <span class="export-field">Grade</span>
+            <div class="exp-card__footer">
+                <div class="exp-field-list">
+                    <span>Student</span><span class="sep">·</span>
+                    <span>Attendance</span><span class="sep">·</span>
+                    <span>Performance</span><span class="sep">·</span>
+                    <span>Grade</span>
                 </div>
-                <a href="{{ route('admin.export.pdf.evaluations', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn crimson-btn">
+                <a href="{{ route('admin.export.pdf.evaluations', array_filter(request()->only(['semester', 'school_year']))) }}"
+                   class="exp-btn exp-btn--crimson">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -308,16 +338,15 @@
         </div>
     </div>
 
-    {{-- ── Excel: Full Report (full-width) ── --}}
-    <div class="export-card export-card-wide" style="grid-column:span 2;" data-accent="teal">
-        <div class="export-card-stripe teal-stripe"></div>
-
-        <div class="export-card-inner" style="display:flex;gap:32px;align-items:flex-start;">
+    {{-- ── Excel: Full Report (full width) ─────────────────────────────────── --}}
+    <div class="exp-card exp-card--wide" data-accent="teal">
+        <div class="exp-card__stripe exp-card__stripe--teal"></div>
+        <div class="exp-card__body exp-card__body--wide">
 
             {{-- Left --}}
-            <div style="flex:1;min-width:0;">
-                <div class="export-card-header" style="margin-bottom:14px;">
-                    <div class="export-format-pill teal-pill">
+            <div class="exp-wide-left">
+                <div class="exp-card__top" style="margin-bottom:16px;">
+                    <div class="exp-format-pill exp-format-pill--teal">
                         <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                             <rect x="3" y="3" width="18" height="18" rx="1"/>
                             <line x1="3" y1="9" x2="21" y2="9"/>
@@ -327,50 +356,48 @@
                         </svg>
                         XLSX
                     </div>
-                    <div class="export-meta-dots">
-                        <span></span><span></span><span></span>
-                    </div>
+                    <div class="exp-card__dots"><span></span><span></span><span></span></div>
                 </div>
 
-                <div class="export-title" style="font-size:17px;">Full OJT Report</div>
-                <div class="export-subtitle" style="margin-bottom:16px;">Complete workbook · 3 sheets · styled headers · auto-sized columns</div>
+                <div class="exp-card__title" style="font-size:18px;">Full OJT Report</div>
+                <div class="exp-card__subtitle" style="margin-bottom:18px;">Complete workbook · 3 sheets · styled headers · auto-sized columns</div>
 
-                <p class="export-desc" style="margin-bottom:18px;max-width:480px;">
-                    Exports a full Excel workbook with three sheets — Students, Evaluations, and Hour Logs — with auto-sized columns and styled headers. Ideal for record-keeping, data analysis, and institutional archiving.
+                <p class="exp-desc" style="max-width:520px;margin-bottom:20px;">
+                    A full Excel workbook with three sheets — Students, Evaluations, and Hour Logs. Headers are styled with your brand color, columns auto-sized, and alternating row shading applied. Ideal for record-keeping, data analysis, and institutional archiving.
                 </p>
 
                 {{-- Sheet breakdown --}}
-                <div class="sheet-breakdown">
-                    <div class="sheet-item">
-                        <div class="sheet-num teal-text">01</div>
+                <div class="exp-sheet-grid">
+                    <div class="exp-sheet-item">
+                        <div class="exp-sheet-num">01</div>
                         <div>
-                            <div class="sheet-name">Students</div>
-                            <div class="sheet-detail">{{ $stats['total_applications'] }} rows · placement + hour data</div>
+                            <div class="exp-sheet-name">Students</div>
+                            <div class="exp-sheet-detail">{{ $stats['total_applications'] }} rows · placement + hour data</div>
                         </div>
                     </div>
-                    <div class="sheet-divider"></div>
-                    <div class="sheet-item">
-                        <div class="sheet-num teal-text">02</div>
+                    <div class="exp-sheet-div"></div>
+                    <div class="exp-sheet-item">
+                        <div class="exp-sheet-num">02</div>
                         <div>
-                            <div class="sheet-name">Evaluations</div>
-                            <div class="sheet-detail">{{ $stats['total_evaluations'] }} rows · grades + ratings</div>
+                            <div class="exp-sheet-name">Evaluations</div>
+                            <div class="exp-sheet-detail">{{ $stats['total_evaluations'] }} rows · grades + ratings</div>
                         </div>
                     </div>
-                    <div class="sheet-divider"></div>
-                    <div class="sheet-item">
-                        <div class="sheet-num teal-text">03</div>
+                    <div class="exp-sheet-div"></div>
+                    <div class="exp-sheet-item">
+                        <div class="exp-sheet-num">03</div>
                         <div>
-                            <div class="sheet-name">Hour Logs</div>
-                            <div class="sheet-detail">All log entries · timestamps</div>
+                            <div class="exp-sheet-name">Hour Logs</div>
+                            <div class="exp-sheet-detail">All entries · timestamps</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Right: Download CTA --}}
-            <div class="excel-cta-block">
-                <div class="excel-icon-wrap">
-                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            {{-- Right CTA --}}
+            <div class="exp-wide-cta">
+                <div class="exp-wide-cta__icon">
+                    <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <rect x="3" y="3" width="18" height="18" rx="2"/>
                         <line x1="3" y1="9" x2="21" y2="9"/>
                         <line x1="3" y1="15" x2="21" y2="15"/>
@@ -378,25 +405,24 @@
                         <line x1="15" y1="3" x2="15" y2="21"/>
                     </svg>
                 </div>
-                <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Format</div>
-                <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--teal-color);margin-bottom:2px;">.xlsx</div>
-                <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">Excel 2007+</div>
+                <div class="exp-wide-cta__format-label">Format</div>
+                <div class="exp-wide-cta__format">.xlsx</div>
+                <div class="exp-wide-cta__compat">Excel 2007+</div>
 
                 @if(request('semester') || request('school_year'))
-                <div style="width:100%;margin-bottom:12px;padding:8px 10px;background:rgba(140,14,3,0.06);
-                            border:1px solid rgba(140,14,3,0.18);border-left:2px solid var(--crimson);">
-                    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
-                                color:var(--crimson);margin-bottom:4px;">Filtered</div>
+                <div class="exp-wide-cta__filter-badge">
+                    <div class="exp-wide-cta__filter-title">Filtered</div>
                     @if(request('semester'))
-                        <div style="font-size:11px;color:var(--text2);">{{ request('semester') }}</div>
+                        <div class="exp-wide-cta__filter-val">{{ request('semester') }}</div>
                     @endif
                     @if(request('school_year'))
-                        <div style="font-size:11px;color:var(--text2);">{{ request('school_year') }}</div>
+                        <div class="exp-wide-cta__filter-val">{{ request('school_year') }}</div>
                     @endif
                 </div>
                 @endif
 
-                <a href="{{ route('admin.export.excel', array_filter(request()->only(['semester', 'school_year']))) }}" class="export-btn teal-btn" style="width:100%;justify-content:center;">
+                <a href="{{ route('admin.export.excel', array_filter(request()->only(['semester', 'school_year']))) }}"
+                   class="exp-btn exp-btn--teal" style="width:100%;justify-content:center;">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
@@ -404,9 +430,7 @@
                     </svg>
                     Download Excel
                 </a>
-                <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">
-                    3 sheets · auto-sized
-                </div>
+                <div class="exp-wide-cta__note">3 sheets · brand-styled headers</div>
             </div>
 
         </div>
@@ -414,318 +438,441 @@
 
 </div>
 
-{{-- EXPORT NOTE --}}
-<div style="margin-top:20px;padding:14px 18px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:flex-start;gap:10px;" class="fade-up fade-up-3">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--muted);flex-shrink:0;margin-top:1px;">
+{{-- ── EXPORT NOTE ─────────────────────────────────────────────────────────── --}}
+<div class="exp-note fade-up fade-up-3">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    <p style="font-size:12px;color:var(--muted);line-height:1.6;">
-        All exports reflect <strong style="color:var(--text2);font-weight:500;">live data</strong> at the time of download.
+    <p>
+        All exports reflect <strong>live data</strong> at the time of download.
         @if(request('semester') || request('school_year'))
             Currently filtered by
-            @if(request('semester'))<strong style="color:var(--text2);font-weight:500;">{{ request('semester') }}</strong>@endif
+            @if(request('semester'))<strong>{{ request('semester') }}</strong>@endif
             @if(request('semester') && request('school_year')) · @endif
-            @if(request('school_year'))<strong style="color:var(--text2);font-weight:500;">{{ request('school_year') }}</strong>@endif.
+            @if(request('school_year'))<strong>{{ request('school_year') }}</strong>@endif.
         @else
             Re-download periodically to keep records current.
         @endif
         Data includes only approved applications unless otherwise noted.
+        PDFs and Excel files are branded with <strong>{{ $brandName }}</strong>.
     </p>
 </div>
 
-{{-- SCOPED STYLES --}}
+@push('styles')
 <style>
-    /* ── Teal color token (not in base layout) ── */
-    :root {
-        --teal-color:  #2dd4bf;
-        --teal-dim:    rgba(45,212,191,0.08);
-        --teal-border: rgba(45,212,191,0.2);
-        --coral-color: #f87171;
-        --coral-dim:   rgba(248,113,113,0.08);
-        --coral-border:rgba(248,113,113,0.2);
-        --muted2:      rgba(171,171,171,0.55);
-    }
-    [data-theme="light"] {
-        --teal-color:  #0f9e8e;
-        --teal-dim:    rgba(15,158,142,0.07);
-        --teal-border: rgba(15,158,142,0.2);
-        --coral-color: #e05252;
-        --coral-dim:   rgba(224,82,82,0.07);
-        --coral-border:rgba(224,82,82,0.2);
-        --muted2:      #6b7280;
-    }
+/* ─────────────────────────────────────────────────────────────
+   Export page — scoped component styles
+   ───────────────────────────────────────────────────────────── */
+:root {
+    --exp-teal:          #2dd4bf;
+    --exp-teal-dim:      rgba(45,212,191,0.08);
+    --exp-teal-border:   rgba(45,212,191,0.2);
+    --exp-coral:         #f87171;
+    --exp-coral-dim:     rgba(248,113,113,0.08);
+    --exp-coral-border:  rgba(248,113,113,0.2);
+}
+[data-theme="light"] {
+    --exp-teal:          #0f9e8e;
+    --exp-teal-dim:      rgba(15,158,142,0.07);
+    --exp-teal-border:   rgba(15,158,142,0.2);
+    --exp-coral:         #e05252;
+    --exp-coral-dim:     rgba(224,82,82,0.07);
+    --exp-coral-border:  rgba(224,82,82,0.2);
+}
 
-    /* ── Page header ── */
-    .export-page-header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        margin-bottom: 28px;
-    }
+/* ── Alert ── */
+.alert-success {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(52,211,153,0.07);
+    border: 1px solid rgba(52,211,153,0.2);
+    border-left: 3px solid #34d399;
+    color: #34d399;
+    padding: 13px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    animation: fadeUp 0.4s cubic-bezier(.22,.61,.36,1) both;
+}
 
-    /* ── Export count badge ── */
-    .export-count-badge {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: var(--muted);
-        border: 1px solid var(--border2);
-        padding: 2px 8px;
-        letter-spacing: 0.05em;
-    }
+/* ── Page header ── */
+.exp-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+.exp-page-header__desc {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 6px;
+    line-height: 1.6;
+    max-width: 520px;
+}
+.exp-timestamp-block {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+}
+.exp-timestamp-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.exp-timestamp-date  { font-size: 14px; font-weight: 600; color: var(--text); }
+.exp-timestamp-time  { font-size: 11px; color: var(--muted); }
 
-    /* ── Export card ── */
-    .export-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        position: relative;
-        overflow: hidden;
-        transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    }
-    .export-card:hover {
-        border-color: var(--border2);
-        transform: translateY(-2px);
-    }
-    [data-theme="light"] .export-card:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-    [data-theme="dark"] .export-card:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-    }
+/* ── Tenant badge ── */
+.exp-tenant-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--crimson);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.exp-tenant-badge__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.exp-tenant-badge__logo {
+    width: 40px; height: 40px;
+    object-fit: contain;
+    border: 1px solid var(--border2);
+    padding: 4px;
+    background: var(--surface2);
+    flex-shrink: 0;
+}
+.exp-tenant-badge__logo-placeholder {
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: var(--crimson-lo);
+    border: 1px solid rgba(140,14,3,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--crimson);
+}
+.exp-tenant-badge__name {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 2px;
+}
+.exp-tenant-badge__sub {
+    font-size: 11px; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+}
+.exp-tenant-badge__features {
+    display: flex; gap: 10px; flex-wrap: wrap;
+}
+.exp-tenant-feature {
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #34d399;
+    padding: 3px 8px;
+    border: 1px solid rgba(52,211,153,0.25);
+    background: rgba(52,211,153,0.06);
+    letter-spacing: 0.04em;
+}
+.exp-tenant-feature svg { stroke: #34d399; flex-shrink: 0; }
 
-    /* Accent stripe */
-    .export-card-stripe {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-    }
-    .coral-stripe   { background: var(--coral-color); }
-    .crimson-stripe { background: var(--crimson); }
-    .teal-stripe    { background: var(--teal-color); }
+/* ── Filter bar ── */
+.exp-filter-bar {
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--crimson);
+}
+.exp-filter-bar__label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+.exp-filter-bar__active-pills { display: flex; gap: 6px; margin-left: auto; }
+.exp-active-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.06em;
+    padding: 2px 8px;
+    color: var(--crimson);
+    border: 1px solid rgba(140,14,3,0.25);
+    background: rgba(140,14,3,0.07);
+}
+.exp-filter-bar__fields {
+    display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+}
+.exp-filter-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+.exp-filter-bar__actions { display: flex; gap: 8px; padding-bottom: 1px; }
 
-    .export-card-inner { padding: 22px 24px; }
+/* ── Section label ── */
+.exp-section-label {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+}
+.exp-section-label span:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap;
+}
+.exp-section-label__line { flex: 1; height: 1px; background: var(--border); }
+.exp-count-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    border: 1px solid var(--border2);
+    padding: 2px 8px; letter-spacing: 0.05em;
+    white-space: nowrap;
+}
 
-    /* Card header row */
-    .export-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 18px;
-    }
+/* ── Grid ── */
+.exp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
 
-    /* Format pill */
-    .export-format-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        font-weight: 500;
-        letter-spacing: 0.12em;
-        padding: 4px 10px;
-        border: 1px solid;
-    }
-    .pdf-pill     { color: var(--coral-color); background: var(--coral-dim); border-color: var(--coral-border); }
-    .crimson-pill { color: var(--crimson);     background: var(--crimson-lo); border-color: rgba(140,14,3,0.25); }
-    .teal-pill    { color: var(--teal-color);  background: var(--teal-dim);   border-color: var(--teal-border); }
+/* ── Card ── */
+.exp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.exp-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+}
+[data-theme="light"] .exp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+[data-theme="dark"]  .exp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
 
-    /* Meta dots */
-    .export-meta-dots { display: flex; gap: 5px; }
-    .export-meta-dots span {
-        width: 5px; height: 5px;
-        background: var(--border2);
-    }
+.exp-card--wide { grid-column: span 2; }
 
-    /* Title / subtitle */
-    .export-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 4px;
-    }
-    .export-subtitle {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        text-transform: lowercase;
-    }
+/* Stripes */
+.exp-card__stripe {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+}
+.exp-card__stripe--coral   { background: var(--exp-coral); }
+.exp-card__stripe--crimson { background: var(--crimson); }
+.exp-card__stripe--teal    { background: var(--exp-teal); }
 
-    /* Pills row */
-    .export-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-    .export-pill {
-        font-size: 11px;
-        padding: 3px 9px;
-        border: 1px solid var(--border2);
-        background: var(--surface2);
-        color: var(--muted2);
-        font-family: 'Barlow Condensed', sans-serif;
-        font-weight: 500;
-        letter-spacing: 0.05em;
-    }
+.exp-card__body { padding: 22px 24px; }
+.exp-card__body--wide { display: flex; gap: 32px; align-items: flex-start; }
 
-    /* Description */
-    .export-desc {
-        font-size: 13px;
-        color: var(--text2);
-        line-height: 1.65;
-    }
-    [data-theme="light"] .export-desc { color: var(--muted2); }
+/* Top row */
+.exp-card__top {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.exp-card__dots { display: flex; gap: 5px; }
+.exp-card__dots span { width: 5px; height: 5px; background: var(--border2); }
 
-    /* Footer row */
-    .export-card-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
+/* Format pills */
+.exp-format-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em;
+    padding: 4px 10px;
+    border: 1px solid;
+}
+.exp-format-pill--coral   { color: var(--exp-coral);   background: var(--exp-coral-dim);   border-color: var(--exp-coral-border); }
+.exp-format-pill--crimson { color: var(--crimson);      background: var(--crimson-lo);       border-color: rgba(140,14,3,0.25); }
+.exp-format-pill--teal    { color: var(--exp-teal);     background: var(--exp-teal-dim);     border-color: var(--exp-teal-border); }
 
-    /* Field list */
-    .export-field-list {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        flex-wrap: wrap;
-    }
-    .export-field {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-    }
-    .export-field-sep { color: var(--border2); font-size: 12px; }
+/* Title block */
+.exp-card__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--text); margin-bottom: 4px;
+}
+.exp-card__title-block { margin-bottom: 14px; }
+.exp-card__subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.06em;
+    color: var(--muted); text-transform: lowercase;
+}
 
-    /* Download buttons */
-    .export-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 9px 18px;
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        text-decoration: none;
-        border: 1px solid;
-        transition: all 0.15s;
-        white-space: nowrap;
-    }
-    .coral-btn {
-        color: var(--coral-color);
-        background: var(--coral-dim);
-        border-color: var(--coral-border);
-    }
-    .coral-btn:hover {
-        background: rgba(248,113,113,0.15);
-        transform: translateY(-1px);
-    }
-    [data-theme="light"] .coral-btn:hover { background: rgba(224,82,82,0.12); }
+/* Pills */
+.exp-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.exp-pill {
+    font-size: 11px; padding: 3px 9px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 500; letter-spacing: 0.04em;
+}
+.exp-pill--active {
+    color: var(--crimson);
+    border-color: rgba(140,14,3,0.25);
+    background: rgba(140,14,3,0.07);
+}
 
-    .crimson-btn {
-        color: #c0392b;
-        background: var(--crimson-lo);
-        border-color: rgba(140,14,3,0.25);
-    }
-    .crimson-btn:hover {
-        background: var(--crimson-md);
-        transform: translateY(-1px);
-    }
+/* Divider */
+.exp-card__divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-    .teal-btn {
-        color: var(--bg);
-        background: var(--teal-color);
-        border-color: var(--teal-color);
-    }
-    .teal-btn:hover {
-        opacity: 0.88;
-        transform: translateY(-1px);
-    }
-    [data-theme="light"] .teal-btn { color: #ffffff; }
+/* Feature list */
+.exp-card__preview { margin-bottom: 16px; }
+.exp-card__preview-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
+}
+.exp-card__feature-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 6px;
+}
+.exp-card__feature-list li {
+    display: flex; align-items: flex-start; gap: 7px;
+    font-size: 12.5px; color: var(--text2); line-height: 1.4;
+}
+.exp-card__feature-list li svg { stroke: #34d399; flex-shrink: 0; margin-top: 2px; }
 
-    /* ── Sheet breakdown (Excel card) ── */
-    .sheet-breakdown {
-        display: flex;
-        align-items: stretch;
-        gap: 0;
-        border: 1px solid var(--border);
-        background: var(--surface2);
-    }
-    .sheet-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 14px 16px;
-        flex: 1;
-    }
-    .sheet-divider {
-        width: 1px;
-        background: var(--border);
-    }
-    .sheet-num {
-        font-family: 'Playfair Display', serif;
-        font-size: 18px;
-        font-weight: 900;
-        line-height: 1;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
-    .teal-text { color: var(--teal-color); }
-    .sheet-name {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text);
-        margin-bottom: 3px;
-    }
-    .sheet-detail {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-    }
+/* Footer */
+.exp-card__footer {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
+    flex-wrap: wrap;
+}
+.exp-field-list {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+}
+.exp-field-list .sep { color: var(--border2); font-size: 12px; }
 
-    /* ── Excel CTA block ── */
-    .excel-cta-block {
-        flex-shrink: 0;
-        width: 160px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        border: 1px solid var(--border);
-        background: var(--surface2);
-        text-align: center;
-    }
-    .excel-icon-wrap {
-        width: 52px;
-        height: 52px;
-        border: 1px solid var(--teal-border);
-        background: var(--teal-dim);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--teal-color);
-        margin-bottom: 14px;
-    }
+/* Buttons */
+.exp-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid;
+    transition: all 0.15s; white-space: nowrap;
+}
+.exp-btn--coral {
+    color: var(--exp-coral);
+    background: var(--exp-coral-dim);
+    border-color: var(--exp-coral-border);
+}
+.exp-btn--coral:hover  { background: rgba(248,113,113,0.15); transform: translateY(-1px); }
+.exp-btn--crimson {
+    color: var(--crimson);
+    background: var(--crimson-lo);
+    border-color: rgba(140,14,3,0.25);
+}
+.exp-btn--crimson:hover { background: var(--crimson-md); transform: translateY(-1px); }
+.exp-btn--teal {
+    color: var(--bg);
+    background: var(--exp-teal);
+    border-color: var(--exp-teal);
+}
+.exp-btn--teal:hover { opacity: 0.88; transform: translateY(-1px); }
+[data-theme="light"] .exp-btn--teal { color: #ffffff; }
 
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-        .export-page-header { flex-direction: column; align-items: flex-start; gap: 6px; }
-        div[style*="grid-column:span 2"] { grid-column: span 1 !important; }
-        .export-card-inner[style*="display:flex;gap:32px"] {
-            flex-direction: column !important;
-        }
-        .excel-cta-block { width: 100% !important; }
-        .sheet-breakdown { flex-direction: column; }
-        .sheet-divider { width: 100%; height: 1px; }
-    }
-    @media (max-width: 680px) {
-        div[style*="grid-template-columns:1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-        }
-        div[style*="grid-column:span 2"] { grid-column: span 1 !important; }
-    }
+/* ── Wide card internals ── */
+.exp-wide-left { flex: 1; min-width: 0; }
+.exp-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+.exp-sheet-grid {
+    display: flex; align-items: stretch;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+}
+.exp-sheet-item {
+    display: flex; align-items: flex-start;
+    gap: 10px; padding: 14px 16px; flex: 1;
+}
+.exp-sheet-div { width: 1px; background: var(--border); }
+.exp-sheet-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 900;
+    color: var(--exp-teal);
+    line-height: 1; flex-shrink: 0; margin-top: 1px;
+}
+.exp-sheet-name {
+    font-size: 13px; font-weight: 500;
+    color: var(--text); margin-bottom: 3px;
+}
+.exp-sheet-detail {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--muted); letter-spacing: 0.04em;
+}
+
+/* CTA block */
+.exp-wide-cta {
+    flex-shrink: 0; width: 168px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    text-align: center;
+}
+.exp-wide-cta__icon {
+    width: 56px; height: 56px;
+    border: 1px solid var(--exp-teal-border);
+    background: var(--exp-teal-dim);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--exp-teal);
+    margin-bottom: 14px;
+}
+.exp-wide-cta__format-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 2px;
+}
+.exp-wide-cta__format {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 900;
+    color: var(--exp-teal); margin-bottom: 2px;
+}
+.exp-wide-cta__compat { font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+.exp-wide-cta__filter-badge {
+    width: 100%; margin-bottom: 12px;
+    padding: 8px 10px;
+    background: rgba(140,14,3,0.06);
+    border: 1px solid rgba(140,14,3,0.18);
+    border-left: 2px solid var(--crimson);
+    text-align: left;
+}
+.exp-wide-cta__filter-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--crimson); margin-bottom: 4px;
+}
+.exp-wide-cta__filter-val { font-size: 11px; color: var(--text2); }
+.exp-wide-cta__note { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
+/* ── Note ── */
+.exp-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-top: 20px; padding: 14px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+}
+.exp-note p { font-size: 12px; line-height: 1.6; margin: 0; }
+.exp-note strong { color: var(--text2); font-weight: 500; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .exp-page-header          { flex-direction: column; }
+    .exp-card--wide           { grid-column: span 1; }
+    .exp-card__body--wide     { flex-direction: column; }
+    .exp-wide-cta             { width: 100% !important; }
+    .exp-sheet-grid           { flex-direction: column; }
+    .exp-sheet-div            { width: 100%; height: 1px; }
+    .exp-tenant-badge         { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 680px) {
+    .exp-grid                 { grid-template-columns: 1fr; }
+    .exp-card--wide           { grid-column: span 1; }
+}
 </style>
+@endpush
 
 @endsection
