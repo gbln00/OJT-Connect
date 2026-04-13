@@ -30,6 +30,7 @@
     ];
     $importUrl = $fontImports[$tFont] ?? null;
     $fontStack = $fontStacks[$tFont] ?? null;
+    
 @endphp
 @if($importUrl ?? false)
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,11 +41,27 @@
 @php $fontStack = null; @endphp
 @endif
 
+
 {{-- Tenant CSS variable override --}}
 @if($tPrimary || $tSecondary || ($fontStack ?? null))
+@php
+    $tPrimary      = $tenantBrandColor ?? null;
+    $tPrimaryLight = $settings['brand_color_light'] ?? $tPrimary;
+    $tSecondary    = $tenantBrandColorSecondary ?? null;
+    $tFont         = $tenantBrandFont ?? 'barlow';
+    $lightBg       = $settings['light_bg_color'] ?? null;
+    $lightText     = $settings['light_text_color'] ?? null;
+    $lightBorder   = $settings['light_border_color'] ?? null;
+    $lightSidebar  = $settings['light_sidebar_color'] ?? null;
+    $lightSurface  = $settings['light_surface_color'] ?? null;
+    $darkText      = $settings['dark_text_color'] ?? null;
+    $darkBorder    = $settings['dark_border_color'] ?? null;
+    $hexToRgb = fn(string $hex): string =>
+        implode(',', array_map('hexdec', str_split(ltrim($hex, '#'), 2)));
+@endphp
+
 <style>
     :root,
-    [data-theme="light"],
     [data-theme="dark"] {
         @if($tPrimary)
         --crimson:    #{{ $tPrimary }};
@@ -53,28 +70,45 @@
         @endif
         @if($tSecondary)
         --night:   #{{ $tSecondary }};
+        --surface: #{{ $tSecondary }};
+        @endif
+        @if($darkText)
+        --text: rgba({{ $hexToRgb($darkText) }}, 0.88);
+        @endif
+        @if($darkBorder)
+        --border:  rgba({{ $hexToRgb($darkBorder) }}, 0.5);
+        --border2: rgba({{ $hexToRgb($darkBorder) }}, 0.8);
         @endif
     }
 
-    {{-- Surface only applies in dark mode --}}
-    @if($tSecondary)
-    [data-theme="dark"] {
-        --surface: #{{ $tSecondary }};
+    [data-theme="light"] {
+        @if($tPrimaryLight)
+        --crimson:    #{{ $tPrimaryLight }};
+        --crimson-lo: rgba({{ $hexToRgb($tPrimaryLight) }}, 0.08);
+        --crimson-md: rgba({{ $hexToRgb($tPrimaryLight) }}, 0.18);
+        @endif
+        @if($lightBg)
+        --bg: #{{ $lightBg }};
+        @endif
+        @if($lightText)
+        --text:  #{{ $lightText }};
+        --text2: rgba({{ $hexToRgb($lightText) }}, 0.65);
+        @endif
+        @if($lightBorder)
+        --border:  rgba({{ $hexToRgb($lightBorder) }}, 0.6);
+        --border2: rgba({{ $hexToRgb($lightBorder) }}, 0.9);
+        @endif
+        @if($lightSurface)
+        --surface: #{{ $lightSurface }};
+        @endif
+        @if($lightSidebar)
+        --surface: #{{ $lightSidebar }};
+        @endif
     }
-    @endif
-    
-    @if($tSecondary)
-    [data-theme="light"] .sidebar {
-        background: color-mix(in srgb, #{{ $tSecondary }} 8%, white);
-        border-right-color: rgba({{ $hexToRgb($tSecondary) }}, 0.15);
-    }
-    @endif
 
-    @if($fontStack ?? null)
-    html, body, .nav-item, .btn, .form-input, .form-select, .form-textarea,
-    .dropdown-item, .sidebar-user-name, .card-action, .activity-text,
-    .topbar-user-name, .qa-label, .stat-label {
-        font-family: {{ $fontStack }} !important;
+    @if($lightSidebar)
+    [data-theme="light"] .sidebar {
+        background: #{{ $lightSidebar }};
     }
     @endif
 </style>
