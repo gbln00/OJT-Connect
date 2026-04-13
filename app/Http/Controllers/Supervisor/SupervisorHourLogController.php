@@ -135,7 +135,8 @@ class SupervisorHourLogController extends Controller
             title:      'Hour Log Approved',
             message:    "Your {$hourLog->session} hour log for {$hourLog->date->format('M d, Y')} has been approved.",
             type:       'success',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $hourLog->student_id
         );
 
         return back()->with('success', ucfirst($hourLog->session) . ' log approved.');
@@ -162,7 +163,8 @@ class SupervisorHourLogController extends Controller
             message:    "Your {$hourLog->session} hour log for {$hourLog->date->format('M d, Y')} was rejected." .
                         ($request->rejection_reason ? " Reason: {$request->rejection_reason}" : ''),
             type:       'warning',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $hourLog->student_id
         );
 
         return back()->with('success', ucfirst($hourLog->session) . ' log rejected.');
@@ -205,7 +207,8 @@ class SupervisorHourLogController extends Controller
                     title:      'Hour Logs Approved',
                     message:    "{$count} pending hour log(s) for {$student->name} have been approved.",
                     type:       'success',
-                    targetRole: 'student_intern'
+                    targetRole: 'student_intern',
+                    userId:     $student->id
                 );
             }
             

@@ -790,7 +790,10 @@
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
                 </svg>
                 Notifications
-                @php $notifCount = \App\Models\TenantNotification::forRole('ojt_coordinator')->unread()->count(); @endphp
+                @php
+                    $notifCount = \App\Models\TenantNotification::forRole('ojt_coordinator')->forUser(auth()->id())->unread()->count();
+                @endphp
+
                 @if($notifCount > 0)
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
@@ -837,10 +840,9 @@
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
 
             <div class="topbar-actions">
-            
-            @php
-                    $tenantUnread = \App\Models\TenantNotification::forRole('ojt_coordinator')->unread()->count();
-                    $tenantNotifs = \App\Models\TenantNotification::forRole('ojt_coordinator')->latest()->take(5)->get();
+                @php
+                    $tenantUnread = \App\Models\TenantNotification::forRole('ojt_coordinator')->forUser(auth()->id())->unread()->count();
+                    $tenantNotifs = \App\Models\TenantNotification::forRole('ojt_coordinator')->forUser(auth()->id())->latest()->take(5)->get();
                 @endphp
 
                 <div style="position:relative;" id="tenant-notif-wrapper">

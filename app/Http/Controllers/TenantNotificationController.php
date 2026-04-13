@@ -7,69 +7,73 @@ use Illuminate\Http\Request;
 
 class TenantNotificationController extends Controller
 {
-    /**
-     * Get the current user's role for scoping queries.
-     */
-    private function role(): string
+    // ── Base query — always scoped to current user ────────────────
+
+    private function myNotifications(): \Illuminate\Database\Eloquent\Builder
     {
-        return auth()->user()->role;
+        return TenantNotification::forRole(auth()->user()->role)
+                                 ->forUser(auth()->id());
     }
+
+    // ── Pages ─────────────────────────────────────────────────────
 
     public function index()
     {
-        $notifications = TenantNotification::forRole($this->role())
-            ->latest()
-            ->paginate(20);
-
-        $unreadCount = TenantNotification::forRole($this->role())
-            ->unread()
-            ->count();
+        $notifications = $this->myNotifications()->latest()->paginate(20);
+        $unreadCount   = $this->myNotifications()->unread()->count();
 
         return view('notifications.index', compact('notifications', 'unreadCount'));
     }
 
+    // ── Actions ───────────────────────────────────────────────────
+
     public function markRead(TenantNotification $notification)
     {
-        // Ensure the notification belongs to this role
-        abort_if($notification->target_role !== $this->role(), 403);
+        $this->authorizeNotification($notification);
 
         $notification->update(['is_read' => true]);
+
         return response()->json(['ok' => true]);
     }
 
     public function markAllRead()
     {
-        TenantNotification::forRole($this->role())
-            ->unread()
-            ->update(['is_read' => true]);
+        $this->myNotifications()->unread()->update(['is_read' => true]);
 
         return back()->with('success', 'All notifications marked as read.');
     }
 
     public function clearRead()
     {
-        TenantNotification::forRole($this->role())
-            ->where('is_read', true)
-            ->delete();
+        $this->myNotifications()->where('is_read', true)->delete();
 
         return back()->with('success', 'Read notifications cleared.');
     }
 
     public function destroy(TenantNotification $notification)
     {
-        abort_if($notification->target_role !== $this->role(), 403);
+        $this->authorizeNotification($notification);
 
         $notification->delete();
+
         return response()->json(['ok' => true]);
     }
 
     public function unreadCount()
     {
         return response()->json([
-            'count' => TenantNotification::forRole($this->role())
-                ->unread()
-                ->count(),
+            'count' => $this->myNotifications()->unread()->count(),
         ]);
     }
-    
+
+    // ── Private helpers ───────────────────────────────────────────
+
+    private function authorizeNotification(TenantNotification $notification): void
+    {
+        abort_if(
+            $notification->user_id     !== auth()->id() ||
+            $notification->target_role !== auth()->user()->role,
+            403
+        );
+    }
 }

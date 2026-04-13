@@ -52,7 +52,8 @@ class SupervisorEvaluationController extends Controller
             title:      'Evaluation Submitted',
             message:    "Your supervisor has submitted your OJT evaluation. Result: " . ucfirst($request->recommendation) . ". Grade: {$request->overall_grade}.",
             type:       $request->recommendation === 'pass' ? 'success' : 'warning',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $application->student_id
         );
 
         // Notify coordinator
@@ -75,7 +76,7 @@ class SupervisorEvaluationController extends Controller
         if ($coordinator) {
             try {
                 Mail::to($coordinator->email)->send(new EvaluationSubmitted($evaluation));
-                \Log::info('EvaluationSubmitted email sent to coordinator: ' . $coordinator->email);
+                    \Log::info('EvaluationSubmitted email sent to coordinator: ' . $coordinator->email);
             } catch (\Exception $e) {
                 \Log::error('EvaluationSubmitted coordinator email failed: ' . $e->getMessage());
             }

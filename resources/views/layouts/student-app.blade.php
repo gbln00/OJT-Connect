@@ -804,7 +804,10 @@
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
                 </svg>
                 Notifications
-                @php $notifCount = \App\Models\TenantNotification::forRole('student_intern')->unread()->count(); @endphp
+                @php
+                    $notifCount = \App\Models\TenantNotification::forRole('student_intern')->forUser(auth()->id())->unread()->count();
+                @endphp
+
                 @if($notifCount > 0)
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
@@ -881,8 +884,8 @@
                 <div class="topbar-divider"></div>
 
                 @php
-                    $tenantUnread = \App\Models\TenantNotification::forRole('student_intern')->unread()->count();
-                    $tenantNotifs = \App\Models\TenantNotification::forRole('student_intern')->latest()->take(5)->get();
+                    $tenantUnread = \App\Models\TenantNotification::forRole('student_intern')->forUser(auth()->id())->unread()->count();
+                    $tenantNotifs = \App\Models\TenantNotification::forRole('student_intern')->forUser(auth()->id())->latest()->take(5)->get();
                 @endphp
 
                 <div style="position:relative;" id="tenant-notif-wrapper">

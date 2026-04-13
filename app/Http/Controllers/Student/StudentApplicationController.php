@@ -86,6 +86,7 @@ class StudentApplicationController extends Controller
             'status'         => 'pending',
         ]);
 
+        // admin: broadcast to all admins
         TenantNotification::notify(
             title:      'New OJT Application',
             message:    auth()->user()->name . " submitted an OJT application for {$application->company->name}.",

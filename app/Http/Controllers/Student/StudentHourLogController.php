@@ -170,21 +170,27 @@ class StudentHourLogController extends Controller
         });
 
         if ($created > 0) {
+
+            $application = $user->activeApplication()->with('company')->first();
+            $supervisor  = \App\Models\User::where('company_id', $application->company_id)
+                                        ->where('role', 'company_supervisor')
+                                        ->first();
+
             TenantNotification::notify(
                 title:      'New Hour Log Submitted',
                 message:    auth()->user()->name . " submitted {$created} hour log(s) for " . $request->date . '.',
                 type:       'info',
-                targetRole: 'company_supervisor'
+                targetRole: 'company_supervisor',
+                userId:     $supervisor?->id
             );
 
-            // Also notify admin and coordinator
             TenantNotification::notify(
                 title:      'New Hour Log Submitted',
                 message:    auth()->user()->name . " submitted {$created} hour log(s) for " . $request->date . '.',
                 type:       'info',
                 targetRole: 'ojt_coordinator'
             );
-        }
+                    }
 
         if ($created === 0) {
             return back()->with('info', 'Hour logs for the selected session(s) already exist for this date.');

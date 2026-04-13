@@ -110,8 +110,8 @@ class StudentWeeklyReportController extends Controller
     public function edit(WeeklyReport $report)
     {
         $user = Auth::user();
-
-        // امنیت: ensure ownership
+        
+        // Ensure the report belongs to the student
         if ($report->student_id !== $user->id) {
             abort(403);
         }

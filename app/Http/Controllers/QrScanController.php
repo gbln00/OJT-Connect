@@ -28,7 +28,6 @@ class QrScanController extends Controller
     {
         $student = Auth::user();
 
-        // 1. Only students can clock in via QR
         if ($student->role !== 'student_intern') {
             return view('qr.result', [
                 'status'  => 'error',
@@ -37,7 +36,6 @@ class QrScanController extends Controller
             ]);
         }
 
-        // 2. Find and validate the QR (identifies the company)
         $qr = QrClockIn::with('company')->where('token', $token)->first();
 
         if (! $qr || ! $qr->isUsable()) {
@@ -48,7 +46,6 @@ class QrScanController extends Controller
             ]);
         }
 
-        // 3. Student must have an approved application at THIS company
         $application = OjtApplication::where('student_id', $student->id)
             ->where('company_id', $qr->company_id)
             ->where('status', 'approved')
@@ -64,11 +61,9 @@ class QrScanController extends Controller
             ]);
         }
 
-        // 4. Determine session from server time
         $session = QrClockIn::currentSession();
         $today   = now()->toDateString();
 
-        // 5. Check for duplicate log for today's session
         $exists = HourLog::where('student_id', $student->id)
             ->where('application_id', $application->id)
             ->whereDate('date', $today)
@@ -86,7 +81,6 @@ class QrScanController extends Controller
             ]);
         }
 
-        // 6. Create the HourLog
         [$timeIn, $timeOut] = $session === 'morning'
             ? ['08:00', '12:00']
             : ['13:00', '17:00'];
@@ -109,12 +103,16 @@ class QrScanController extends Controller
             'status'         => 'pending',
         ]);
 
-        // 7. Notify supervisor and coordinator
+        $supervisor = \App\Models\User::where('company_id', $qr->company_id)
+                                    ->where('role', 'company_supervisor')
+                                    ->first();
+
         TenantNotification::notify(
             title:      'QR Clock-In Recorded',
             message:    "{$student->name} clocked in (" . ($session === 'morning' ? 'AM' : 'PM') . ") via QR on {$today}.",
             type:       'info',
-            targetRole: 'company_supervisor'
+            targetRole: 'company_supervisor',
+            userId:     $supervisor?->id   
         );
 
         TenantNotification::notify(

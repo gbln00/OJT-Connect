@@ -76,7 +76,8 @@ class ApplicationController extends Controller
             title:      'Application Approved',
             message:    "Your OJT application for {$application->company->name} has been approved.",
             type:       'success',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $application->student_id
         );
 
         // Send approval email
@@ -100,7 +101,8 @@ class ApplicationController extends Controller
             title:      'Application Rejected',
             message:    "Your OJT application for {$application->company->name} was rejected. Remarks: {$application->remarks}",
             type:       'warning',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $application->student_id
         );
 
         // Send rejection email

@@ -72,7 +72,8 @@ class WeeklyReportController extends Controller
             message:    "Your Week {$report->week_number} report has been approved." .
                         ($request->feedback ? " Feedback: {$request->feedback}" : ''),
             type:       'success',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $report->student_id   // ← add this
         );
 
         // Send approval email
@@ -102,7 +103,8 @@ class WeeklyReportController extends Controller
             title:      'Weekly Report Returned',
             message:    "Your Week {$report->week_number} report was returned for revision. Feedback: {$request->feedback}",
             type:       'warning',
-            targetRole: 'student_intern'
+            targetRole: 'student_intern',
+            userId:     $report->student_id
         );
 
         return back()->with('success', "Week {$report->week_number} report for {$report->student->name} returned.");
