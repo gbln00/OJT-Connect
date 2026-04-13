@@ -798,6 +798,17 @@
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
             </a>
+
+            <div class="nav-section-label">System & Profile</div>
+
+            <a href="{{ route('coordinator.settings') }}"
+               class="nav-item {{ request()->routeIs('coordinator.settings*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+                </svg>
+                Settings
+            </a>
         
         </nav>
 
@@ -808,16 +819,6 @@
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Coordinator' }}</div>
                     <div class="sidebar-user-role">OJT Coordinator</div>
                 </div>
-                <form method="POST" action="/logout" style="flex-shrink:0;">
-                    @csrf
-                    <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" title="Log out">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                            <polyline points="16,17 21,12 16,7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                    </button>
-                </form>
             </div>
         </div>
     </aside>
@@ -840,6 +841,22 @@
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
 
             <div class="topbar-actions">
+
+                <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+                    <svg id="icon-moon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                    <svg id="icon-sun" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+
+                <div class="topbar-divider"></div>
+
                 @php
                     $tenantUnread = \App\Models\TenantNotification::forRole('ojt_coordinator')->forUser(auth()->id())->unread()->count();
                     $tenantNotifs = \App\Models\TenantNotification::forRole('ojt_coordinator')->forUser(auth()->id())->latest()->take(5)->get();
@@ -945,21 +962,6 @@
 
                 <div class="topbar-divider"></div>
 
-                <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
-                    <svg id="icon-moon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                    </svg>
-                    <svg id="icon-sun" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                </button>
-
-                <div class="topbar-divider"></div>
-
                 <div class="topbar-user" id="topbar-user-btn" onclick="toggleDropdown()">
                     <div class="topbar-user-avatar">
                         {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
@@ -968,12 +970,17 @@
                     <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted);">
                         <polyline points="6,9 12,15 18,9"/>
                     </svg>
+                    
 
                     <div class="user-dropdown" id="user-dropdown">
-                        <div style="padding:10px 14px 8px;">
-                            <div style="font-size:13px;font-weight:600;color:var(--text);">{{ auth()->user()->name }}</div>
-                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px;">OJT Coordinator</div>
-                        </div>
+                        <a href="{{ route('coordinator.settings') }}" class="dropdown-item">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Profile & Settings
+                        </a>
+                        
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="/logout" id="logout-form">@csrf</form>
                         <a href="#" class="dropdown-item danger"
@@ -985,6 +992,7 @@
                         </a>
                     </div>
                 </div>
+                
             </div>
         </header>
 

@@ -42,6 +42,7 @@ use App\Http\Controllers\Coordinator\CoordinatorReportController;
 use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
 use App\Http\Controllers\Coordinator\CoordinatorPlanController;
 use App\Http\Controllers\Coordinator\CoordinatorCompanyController;
+use App\Http\Controllers\Coordinator\CoordinatorSettingsController;
 
 // Student
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -275,6 +276,13 @@ Route::middleware([
         Route::post('/notifications/clear-read',            [TenantNotificationController::class, 'clearRead'])->name('notifications.clearRead');
         Route::post('/notifications/{notification}/read',   [TenantNotificationController::class, 'markRead'])->name('notifications.markRead');
         Route::delete('/notifications/{notification}',      [TenantNotificationController::class, 'destroy'])->name('notifications.destroy');
+
+        // ── Profile & password settings ─────────────────────────────────────
+        Route::get('/settings',              [CoordinatorSettingsController::class, 'index'])->name('settings');
+        Route::patch('/settings/profile',    [CoordinatorSettingsController::class, 'updateProfile'])->name('settings.update.profile');
+        Route::patch('/settings/password',   [CoordinatorSettingsController::class, 'updatePassword'])->name('settings.update.password');
+        Route::post('/settings/avatar',      [CoordinatorSettingsController::class, 'updateAvatar'])->name('settings.avatar');
+        Route::delete('/settings/avatar',    [CoordinatorSettingsController::class, 'deleteAvatar'])->name('settings.avatar.delete');
 
         // ── Standard plan and above ─────────────────────────────────────
 
