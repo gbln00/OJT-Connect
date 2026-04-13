@@ -21,7 +21,7 @@ class ApplyTenantCustomization
         // ── Logo URL ──────────────────────────────────────────────────────────
         $logoPath = $settings['brand_logo'] ?? null;
         $logoUrl  = $logoPath
-            ? asset('tenant' . tenant()->getTenantKey() . '/' . $logoPath)
+            ? tenant_asset($logoPath)
             : null;
 
         // ── Primary color (drives --crimson) ──────────────────────────────────

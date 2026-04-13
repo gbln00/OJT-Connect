@@ -32,7 +32,7 @@ class TenantCustomizationController extends Controller
 
         $logoPath      = $settings['brand_logo'] ?? null;
         $tenantLogoUrl = $logoPath
-            ? asset('tenant' . tenancy()->tenant->id . '/' . $logoPath)
+            ? tenant_asset($logoPath)
             : null;
 
         return view('admin.customization.index', compact('settings', 'fontOptions', 'tenantLogoUrl'));
@@ -40,6 +40,14 @@ class TenantCustomizationController extends Controller
 
     public function update(Request $request)
     {
+        // if ($request->hasFile('brand_logo')) {
+        //     dd([
+        //         'original_name' => $request->file('brand_logo')->getClientOriginalName(),
+        //         'is_valid'      => $request->file('brand_logo')->isValid(),
+        //         'disk_root'     => Storage::disk('public')->path(''),
+        //         'tenant_id'     => tenancy()->tenant->id,
+        //     ]);
+        // }
         $validated = $request->validate([
             'brand_name'             => ['nullable', 'string', 'max:120'],
             'brand_color'            => ['nullable', 'string', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
