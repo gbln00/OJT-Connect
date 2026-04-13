@@ -43,7 +43,9 @@
 {{-- Tenant CSS variable override --}}
 @if($tPrimary || $tSecondary || ($fontStack ?? null))
 <style>
-    :root {
+    :root,
+    [data-theme="light"],
+    [data-theme="dark"] {
         @if($tPrimary)
         --crimson:    #{{ $tPrimary }};
         --crimson-lo: rgba({{ $hexToRgb($tPrimary) }}, 0.08);
@@ -51,9 +53,23 @@
         @endif
         @if($tSecondary)
         --night:   #{{ $tSecondary }};
-        --surface: #{{ $tSecondary }};
         @endif
     }
+
+    {{-- Surface only applies in dark mode --}}
+    @if($tSecondary)
+    [data-theme="dark"] {
+        --surface: #{{ $tSecondary }};
+    }
+    @endif
+    
+    @if($tSecondary)
+    [data-theme="light"] .sidebar {
+        background: color-mix(in srgb, #{{ $tSecondary }} 8%, white);
+        border-right-color: rgba({{ $hexToRgb($tSecondary) }}, 0.15);
+    }
+    @endif
+
     @if($fontStack ?? null)
     html, body, .nav-item, .btn, .form-input, .form-select, .form-textarea,
     .dropdown-item, .sidebar-user-name, .card-action, .activity-text,

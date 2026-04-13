@@ -6,7 +6,15 @@
 
     The $dashboardRoute variable sets where the brand link points.
 --}}
-
+<style>
+      .brand-text {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 16px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--text);
+        }
+        .brand-text em { color: var(--muted); font-style: normal; }
+</style>
 <a href="{{ route($dashboardRoute ?? 'admin.dashboard') }}" class="sidebar-brand">
     @if(!empty($tenantLogoUrl))
         <img src="{{ $tenantLogoUrl }}" alt="Logo"
