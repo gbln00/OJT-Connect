@@ -22,32 +22,44 @@
 </div>
 @endif
 
-{{-- ── Tab Navigation ───────────────────────────────────────────────────────────────── --}}
-<div style="display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--border);">
+{{-- ── Tab Navigation ──────────────────────────────────────────────────────────── --}}
+<div style="display:flex;gap:0;margin-bottom:24px;background:var(--surface);border:1px solid var(--border2);overflow:hidden;">
     @foreach([
-        ['branding',      '🎨', 'Branding'],
-        ['colors',        '🌈', 'Colors'],
-        ['typography',    '✏️',  'Typography'],
-        ['email',         '📧', 'Email'],
-        ['ojt',           '⚙️',  'OJT Settings'],
-        ['announcement',  '📢', 'Announcement'],
-    ] as [$tab, $icon, $label])
+        ['branding',     'Branding',      '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>'],
+        ['colors',       'Colors',        '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 010 20" fill="currentColor" opacity="0.15"/><circle cx="12" cy="8"  r="2" fill="currentColor"/><circle cx="16" cy="13" r="2" fill="currentColor"/><circle cx="8"  cy="13" r="2" fill="currentColor"/>'],
+        ['typography',   'Typography',    '<polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>'],
+        ['email',        'Email',         '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'],
+        ['ojt',          'OJT Settings',  '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>'],
+        ['announcement', 'Announcement',  '<path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/><path d="M21 10H3V3l9 4 9-4v7z"/>'],
+    ] as [$tab, $label, $svgPath])
     <button type="button" onclick="switchTab('{{ $tab }}')" id="tab-btn-{{ $tab }}"
             class="tab-btn {{ $tab === 'branding' ? 'active' : '' }}">
-        {{ $icon }} {{ $label }}
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="flex-shrink:0;">
+            {!! $svgPath !!}
+        </svg>
+        <span>{{ $label }}</span>
     </button>
     @endforeach
 </div>
 
-{{-- ── Live Preview Strip ───────────────────────────────────────────────────────────── --}}
+{{-- ── Live Preview Strip ──────────────────────────────────────────────────────── --}}
 <div id="preview-strip" style="border:1px solid var(--border2);margin-bottom:24px;overflow:hidden;">
   <div style="padding:8px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">// Live Preview</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Live Preview
+    </span>
     <div style="display:flex;gap:4px;">
         <button type="button" onclick="setPreviewMode('dark')" id="prev-dark-btn"
-                style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--crimson);background:var(--crimson);color:#fff;cursor:pointer;">Dark</button>
+                style="display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--crimson);background:var(--crimson);color:#fff;cursor:pointer;">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            Dark
+        </button>
         <button type="button" onclick="setPreviewMode('light')" id="prev-light-btn"
-                style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;">Light</button>
+                style="display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Light
+        </button>
     </div>
   </div>
 
@@ -113,15 +125,18 @@
   </div>
 </div>
 
-{{-- ── MAIN FORM ────────────────────────────────────────────────────────────────────── --}}
+{{-- ── MAIN FORM ──────────────────────────────────────────────────────────────── --}}
 <form method="POST" action="{{ route('admin.customization.update') }}" enctype="multipart/form-data">
 @csrf
 
-{{-- ═══ TAB: BRANDING ═══════════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: BRANDING ══════════════════════════════════════════════════════════ --}}
 <div id="tab-branding" class="tab-panel">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">🎨 Branding</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Branding
+    </span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">Navbar · Sidebar · PDFs · Emails</span>
   </div>
   <div style="padding:20px;display:grid;gap:20px;">
@@ -170,42 +185,51 @@
     <div style="padding-top:4px;border-top:1px solid var(--border);">
       <button type="button" class="btn btn-ghost btn-sm" style="color:var(--muted);"
           onclick="if(confirm('Reset all branding to system defaults?')) document.getElementById('reset-branding-form').submit()">
-        ↺ Reset all branding to defaults
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Reset all branding to defaults
       </button>
     </div>
   </div>
 </div>
 </div>
 
-{{-- ═══ TAB: COLORS ═════════════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: COLORS ════════════════════════════════════════════════════════════ --}}
 <div id="tab-colors" class="tab-panel" style="display:none;">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">🌈 Color Scheme</span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Separate controls for dark & light mode</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="2" fill="currentColor"/><circle cx="16" cy="13" r="2" fill="currentColor"/><circle cx="8" cy="13" r="2" fill="currentColor"/></svg>
+        Color Scheme
+    </span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Separate controls for dark &amp; light mode</span>
   </div>
   <div style="padding:20px;display:grid;gap:24px;">
 
-    {{-- Mode switcher inside colors tab --}}
-    <div style="display:flex;gap:2px;border-bottom:1px solid var(--border);padding-bottom:16px;">
+    {{-- Mode switcher --}}
+    <div style="display:flex;gap:0;border:1px solid var(--border2);overflow:hidden;width:fit-content;">
         <button type="button" onclick="switchColorMode('dark')" id="color-mode-dark"
-                style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:6px 16px;border:1px solid var(--crimson);background:var(--crimson);color:#fff;cursor:pointer;">
-            🌙 Dark Mode Colors
+                style="display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 16px;border:none;border-right:1px solid var(--border2);background:var(--crimson);color:#fff;cursor:pointer;">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            Dark Mode
         </button>
         <button type="button" onclick="switchColorMode('light')" id="color-mode-light"
-                style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:6px 16px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;">
-            ☀️ Light Mode Colors
+                style="display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 16px;border:none;background:transparent;color:var(--muted);cursor:pointer;">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Light Mode
         </button>
     </div>
 
     {{-- DARK MODE COLORS --}}
     <div id="color-panel-dark">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">// Dark Mode</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+            <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            Dark Mode Colors
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
             <div>
                 <label class="form-label">Primary / Accent Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— buttons · active nav · crimson accents</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — buttons · active nav</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPicker" value="#{{ old('brand_color', $settings['brand_color'] ?? '8C0E03') }}"
@@ -219,7 +243,7 @@
 
             <div>
                 <label class="form-label">Dark Surface / Sidebar Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— sidebar bg · hero section · dark cards</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — sidebar bg · hero section</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerSecondary" value="#{{ old('brand_color_secondary', $settings['brand_color_secondary'] ?? '0E1126') }}"
@@ -233,7 +257,7 @@
 
             <div>
                 <label class="form-label">Dark Text Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— primary body text in dark mode</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — primary body text</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerDarkText" value="#{{ old('dark_text_color', $settings['dark_text_color'] ?? 'E0E0E0') }}"
@@ -246,7 +270,7 @@
 
             <div>
                 <label class="form-label">Dark Border / Line Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— card borders · dividers · outlines</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — card borders · dividers</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerDarkBorder" value="#{{ old('dark_border_color', $settings['dark_border_color'] ?? '252A3D') }}"
@@ -262,12 +286,15 @@
 
     {{-- LIGHT MODE COLORS --}}
     <div id="color-panel-light" style="display:none;">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">// Light Mode</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+            <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Light Mode Colors
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
             <div>
                 <label class="form-label">Primary / Accent Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— buttons · active nav · accents in light mode</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — buttons · active nav in light mode</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLight" value="#{{ old('brand_color_light', $settings['brand_color_light'] ?? '8C0E03') }}"
@@ -276,12 +303,12 @@
                            value="#{{ old('brand_color_light', $settings['brand_color_light'] ?? '8C0E03') }}"
                            placeholder="#8C0E03" maxlength="7">
                 </div>
-                <div class="form-hint">Often the same as the dark primary, or a slightly lighter shade.</div>
+                <div class="form-hint">Often the same as the dark primary, or slightly lighter.</div>
             </div>
 
             <div>
                 <label class="form-label">Light Page Background
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— outermost page background</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — outermost bg</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLightBg" value="#{{ old('light_bg_color', $settings['light_bg_color'] ?? 'F5F4F0') }}"
@@ -294,7 +321,7 @@
 
             <div>
                 <label class="form-label">Light Text Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— primary body text in light mode</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — body text</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLightText" value="#{{ old('light_text_color', $settings['light_text_color'] ?? '0D0D0D') }}"
@@ -307,7 +334,7 @@
 
             <div>
                 <label class="form-label">Light Border / Line Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— card borders · dividers in light mode</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — card borders</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLightBorder" value="#{{ old('light_border_color', $settings['light_border_color'] ?? 'D1D5DB') }}"
@@ -320,7 +347,7 @@
 
             <div>
                 <label class="form-label">Light Sidebar Color
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— sidebar background in light mode</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — sidebar background</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLightSidebar" value="#{{ old('light_sidebar_color', $settings['light_sidebar_color'] ?? 'FFFFFF') }}"
@@ -333,7 +360,7 @@
 
             <div>
                 <label class="form-label">Light Card Surface
-                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;">— card & panel backgrounds</span>
+                    <span style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;"> — card &amp; panel backgrounds</span>
                 </label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="colorPickerLightSurface" value="#{{ old('light_surface_color', $settings['light_surface_color'] ?? 'FFFFFF') }}"
@@ -349,7 +376,7 @@
 
     {{-- Preset swatches --}}
     <div style="border-top:1px solid var(--border);padding-top:16px;">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">// Quick Presets</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Quick Presets</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
             @foreach([
                 ['Crimson',   '8C0E03', '0E1126'],
@@ -379,21 +406,25 @@
 </div>
 </div>
 
-{{-- ═══ TAB: TYPOGRAPHY ═════════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: TYPOGRAPHY ════════════════════════════════════════════════════════ --}}
 <div id="tab-typography" class="tab-panel" style="display:none;">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">✏️ Typography</span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Font size · weight · spacing</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        Typography
+    </span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Font size · density · heading style</span>
   </div>
   <div style="padding:20px;display:grid;gap:20px;">
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
         <div>
             <label class="form-label">Base Font Size</label>
+            {{-- FIX: values stored as plain digits (no "px"), so match that --}}
             <select name="font_size_base" class="form-input" style="cursor:pointer;">
-                @foreach(['13px'=>'Small (13px)', '14px'=>'Default (14px)', '15px'=>'Medium (15px)', '16px'=>'Large (16px)'] as $val => $label)
-                <option value="{{ $val }}" {{ ($settings['font_size_base'] ?? '14px') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @foreach(['13' => 'Small (13px)', '14' => 'Default (14px)', '15' => 'Medium (15px)', '16' => 'Large (16px)'] as $val => $label)
+                <option value="{{ $val }}" {{ ($settings['font_size_base'] ?? '14') == $val ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
             <div class="form-hint">Body text size across all pages.</div>
@@ -401,7 +432,7 @@
         <div>
             <label class="form-label">UI Density</label>
             <select name="ui_density" class="form-input" style="cursor:pointer;">
-                @foreach(['compact'=>'Compact', 'default'=>'Default', 'comfortable'=>'Comfortable'] as $val => $label)
+                @foreach(['compact' => 'Compact', 'default' => 'Default', 'comfortable' => 'Comfortable'] as $val => $label)
                 <option value="{{ $val }}" {{ ($settings['ui_density'] ?? 'default') === $val ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
@@ -409,8 +440,9 @@
         </div>
         <div>
             <label class="form-label">Heading Style</label>
+            {{-- FIX: values now match what validation allows and what inject reads --}}
             <select name="heading_style" class="form-input" style="cursor:pointer;">
-                @foreach(['serif'=>'Playfair (serif)', 'condensed'=>'Condensed', 'mono'=>'Monospace'] as $val => $label)
+                @foreach(['serif' => 'Playfair (serif)', 'condensed' => 'Condensed', 'mono' => 'Monospace'] as $val => $label)
                 <option value="{{ $val }}" {{ ($settings['heading_style'] ?? 'serif') === $val ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
@@ -431,11 +463,14 @@
 </div>
 </div>
 
-{{-- ═══ TAB: EMAIL ══════════════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: EMAIL ═════════════════════════════════════════════════════════════ --}}
 <div id="tab-email" class="tab-panel" style="display:none;">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">📧 Email Templates</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Templates
+    </span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">All outgoing tenant emails</span>
   </div>
   <div style="padding:20px;display:grid;gap:18px;">
@@ -453,13 +488,6 @@
              placeholder="e.g. — OJT Office, BukSU College of Technology" maxlength="200">
       <div class="form-hint">Replaces "— The OJTConnect Team" in all email footers.</div>
     </div>
-    <div>
-      <label class="form-label">Reply-To Email Address</label>
-      <input type="email" name="email_reply_to" class="form-input"
-             value="{{ old('email_reply_to', $settings['email_reply_to'] ?? '') }}"
-             placeholder="e.g. ojt-office@yourinstitution.edu.ph">
-      <div class="form-hint">Students and supervisors replying to system emails will reach this address.</div>
-    </div>
 
     {{-- Email preview --}}
     <div style="border:1px solid var(--border2);overflow:hidden;">
@@ -471,7 +499,7 @@
         {{ $settings['email_greeting'] ?? '' }}
       </div>
       <div style="padding:14px 20px;font-size:13px;color:#333740;background:#fff;">
-        Hello <strong>Student Name</strong>, your OJT application has been approved. You may now start logging your daily hours.
+        Hello <strong>Student Name</strong>, your OJT application has been approved.
       </div>
       <div id="ep-footer" style="padding:12px 20px;text-align:center;background:#0E1126;">
         <div style="font-size:12px;color:#ABABAB;margin-bottom:4px;">Need help? <span style="color:#fff;">support@ojtconnect.com</span></div>
@@ -482,11 +510,14 @@
 </div>
 </div>
 
-{{-- ═══ TAB: OJT SETTINGS ═══════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: OJT SETTINGS ══════════════════════════════════════════════════════ --}}
 <div id="tab-ojt" class="tab-panel" style="display:none;">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">⚙️ OJT Settings</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        OJT Settings
+    </span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Tenant-wide defaults</span>
   </div>
   <div style="padding:20px;display:grid;gap:20px;">
@@ -508,25 +539,25 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
         <div>
-          <label class="form-label">Default Session: Morning Start</label>
+          <label class="form-label">Morning Session Start</label>
           <input type="time" name="session_morning_start" class="form-input"
                  value="{{ old('session_morning_start', $settings['session_morning_start'] ?? '08:00') }}">
           <div class="form-hint">Pre-filled default for AM time-in in the log form.</div>
         </div>
         <div>
-          <label class="form-label">Default Session: Morning End</label>
+          <label class="form-label">Morning Session End</label>
           <input type="time" name="session_morning_end" class="form-input"
                  value="{{ old('session_morning_end', $settings['session_morning_end'] ?? '12:00') }}">
         </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
         <div>
-          <label class="form-label">Default Session: Afternoon Start</label>
+          <label class="form-label">Afternoon Session Start</label>
           <input type="time" name="session_afternoon_start" class="form-input"
                  value="{{ old('session_afternoon_start', $settings['session_afternoon_start'] ?? '13:00') }}">
         </div>
         <div>
-          <label class="form-label">Default Session: Afternoon End</label>
+          <label class="form-label">Afternoon Session End</label>
           <input type="time" name="session_afternoon_end" class="form-input"
                  value="{{ old('session_afternoon_end', $settings['session_afternoon_end'] ?? '17:00') }}">
         </div>
@@ -557,11 +588,14 @@
 </div>
 </div>
 
-{{-- ═══ TAB: ANNOUNCEMENT ════════════════════════════════════════════════════════════ --}}
+{{-- ═══ TAB: ANNOUNCEMENT ══════════════════════════════════════════════════════ --}}
 <div id="tab-announcement" class="tab-panel" style="display:none;">
 <div class="card" style="margin-bottom:20px;">
   <div class="card-header">
-    <span class="card-title">📢 Announcement Banner</span>
+    <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/><path d="M21 10H3V3l9 4 9-4v7z"/></svg>
+        Announcement Banner
+    </span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Shown to all roles when active</span>
   </div>
   <div style="padding:20px;display:grid;gap:16px;">
@@ -572,14 +606,6 @@
              placeholder="e.g. Submit your weekly report by Friday 5 PM." maxlength="300">
       <div class="form-hint">Dismissible banner shown to all tenant users on every page.</div>
     </div>
-    <div>
-      <label class="form-label">Banner Type</label>
-      <select name="announcement_type" class="form-input" style="cursor:pointer;">
-        @foreach(['info'=>'Info (blue)', 'warning'=>'Warning (amber)', 'success'=>'Success (teal)', 'danger'=>'Danger (crimson)'] as $val => $label)
-        <option value="{{ $val }}" {{ ($settings['announcement_type'] ?? 'info') === $val ? 'selected' : '' }}>{{ $label }}</option>
-        @endforeach
-      </select>
-    </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <input type="hidden" name="announcement_active" value="0">
       <input type="checkbox" name="announcement_active" value="1" id="ann_active"
@@ -588,14 +614,17 @@
       <label for="ann_active" class="form-label" style="margin:0;cursor:pointer;">Show banner to all users now</label>
     </div>
     <div id="banner-preview" style="{{ empty($settings['announcement_text'] ?? '') ? 'display:none;' : '' }}background:rgba(140,14,3,0.08);border:1px solid rgba(140,14,3,0.25);border-left:3px solid var(--crimson);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <span id="banner-preview-text" style="font-size:13px;color:var(--text);">📢 {{ $settings['announcement_text'] ?? '' }}</span>
+      <span id="banner-preview-text" style="font-size:13px;color:var(--text);">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px;"><path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/><path d="M21 10H3V3l9 4 9-4v7z"/></svg>
+        {{ $settings['announcement_text'] ?? '' }}
+      </span>
       <span style="color:var(--muted);font-size:16px;cursor:default;">✕</span>
     </div>
   </div>
 </div>
 </div>
 
-{{-- ── Save Button ──────────────────────────────────────────────────────────────── --}}
+{{-- ── Save Button ──────────────────────────────────────────────────────────── --}}
 <div style="display:flex;gap:10px;align-items:center;padding:20px 0;border-top:1px solid var(--border);margin-top:8px;">
   <button type="submit" class="btn btn-primary">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -620,15 +649,53 @@
 
 @push('styles')
 <style>
+/* ── Tab navigation ────────────────────────────────────────────── */
 .tab-btn {
-    font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
-    padding:8px 16px;border:none;border-bottom:2px solid transparent;
-    background:transparent;color:var(--muted);cursor:pointer;
-    transition:color 0.15s,border-color 0.15s;
-    white-space:nowrap;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 18px;
+    border: none;
+    border-right: 1px solid var(--border);
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-bottom-color 0.15s;
+    white-space: nowrap;
+    position: relative;
 }
-.tab-btn:hover { color:var(--text2); }
-.tab-btn.active { color:var(--crimson);border-bottom-color:var(--crimson); }
+.tab-btn:last-child { border-right: none; }
+.tab-btn:hover {
+    color: var(--text2);
+    background: var(--surface2);
+}
+.tab-btn.active {
+    color: var(--crimson);
+    background: var(--crimson-lo);
+    border-bottom-color: var(--crimson);
+    font-weight: 600;
+}
+.tab-btn.active svg {
+    stroke: var(--crimson);
+}
+/* Active indicator dot */
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--crimson);
+    border-radius: 50%;
+    display: none; /* handled by border-bottom */
+}
 </style>
 @endpush
 
@@ -649,7 +716,7 @@ function syncPicker(pickerId, hexId, onUpdate) {
     });
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────────────
+// ── Tab switching ─────────────────────────────────────────────────────────
 function switchTab(tab) {
     document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -657,179 +724,138 @@ function switchTab(tab) {
     document.getElementById('tab-btn-' + tab).classList.add('active');
 }
 
-// ── Preview mode toggle ────────────────────────────────────────────────────────────
+// ── Preview mode toggle ───────────────────────────────────────────────────
 function setPreviewMode(mode) {
     const isDark = mode === 'dark';
     document.getElementById('prev-dark').style.display  = isDark ? 'block' : 'none';
     document.getElementById('prev-light').style.display = isDark ? 'none' : 'block';
-    document.getElementById('prev-dark-btn').style.background  = isDark ? 'var(--crimson)' : 'transparent';
-    document.getElementById('prev-dark-btn').style.color       = isDark ? '#fff' : 'var(--muted)';
-    document.getElementById('prev-dark-btn').style.borderColor = isDark ? 'var(--crimson)' : 'var(--border2)';
-    document.getElementById('prev-light-btn').style.background  = isDark ? 'transparent' : 'var(--crimson)';
-    document.getElementById('prev-light-btn').style.color       = isDark ? 'var(--muted)' : '#fff';
-    document.getElementById('prev-light-btn').style.borderColor = isDark ? 'var(--border2)' : 'var(--crimson)';
+    const darkBtn  = document.getElementById('prev-dark-btn');
+    const lightBtn = document.getElementById('prev-light-btn');
+    darkBtn.style.background  = isDark ? 'var(--crimson)' : 'transparent';
+    darkBtn.style.color       = isDark ? '#fff' : 'var(--muted)';
+    darkBtn.style.borderColor = isDark ? 'var(--crimson)' : 'var(--border2)';
+    lightBtn.style.background  = isDark ? 'transparent' : 'var(--crimson)';
+    lightBtn.style.color       = isDark ? 'var(--muted)' : '#fff';
+    lightBtn.style.borderColor = isDark ? 'var(--border2)' : 'var(--crimson)';
 }
 
-// ── Color mode tab inside Colors panel ────────────────────────────────────────────
+// ── Color mode tab inside Colors panel ───────────────────────────────────
 function switchColorMode(mode) {
     const isDark = mode === 'dark';
     document.getElementById('color-panel-dark').style.display  = isDark ? 'block' : 'none';
     document.getElementById('color-panel-light').style.display = isDark ? 'none' : 'block';
-    document.getElementById('color-mode-dark').style.background  = isDark ? 'var(--crimson)' : 'transparent';
-    document.getElementById('color-mode-dark').style.color       = isDark ? '#fff' : 'var(--muted)';
-    document.getElementById('color-mode-dark').style.borderColor = isDark ? 'var(--crimson)' : 'var(--border2)';
-    document.getElementById('color-mode-light').style.background  = isDark ? 'transparent' : 'var(--crimson)';
-    document.getElementById('color-mode-light').style.color       = isDark ? 'var(--muted)' : '#fff';
-    document.getElementById('color-mode-light').style.borderColor = isDark ? 'var(--border2)' : 'var(--crimson)';
+    const darkBtn  = document.getElementById('color-mode-dark');
+    const lightBtn = document.getElementById('color-mode-light');
+    darkBtn.style.background  = isDark ? 'var(--crimson)' : 'transparent';
+    darkBtn.style.color       = isDark ? '#fff' : 'var(--muted)';
+    lightBtn.style.background  = isDark ? 'transparent' : 'var(--crimson)';
+    lightBtn.style.color       = isDark ? 'var(--muted)' : '#fff';
 }
 
-// ── Preset swatches ────────────────────────────────────────────────────────────────
+// ── Preset swatches ───────────────────────────────────────────────────────
 function applyPreset(primary, secondary) {
-    ['colorPicker','colorHex'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = primary;
-    });
-    ['colorPickerSecondary','colorHexSecondary'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = secondary;
-    });
+    ['colorPicker','colorHex'].forEach(id => { const el = document.getElementById(id); if (el) el.value = primary; });
+    ['colorPickerSecondary','colorHexSecondary'].forEach(id => { const el = document.getElementById(id); if (el) el.value = secondary; });
     updatePrimaryPreview(primary);
     updateSecondaryPreview(secondary);
-    // Also switch to branding tab and show live preview
     switchTab('colors');
 }
 
-// ── Primary color live update ──────────────────────────────────────────────────────
+// ── Primary color live update ─────────────────────────────────────────────
 function updatePrimaryPreview(hex) {
     const rgb = hexToRgb(hex);
-    // Dark preview
-    const nb = document.getElementById('preview-navbar');
-    if (nb) nb.style.borderBottomColor = hex;
-    const pb = document.getElementById('preview-btn');
-    if (pb) pb.style.background = hex;
-    const badge = document.getElementById('preview-badge');
-    if (badge) { badge.style.color = hex; badge.style.borderColor = hex+'55'; badge.style.background = hex+'15'; }
-    const nd = document.getElementById('preview-name-display');
-    if (nd) nd.style.color = hex;
-    const ll = document.getElementById('preview-logo-letter');
-    if (ll) ll.style.color = hex;
-    const lw = document.getElementById('preview-logo-wrap');
-    if (lw) { lw.style.borderColor = hex+'99'; lw.style.background = hex+'1a'; }
-    const pp = document.getElementById('preview-progress-dark');
-    if (pp) pp.style.background = hex;
-    // Light preview
-    const nbl = document.getElementById('preview-navbar-light');
-    if (nbl) nbl.style.borderBottomColor = hex;
-    const pbl = document.getElementById('preview-btn-light');
-    if (pbl) pbl.style.background = hex;
-    const badgel = document.getElementById('preview-badge-light');
-    if (badgel) { badgel.style.color = hex; badgel.style.borderColor = hex+'44'; badgel.style.background = hex+'12'; }
-    const ndl = document.getElementById('preview-name-display-light');
-    if (ndl) ndl.style.color = hex;
-    const lll = document.getElementById('preview-logo-letter-light');
-    if (lll) lll.style.color = hex;
-    const lwl = document.getElementById('preview-logo-wrap-light');
-    if (lwl) { lwl.style.borderColor = hex+'66'; lwl.style.background = hex+'10'; }
-    const ppl = document.getElementById('preview-progress-light');
-    if (ppl) ppl.style.background = hex;
-    // Email
-    const eph = document.getElementById('ep-header');
-    if (eph) eph.style.background = hex;
-    const epg = document.getElementById('ep-greeting');
-    if (epg) epg.style.borderLeftColor = hex;
-    // Banner
+    const ids = {
+        'preview-navbar':      el => el.style.borderBottomColor = hex,
+        'preview-btn':         el => el.style.background = hex,
+        'preview-badge':       el => { el.style.color = hex; el.style.borderColor = hex+'55'; el.style.background = hex+'15'; },
+        'preview-name-display':el => el.style.color = hex,
+        'preview-logo-letter': el => el.style.color = hex,
+        'preview-logo-wrap':   el => { el.style.borderColor = hex+'99'; el.style.background = hex+'1a'; },
+        'preview-progress-dark':el => el.style.background = hex,
+        'preview-navbar-light':el => el.style.borderBottomColor = hex,
+        'preview-btn-light':   el => el.style.background = hex,
+        'preview-badge-light': el => { el.style.color = hex; el.style.borderColor = hex+'44'; el.style.background = hex+'12'; },
+        'preview-name-display-light':el => el.style.color = hex,
+        'preview-logo-letter-light':el => el.style.color = hex,
+        'preview-logo-wrap-light':el => { el.style.borderColor = hex+'66'; el.style.background = hex+'10'; },
+        'preview-progress-light':el => el.style.background = hex,
+        'ep-header':  el => el.style.background = hex,
+        'ep-greeting':el => el.style.borderLeftColor = hex,
+    };
+    Object.entries(ids).forEach(([id, fn]) => { const el = document.getElementById(id); if (el) fn(el); });
     const bann = document.getElementById('banner-preview');
-    if (bann) { bann.style.background = 'rgba('+rgb+',0.08)'; bann.style.borderColor = 'rgba('+rgb+',0.25)'; bann.style.borderLeftColor = hex; }
-    // Apply to live CSS vars
+    if (bann) {
+        bann.style.background   = 'rgba('+rgb+',0.08)';
+        bann.style.borderColor  = 'rgba('+rgb+',0.25)';
+        bann.style.borderLeftColor = hex;
+    }
     document.documentElement.style.setProperty('--crimson', hex);
     document.documentElement.style.setProperty('--crimson-lo', 'rgba('+rgb+',0.08)');
     document.documentElement.style.setProperty('--crimson-md', 'rgba('+rgb+',0.18)');
 }
 
 function updateSecondaryPreview(hex) {
-    const nb = document.getElementById('preview-navbar');
-    if (nb) nb.style.background = hex;
-    const ph = document.getElementById('preview-hero');
-    if (ph) ph.style.background = hex;
-    const epf = document.getElementById('ep-footer');
-    if (epf) epf.style.background = hex;
+    const nb = document.getElementById('preview-navbar');  if (nb) nb.style.background = hex;
+    const ph = document.getElementById('preview-hero');    if (ph) ph.style.background = hex;
+    const ef = document.getElementById('ep-footer');       if (ef) ef.style.background = hex;
 }
+function updateLightBgPreview(hex)      { const el = document.getElementById('preview-hero-light');   if (el) el.style.background = hex; }
+function updateLightSidebarPreview(hex) { const el = document.getElementById('preview-navbar-light'); if (el) el.style.background = hex; }
+function updateLightTextPreview(hex)    { const el = document.getElementById('preview-light-text');   if (el) el.style.color = hex; }
 
-function updateLightBgPreview(hex) {
-    const ph = document.getElementById('preview-hero-light');
-    if (ph) ph.style.background = hex;
-}
-
-function updateLightSidebarPreview(hex) {
-    const nb = document.getElementById('preview-navbar-light');
-    if (nb) nb.style.background = hex;
-}
-
-function updateLightSurfacePreview(hex) {
-    // Simulate card bg change in light preview
-}
-
-function updateLightTextPreview(hex) {
-    const el = document.getElementById('preview-light-text');
-    if (el) el.style.color = hex;
-}
-
-// ── Wire up all pickers ────────────────────────────────────────────────────────────
+// ── Wire up all pickers ───────────────────────────────────────────────────
 syncPicker('colorPicker',            'colorHex',             updatePrimaryPreview);
 syncPicker('colorPickerSecondary',   'colorHexSecondary',    updateSecondaryPreview);
-syncPicker('colorPickerDarkText',    'colorHexDarkText',     hex => { document.getElementById('preview-dark-text') && (document.getElementById('preview-dark-text').style.color = hex); });
-syncPicker('colorPickerDarkBorder',  'colorHexDarkBorder',   hex => {});
-syncPicker('colorPickerLight',       'colorHexLight',        hex => {
-    // Light primary updates the same preview elements as dark primary when in light preview mode
-    const pbl = document.getElementById('preview-btn-light');
-    if (pbl) pbl.style.background = hex;
-});
+syncPicker('colorPickerDarkText',    'colorHexDarkText',     hex => { const el = document.getElementById('preview-dark-text'); if (el) el.style.color = hex; });
+syncPicker('colorPickerDarkBorder',  'colorHexDarkBorder',   () => {});
+syncPicker('colorPickerLight',       'colorHexLight',        hex => { const el = document.getElementById('preview-btn-light'); if (el) el.style.background = hex; });
 syncPicker('colorPickerLightBg',     'colorHexLightBg',      updateLightBgPreview);
 syncPicker('colorPickerLightText',   'colorHexLightText',    updateLightTextPreview);
-syncPicker('colorPickerLightBorder', 'colorHexLightBorder',  hex => {});
+syncPicker('colorPickerLightBorder', 'colorHexLightBorder',  () => {});
 syncPicker('colorPickerLightSidebar','colorHexLightSidebar', updateLightSidebarPreview);
-syncPicker('colorPickerLightSurface','colorHexLightSurface', updateLightSurfacePreview);
+syncPicker('colorPickerLightSurface','colorHexLightSurface', () => {});
 
-// ── Brand name ─────────────────────────────────────────────────────────────────────
-document.getElementById('brandNameInput').addEventListener('input', function() {
+// ── Brand name ────────────────────────────────────────────────────────────
+document.getElementById('brandNameInput')?.addEventListener('input', function() {
     const val = this.value.trim() || 'OJTConnect';
     ['preview-brand-name','preview-brand-name-light','preview-name-display','preview-name-display-light','ep-name']
         .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = val; });
 });
 
-// ── Logo preview ───────────────────────────────────────────────────────────────────
-document.getElementById('logoInput').addEventListener('change', function() {
+// ── Logo preview ──────────────────────────────────────────────────────────
+document.getElementById('logoInput')?.addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = e => {
-        document.getElementById('preview-logo-img').src = e.target.result;
-        document.getElementById('preview-logo-img').style.display = 'block';
-        document.getElementById('preview-logo-wrap').style.display = 'none';
+        const img = document.getElementById('preview-logo-img');
+        if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        const wrap = document.getElementById('preview-logo-wrap');
+        if (wrap) wrap.style.display = 'none';
     };
     reader.readAsDataURL(file);
 });
 
-// ── Email previews ─────────────────────────────────────────────────────────────────
-document.getElementById('greetingInput').addEventListener('input', function() {
+// ── Email previews ────────────────────────────────────────────────────────
+document.getElementById('greetingInput')?.addEventListener('input', function() {
     const el = document.getElementById('ep-greeting');
     if (el) { el.textContent = this.value; el.style.display = this.value.trim() ? 'block' : 'none'; }
 });
-document.getElementById('signatureInput').addEventListener('input', function() {
+document.getElementById('signatureInput')?.addEventListener('input', function() {
     const el = document.getElementById('ep-sig');
     if (el) el.textContent = this.value.trim() || '— The OJTConnect Team';
 });
 
-// ── Announcement preview ───────────────────────────────────────────────────────────
-document.getElementById('announcementInput').addEventListener('input', function() {
+// ── Announcement preview ──────────────────────────────────────────────────
+document.getElementById('announcementInput')?.addEventListener('input', function() {
     const banner = document.getElementById('banner-preview');
     const text   = document.getElementById('banner-preview-text');
-    if (text)   text.textContent = '📢 ' + this.value;
+    if (text)   text.childNodes[text.childNodes.length - 1].textContent = ' ' + this.value;
     if (banner) banner.style.display = this.value.trim() ? 'flex' : 'none';
 });
 
-// ── Font preview ───────────────────────────────────────────────────────────────────
-document.getElementById('fontSelect').addEventListener('change', function() {
+// ── Font preview ──────────────────────────────────────────────────────────
+document.getElementById('fontSelect')?.addEventListener('change', function() {
     const fontName = this.value.charAt(0).toUpperCase() + this.value.slice(1);
     ['preview-brand-name','preview-name-display'].forEach(id => {
         const el = document.getElementById(id);

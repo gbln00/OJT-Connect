@@ -732,19 +732,6 @@
 
     @include('layouts.partials.tenant_inject')
  
-        {{-- ── Tenant primary color override (Premium only) ────────── --}}
-       @if(!empty($tenantBrandColor))
-        <style>
-            :root,
-            [data-theme="light"],
-            [data-theme="dark"] {
-                --crimson:    #{{ $tenantBrandColor }};
-                --crimson-lo: rgba({{ implode(',', sscanf($tenantBrandColor, '%02x%02x%02x')) }}, 0.08);
-                --crimson-md: rgba({{ implode(',', sscanf($tenantBrandColor, '%02x%02x%02x')) }}, 0.18);
-            }
-        </style>
-        @endif
-
 </head>
 <body>
 
