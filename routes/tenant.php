@@ -332,6 +332,8 @@ Route::middleware([
         Route::get('/profile/settings',    [SupervisorSettingsController::class, 'edit'])->name('profile.settings');
         Route::patch('/settings/profile',  [SupervisorSettingsController::class, 'updateProfile'])->name('settings.update.profile');
         Route::patch('/settings/password', [SupervisorSettingsController::class, 'updatePassword'])->name('settings.update.password');
+        Route::post('/settings/avatar',      [SupervisorSettingsController::class, 'updateAvatar'])->name('settings.avatar');
+        Route::delete('/settings/avatar',    [SupervisorSettingsController::class, 'deleteAvatar'])->name('settings.avatar.delete');
 
         // ── Notifications ─────────────────────────────────────────────
         Route::get('/notifications',                              [TenantNotificationController::class, 'index'])->name('notifications.index');
