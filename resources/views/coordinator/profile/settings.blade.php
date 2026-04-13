@@ -18,10 +18,12 @@
     <div style="position:relative;flex-shrink:0;" id="avatar-wrapper">
         @if(auth()->user()->avatar)
             <img src="{{ Storage::url(auth()->user()->avatar) }}"
-                 alt="Avatar"
-                 id="avatar-preview"
-                 style="width:72px;height:72px;object-fit:cover;
-                        border:2px solid rgba(140,14,3,0.45);display:block;">
+                alt="Avatar"
+                id="avatar-preview"
+                style="width:72px;height:72px;object-fit:cover;
+                        border:2px solid rgba(140,14,3,0.45);display:block;"
+                onerror="this.style.display='none';
+                        document.getElementById('avatar-initials').style.display='flex';">
         @else
             <div id="avatar-initials"
                  style="width:72px;height:72px;flex-shrink:0;
@@ -90,7 +92,7 @@
 <div id="avatar-pending-bar"
      style="display:none;background:var(--gold-dim);border:1px solid var(--gold-border);
             padding:12px 16px;margin-bottom:16px;
-            display:none;align-items:center;gap:12px;" class="fade-up">
+            align-items:center;gap:12px;" class="fade-up">
     <svg width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>

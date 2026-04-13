@@ -814,10 +814,14 @@
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}</div>
-                <div style="flex:1;min-width:0;">
-                    <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Coordinator' }}</div>
-                    <div class="sidebar-user-role">OJT Coordinator</div>
+                <div class="sidebar-avatar" style="padding:0;overflow:hidden;">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                            alt="avatar"
+                            style="width:100%;height:100%;object-fit:cover;">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
+                    @endif
                 </div>
             </div>
         </div>
@@ -963,13 +967,15 @@
                 <div class="topbar-divider"></div>
 
                 <div class="topbar-user" id="topbar-user-btn" onclick="toggleDropdown()">
-                    <div class="topbar-user-avatar">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
+                    <div class="topbar-user-avatar" style="padding:0;overflow:hidden;">
+                        @if(auth()->user()->avatar)
+                            <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                                alt="avatar"
+                                style="width:100%;height:100%;object-fit:cover;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
+                        @endif
                     </div>
-                    <span class="topbar-user-name">{{ explode(' ', auth()->user()->name ?? 'Coordinator')[0] }}</span>
-                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted);">
-                        <polyline points="6,9 12,15 18,9"/>
-                    </svg>
                     
 
                     <div class="user-dropdown" id="user-dropdown">
