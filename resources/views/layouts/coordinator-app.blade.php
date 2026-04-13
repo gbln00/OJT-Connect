@@ -814,14 +814,18 @@
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="sidebar-avatar" style="padding:0;overflow:hidden;">
-                    @if(auth()->user()->avatar)
-                        <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                <div class="sidebar-avatar">
+                      @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar_url }}"
                             alt="avatar"
                             style="width:100%;height:100%;object-fit:cover;">
                     @else
                         {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
                     @endif
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Coordinator' }}</div>
+                    <div class="sidebar-user-role">OJT Coordinator</div>
                 </div>
             </div>
         </div>
@@ -968,14 +972,14 @@
 
                 <div class="topbar-user" id="topbar-user-btn" onclick="toggleDropdown()">
                     <div class="topbar-user-avatar" style="padding:0;overflow:hidden;">
-                        @if(auth()->user()->avatar)
-                            <img src="{{ Storage::url(auth()->user()->avatar) }}"
-                                alt="avatar"
-                                style="width:100%;height:100%;object-fit:cover;">
-                        @else
-                            {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
-                        @endif
-                    </div>
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar_url }}"
+                            alt="avatar"
+                            style="width:100%;height:100%;object-fit:cover;">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name ?? 'C', 0, 2)) }}
+                    @endif
+                </div>
                     
 
                     <div class="user-dropdown" id="user-dropdown">

@@ -120,6 +120,23 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Company::class);
     }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (!$this->avatar) return null;
+
+        // tenancy() helper gives you the current tenant
+        $tenantId = tenancy()->tenant?->getTenantKey();
+
+        if ($tenantId) {
+            // Matches the symlink created by CreateTenantStorageLink
+            return request()->getSchemeAndHttpHost() 
+                . '/tenant' . $tenantId 
+                . '/' . $this->avatar;
+        }
+
+        return Storage::disk('public')->url($this->avatar);
+    }
     
 
 }

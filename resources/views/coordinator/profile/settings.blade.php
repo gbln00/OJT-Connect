@@ -17,7 +17,7 @@
     {{-- AVATAR --}}
     <div style="position:relative;flex-shrink:0;" id="avatar-wrapper">
         @if(auth()->user()->avatar)
-            <img src="{{ Storage::url(auth()->user()->avatar) }}"
+            <img src="{{ auth()->user()->avatar_url }}"
                 alt="Avatar"
                 id="avatar-preview"
                 style="width:72px;height:72px;object-fit:cover;
@@ -264,7 +264,7 @@
         {{-- Current avatar preview --}}
         <div style="position:relative;flex-shrink:0;">
             @if(auth()->user()->avatar)
-                <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                <img src="{{ auth()->user()->avatar_url }}"
                      alt="Current avatar"
                      style="width:80px;height:80px;object-fit:cover;
                             border:1px solid rgba(140,14,3,0.35);">
