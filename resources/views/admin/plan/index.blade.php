@@ -17,7 +17,7 @@ $promos     = $plan ? $plan->activePromotions()->get() : collect();
 $expiresAt    = $tenant?->plan_expires_at;
 $inGrace      = method_exists($tenant, 'inGracePeriod') ? $tenant->inGracePeriod() : false;
 $isExpired    = method_exists($tenant, 'subscriptionExpired') ? $tenant->subscriptionExpired() : false;
-$daysUntil    = method_exists($tenant, 'daysUntilExpiry') ? $tenant->daysUntilExpiry() : null;
+$daysUntil    = $tenant->days_until_expiry;
 $graceEndAt   = $expiresAt ? $expiresAt->copy()->addDays(7) : null;
 $graceDaysLeft= $graceEndAt ? (int) now()->diffInDays($graceEndAt, false) : null;
 

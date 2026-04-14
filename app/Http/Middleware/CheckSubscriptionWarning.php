@@ -19,7 +19,7 @@ class CheckSubscriptionWarning
 
         if ($tenant && $tenant->plan_expires_at) {
             $inGrace   = $tenant->inGracePeriod();
-            $daysUntil = $tenant->daysUntilExpiry();
+            $daysUntil = $tenant->days_until_expiry;
             $expiresAt = $tenant->plan_expires_at;
             $graceEnd  = $expiresAt->copy()->addDays(7);
 
