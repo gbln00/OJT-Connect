@@ -208,14 +208,12 @@
             position: absolute; left: 0; top: 4px; bottom: 4px;
             width: 2px; background: var(--crimson);
         }
-
         .nav-badge {
             margin-left: auto;
             background: var(--crimson); color: #fff;
             font-family: 'DM Mono', monospace;
             font-size: 10px; padding: 1px 6px;
-            border-radius: 0;
-            line-height: 1.5;
+            border-radius: 0; line-height: 1.5;
         }
 
         .sidebar-footer {
@@ -235,6 +233,7 @@
             display: flex; align-items: center; justify-content: center;
             font-family: 'Playfair Display', serif;
             font-size: 12px; font-weight: 700; color: var(--crimson);
+            overflow: hidden;
         }
         .sidebar-user-name {
             font-size: 13px; font-weight: 500; color: var(--text);
@@ -256,9 +255,8 @@
         .role-pill-dot { width: 5px; height: 5px; background: var(--crimson); flex-shrink: 0; }
         .role-pill-text {
             font-family: 'DM Mono', monospace;
-            font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--crimson);
-            opacity: 0.7;
-            
+            font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--crimson); opacity: 0.7;
         }
 
         /* ═══════════════════════════════════════════════
@@ -305,8 +303,7 @@
             display: flex; align-items: center; gap: 7px;
             padding: 5px 10px; cursor: pointer;
             border: 1px solid transparent;
-            position: relative;
-            transition: all 0.15s;
+            position: relative; transition: all 0.15s;
         }
         .topbar-user:hover { border-color: var(--border2); background: var(--surface); }
         .topbar-user-avatar {
@@ -316,6 +313,7 @@
             display: flex; align-items: center; justify-content: center;
             font-family: 'Playfair Display', serif;
             font-size: 11px; font-weight: 700; color: var(--crimson);
+            overflow: hidden;
         }
         .topbar-user-name { font-size: 13px; font-weight: 500; color: var(--text); }
 
@@ -333,8 +331,7 @@
             display: flex; align-items: center; gap: 8px;
             padding: 9px 14px;
             font-size: 13px; color: var(--text2);
-            text-decoration: none; cursor: pointer;
-            transition: all 0.12s;
+            text-decoration: none; cursor: pointer; transition: all 0.12s;
         }
         .dropdown-item:hover { background: var(--surface2); color: var(--text); }
         .dropdown-item.danger { color: var(--crimson); }
@@ -349,26 +346,16 @@
         /* ═══════════════════════════════════════════════
            CARDS
         ═══════════════════════════════════════════════ */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
+        .card { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
         .card-header {
-            padding: 16px 20px 14px;
-            border-bottom: 1px solid var(--border);
+            padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
         }
-        .card-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 13.5px; font-weight: 700; color: var(--text);
-        }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 13.5px; font-weight: 700; color: var(--text); }
         .card-action {
             font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 12px; font-weight: 600;
-            color: var(--crimson); text-decoration: none;
-            letter-spacing: 0.08em; text-transform: uppercase;
-            transition: opacity 0.2s;
+            font-size: 12px; font-weight: 600; color: var(--crimson); text-decoration: none;
+            letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.2s;
         }
         .card-action:hover { opacity: 0.7; }
 
@@ -377,70 +364,35 @@
         ═══════════════════════════════════════════════ */
         .stats-grid { display: grid; gap: 12px; margin-bottom: 24px; }
         .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 18px 20px;
-            transition: border-color 0.2s, transform 0.2s;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 18px 20px; transition: border-color 0.2s, transform 0.2s;
             cursor: default; position: relative; overflow: hidden;
         }
         .stat-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
             background: var(--crimson); transform: scaleX(0); transform-origin: left;
             transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
         }
         .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
         .stat-card:hover::before { transform: scaleX(1); }
-
         .stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .stat-icon {
-            width: 36px; height: 36px;
-            border: 1px solid;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .stat-icon.crimson { border-color: rgba(140,14,3,0.35);    background: rgba(140,14,3,0.08);    color: var(--crimson); }
-        .stat-icon.steel   { border-color: rgba(171,171,171,0.2);  background: rgba(171,171,171,0.06); color: var(--ash); }
-        .stat-icon.night   { border-color: rgba(14,17,38,0.5);     background: rgba(14,17,38,0.2);     color: #60A5FA; }
-        .stat-icon.gold    { border-color: var(--gold-border);     background: var(--gold-dim);         color: var(--gold-color); }
-        .stat-icon.teal    { border-color: var(--teal-border);     background: var(--teal-dim);         color: var(--teal-color); }
-        .stat-icon.blue    { border-color: var(--blue-border);     background: var(--blue-dim);         color: var(--blue-color); }
-        .stat-icon.coral   { border-color: var(--coral-border);    background: var(--coral-dim);        color: var(--coral-color); }
-
-        [data-theme="light"] .stat-icon.crimson { border-color: rgba(140,14,3,0.25); }
-        [data-theme="light"] .stat-icon.steel   { color: #333740; }
-        [data-theme="light"] .stat-icon.night   { color: var(--blue-color); border-color: var(--blue-border); background: var(--blue-dim); }
-
-        .stat-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 9px; color: var(--muted);
-            letter-spacing: 0.15em; text-transform: uppercase;
-            border: 1px solid var(--border2); padding: 2px 7px;
-        }
-        .stat-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px; font-weight: 900; color: var(--text);
-            line-height: 1; margin-bottom: 4px;
-        }
-        .stat-label {
-            font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            color: var(--muted);
-        }
+        .stat-icon { width: 36px; height: 36px; border: 1px solid; display: flex; align-items: center; justify-content: center; }
+        .stat-icon.crimson { border-color: rgba(140,14,3,0.35);   background: rgba(140,14,3,0.08);    color: var(--crimson); }
+        .stat-icon.steel   { border-color: rgba(171,171,171,0.2); background: rgba(171,171,171,0.06); color: var(--ash); }
+        .stat-icon.gold    { border-color: var(--gold-border);    background: var(--gold-dim);         color: var(--gold-color); }
+        .stat-icon.teal    { border-color: var(--teal-border);    background: var(--teal-dim);         color: var(--teal-color); }
+        .stat-icon.blue    { border-color: var(--blue-border);    background: var(--blue-dim);         color: var(--blue-color); }
+        .stat-icon.coral   { border-color: var(--coral-border);   background: var(--coral-dim);        color: var(--coral-color); }
+        .stat-tag { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid var(--border2); padding: 2px 7px; }
+        .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--text); line-height: 1; margin-bottom: 4px; }
+        .stat-label { font-family: '{{ $cssFontName }} Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
         /* ═══════════════════════════════════════════════
            TABLE
         ═══════════════════════════════════════════════ */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        thead th {
-            padding: 10px 16px;
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; font-weight: 500;
-            color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
-            text-align: left; border-bottom: 1px solid var(--border);
-            background: var(--surface2);
-        }
+        thead th { padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: left; border-bottom: 1px solid var(--border); background: var(--surface2); }
         tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: var(--surface2); }
@@ -449,132 +401,63 @@
         /* ═══════════════════════════════════════════════
            BADGES
         ═══════════════════════════════════════════════ */
-        .role-badge {
-            display: inline-flex; align-items: center;
-            padding: 2px 8px;
-            font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: 0.08em; text-transform: uppercase;
-        }
+        .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; font-family: '{{ $cssFontName }} Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
         .role-badge.admin       { background: rgba(140,14,3,0.1);   color: #c0392b; border: 1px solid rgba(140,14,3,0.25); }
         .role-badge.coordinator { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
         .role-badge.supervisor  { background: rgba(96,165,250,0.08); color: #60a5fa; border: 1px solid rgba(96,165,250,0.2); }
         .role-badge.student     { background: rgba(171,171,171,0.06);color: var(--ash); border: 1px solid var(--border2); }
 
-        [data-theme="light"] .role-badge.admin       { background: rgba(140,14,3,0.08); color: #8C0E03; }
-        [data-theme="light"] .role-badge.coordinator { background: rgba(16,155,96,0.08); color: #0f9660; }
-        [data-theme="light"] .role-badge.supervisor  { background: rgba(29,78,216,0.08); color: #1d4ed8; }
-        [data-theme="light"] .role-badge.student     { background: rgba(51,55,64,0.07); color: #333740; }
-
-        .status-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
-        .status-dot::before { content: ''; width: 6px; height: 6px; background: currentColor; }
-        .status-dot.active   { color: #34d399; }
-        .status-dot.inactive { color: var(--muted); }
-
-        /* Status pill */
-        .status-pill {
-            display: inline-flex; align-items: center; padding: 3px 9px;
-            font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: 0.07em; text-transform: uppercase;
-        }
+        .status-pill { display: inline-flex; align-items: center; padding: 3px 9px; font-family: '{{ $cssFontName }} Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; }
         .status-pill.gold    { background: var(--gold-dim);   color: var(--gold-color); border:1px solid var(--gold-border); }
         .status-pill.green   { background: rgba(52,211,153,0.08); color: #34d399; border:1px solid rgba(52,211,153,0.2); }
         .status-pill.crimson { background: rgba(140,14,3,0.1);    color: #c0392b; border:1px solid rgba(140,14,3,0.2); }
         .status-pill.blue    { background: var(--blue-dim);   color: var(--blue-color); border:1px solid var(--blue-border); }
         .status-pill.steel   { background: rgba(171,171,171,0.07);color: var(--ash); border:1px solid var(--border2); }
 
-        [data-theme="light"] .status-pill.green   { color: #0f9660; background: rgba(16,155,96,0.08); border-color: rgba(16,155,96,0.2); }
-        [data-theme="light"] .status-pill.crimson { color: #8C0E03; }
-
         /* ═══════════════════════════════════════════════
            BUTTONS
         ═══════════════════════════════════════════════ */
-        .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 8px 16px; cursor: pointer;
-            font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 12px; font-weight: 600;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            border: 1px solid; text-decoration: none;
-            transition: all 0.15s;
-        }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; cursor: pointer; font-family: '{{ $cssFontName }} Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid; text-decoration: none; transition: all 0.15s; }
         .btn-primary { background: var(--crimson); color: rgba(255,255,255,0.92); border-color: var(--crimson); }
         .btn-primary:hover { background: #a81004; border-color: #a81004; transform: translateY(-1px); }
         .btn-ghost  { background: transparent; color: var(--text2); border-color: var(--border2); }
-        .btn-ghost:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
+        .btn-ghost:hover { background: var(--surface2); color: var(--text); }
         .btn-sm { padding: 5px 10px; font-size: 11px; }
         .btn-danger { background: transparent; color: #c0392b; border-color: rgba(140,14,3,0.3); }
         .btn-danger:hover { background: rgba(140,14,3,0.08); }
-        .btn-approve { background: transparent; color: #34d399; border-color: rgba(52,211,153,0.25); }
-        .btn-approve:hover { background: rgba(52,211,153,0.06); }
 
         /* ═══════════════════════════════════════════════
            FORMS
         ═══════════════════════════════════════════════ */
-        .form-section-divider {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 16px;
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 9px 12px;
+            background: var(--surface2); border: 1px solid var(--border2);
+            color: var(--text); font-size: 13px; font-family: '{{ $cssFontName }}', sans-serif;
+            outline: none; border-radius: 0; transition: border-color 0.15s;
         }
-        .form-section-divider::before { content: ''; width: 20px; height: 2px; background: var(--crimson); flex-shrink: 0; }
-        .form-section-divider::after  { content: ''; flex: 1; height: 1px; background: var(--border); }
-        .form-section-divider span {
-            font-family: '{{ $cssFontName }} Condensed', sans-serif;
-            font-size: 10px; font-weight: 600;
-            letter-spacing: 0.22em; text-transform: uppercase;
-            color: var(--muted);
-        }
-        .form-input {
-            width: 100%;
-            padding: 10px 14px;
-            background: var(--surface2);
-            border: 1px solid var(--border2);
-            color: var(--text);
-            font-size: 13px;
-            font-family: '{{ $cssFontName }}', sans-serif;
-            outline: none;
-            transition: border-color 0.15s;
-            box-sizing: border-box;
-            border-radius: 0;
-        }
-        .form-input:focus { border-color: var(--crimson); }
-        .form-input.is-invalid { border-color: var(--crimson); }
-        .form-select {
-            width: 100%; padding: 10px 14px;
-            background: var(--surface2);
-            border: 1px solid var(--border2);
-            color: var(--text); font-size: 13px;
-            font-family: '{{ $cssFontName }}', sans-serif;
-            outline: none; cursor: pointer;
-            transition: border-color 0.15s;
-            box-sizing: border-box; border-radius: 0;
-        }
-        .form-select:focus { border-color: var(--crimson); }
-        .form-label {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 0.12em;
-            text-transform: uppercase; color: var(--muted);
-            margin-bottom: 6px;
-        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--crimson); }
+        .form-label { display: block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
         .form-hint  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; }
         .form-error { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--crimson); margin-top: 4px; letter-spacing: 0.04em; }
+
+        /* ═══════════════════════════════════════════════
+           PROGRESS BAR
+        ═══════════════════════════════════════════════ */
+        .progress-track { height: 6px; background: var(--border2); overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.4s; background: var(--crimson); }
+        .progress-fill.green { background: #34d399; }
+        .progress-fill.blue  { background: #60a5fa; }
+        .progress-fill.gold  { background: var(--gold-color); }
+        .progress-fill.teal  { background: var(--teal-color); }
 
         /* ═══════════════════════════════════════════════
            ACTIVITY / FEED
         ═══════════════════════════════════════════════ */
         .activity-list { padding: 4px 0; }
-        .activity-item {
-            display: flex; gap: 12px; padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.12s;
-        }
+        .activity-item { display: flex; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--border); transition: background 0.12s; }
         .activity-item:last-child { border-bottom: none; }
         .activity-item:hover { background: var(--surface2); }
-        .activity-dot {
-            width: 7px; height: 7px; flex-shrink: 0;
-            margin-top: 5px;
-        }
+        .activity-dot { width: 7px; height: 7px; flex-shrink: 0; margin-top: 5px; }
         .activity-dot.crimson { background: var(--crimson); }
         .activity-dot.green   { background: #34d399; }
         .activity-dot.blue    { background: #60a5fa; }
@@ -588,60 +471,24 @@
            GREETING
         ═══════════════════════════════════════════════ */
         .greeting { margin-bottom: 28px; }
-        .greeting-sub {
-            font-family: 'DM Mono', monospace;
-            font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--muted); margin-bottom: 6px;
-        }
-        .greeting-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(22px, 3vw, 30px); font-weight: 900;
-            color: var(--text); line-height: 1.1;
-        }
+        .greeting-sub { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .greeting-title { font-family: 'Playfair Display', serif; font-size: clamp(22px, 3vw, 30px); font-weight: 900; color: var(--text); line-height: 1.1; }
         .greeting-title span { color: var(--crimson); font-style: italic; }
 
         /* ═══════════════════════════════════════════════
            PAGINATION
         ═══════════════════════════════════════════════ */
-        .pagination {
-            padding: 12px 18px;
-            border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .pagination { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .pagination-info { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.05em; }
-        .page-link {
-            display: inline-flex; align-items: center;
-            padding: 5px 10px;
-            border: 1px solid var(--border2);
-            font-family: 'DM Mono', monospace;
-            font-size: 11px; color: var(--text2);
-            text-decoration: none;
-            transition: all 0.12s;
-        }
+        .page-link { display: inline-flex; align-items: center; padding: 5px 10px; border: 1px solid var(--border2); font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); text-decoration: none; transition: all 0.12s; }
         .page-link:hover { background: var(--surface2); color: var(--text); }
         .page-link.disabled { color: var(--muted); pointer-events: none; border-color: var(--border); }
-
-        /* ═══════════════════════════════════════════════
-           PROGRESS BAR
-        ═══════════════════════════════════════════════ */
-        .progress-track { height: 6px; background: var(--border2); overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.4s; background: var(--crimson); }
-        .progress-fill.green { background: #34d399; }
-        .progress-fill.blue  { background: #60a5fa; }
-        .progress-fill.gold  { background: var(--gold-color); }
-        .progress-fill.teal  { background: var(--teal-color); }
 
         /* ═══════════════════════════════════════════════
            QUICK ACTIONS
         ═══════════════════════════════════════════════ */
         .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px; }
-        .qa-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 8px; padding: 16px 10px;
-            background: var(--surface2); border: 1px solid var(--border);
-            cursor: pointer; text-decoration: none; text-align: center;
-            transition: all 0.2s;
-        }
+        .qa-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 10px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; text-decoration: none; text-align: center; transition: all 0.2s; }
         .qa-btn:hover { border-color: rgba(140,14,3,0.35); background: rgba(140,14,3,0.06); }
         .qa-icon { width: 30px; height: 30px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; }
         .qa-btn:hover .qa-icon { border-color: rgba(140,14,3,0.35); color: var(--crimson); }
@@ -651,42 +498,27 @@
         /* ═══════════════════════════════════════════════
            ALERT BANNERS
         ═══════════════════════════════════════════════ */
-        .alert {
-            display: flex; align-items: center; gap: 12px;
-            padding: 13px 16px; margin-bottom: 16px;
-            border: 1px solid; font-size: 13px;
-        }
+        .alert { display: flex; align-items: center; gap: 12px; padding: 13px 16px; margin-bottom: 16px; border: 1px solid; font-size: 13px; }
         .alert.success { background: rgba(52,211,153,0.07); border-color: rgba(52,211,153,0.2); color: #34d399; }
         .alert.error   { background: rgba(140,14,3,0.07);   border-color: rgba(140,14,3,0.25);  color: var(--crimson); }
         .alert.warning { background: var(--gold-dim);        border-color: var(--gold-border);   color: var(--gold-color); }
         .alert.info    { background: var(--blue-dim);        border-color: var(--blue-border);   color: var(--blue-color); }
 
-        [data-theme="light"] .alert.success { color: #0f9660; background: rgba(16,155,96,0.07); border-color: rgba(16,155,96,0.2); }
-        [data-theme="light"] .alert.error   { color: #8C0E03; }
-
         /* ═══════════════════════════════════════════════
            MOBILE SIDEBAR OVERLAY
         ═══════════════════════════════════════════════ */
-        .sidebar-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 190;
-        }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 190; }
         .sidebar-overlay.open { display: block; }
 
         /* ═══════════════════════════════════════════════
            ANIMATIONS
         ═══════════════════════════════════════════════ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeUp 0.5s cubic-bezier(.22,.61,.36,1) both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up   { animation: fadeUp 0.5s cubic-bezier(.22,.61,.36,1) both; }
         .fade-up-1 { animation-delay: 0.05s; }
         .fade-up-2 { animation-delay: 0.10s; }
         .fade-up-3 { animation-delay: 0.15s; }
         .fade-up-4 { animation-delay: 0.20s; }
-
         @keyframes flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.4} 94%{opacity:1} 96%{opacity:.6} 97%{opacity:1} }
         .flicker { animation: flicker 8s ease-in-out infinite; }
 
@@ -699,30 +531,22 @@
             .layout-body { margin-left: 0; }
             .main-content { padding: 20px 16px; }
         }
-        @media (max-width: 1024px) {
-            .main-content { padding: 22px 20px; }
-        }
 
         /* ═══════════════════════════════════════════════
            LIGHT MODE OVERRIDES
         ═══════════════════════════════════════════════ */
         [data-theme="light"] .sidebar { box-shadow: 2px 0 20px rgba(0,0,0,0.06); }
-        [data-theme="light"] .topbar { box-shadow: 0 1px 0 var(--border); }
-        [data-theme="light"] .card   { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        [data-theme="light"] .status-dot.active { color: #0f9660; }
-        [data-theme="light"] .activity-dot.green { background: #0f9660; }
-        [data-theme="light"] .btn-approve { color: #0f9660; border-color: rgba(15,150,96,0.3); }
+        [data-theme="light"] .topbar  { box-shadow: 0 1px 0 var(--border); }
+        [data-theme="light"] .card    { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
-
     </style>
 
     @stack('styles')
     @include('layouts.partials.tenant_inject')
-
 </head>
 <body>
 
@@ -732,10 +556,10 @@
 
     {{-- ═══ SIDEBAR ═══ --}}
     <aside class="sidebar" id="sidebar">
-          
+
         @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'student.dashboard'])
 
-         <div class="role-pill">
+        <div class="role-pill">
             @if(tenant('name'))
                 <span class="role-pill-dot flicker"></span>
                 <span class="role-pill-text"> {{ tenant('name') }}</span>
@@ -743,10 +567,7 @@
         </div>
 
         <nav class="sidebar-nav">
-           
-        
             <div class="nav-section-label">Main</div>
-            
 
             <a href="{{ route('student.dashboard') }}"
                class="nav-item {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
@@ -798,7 +619,7 @@
             </a>
 
             <a href="{{ route('student.notifications.index') }}"
-                class="nav-item {{ request()->routeIs('student.notifications.*') ? 'active' : '' }}">
+               class="nav-item {{ request()->routeIs('student.notifications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -807,7 +628,6 @@
                 @php
                     $notifCount = \App\Models\TenantNotification::forRole('student_intern')->forUser(auth()->id())->unread()->count();
                 @endphp
-
                 @if($notifCount > 0)
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
@@ -819,7 +639,7 @@
                class="nav-item {{ request()->routeIs('student.settings*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
                 </svg>
                 Settings
             </a>
@@ -827,14 +647,25 @@
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}</div>
+                {{-- Avatar or initials --}}
+                <div class="sidebar-avatar">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar_url }}"
+                             alt="avatar"
+                             style="width:100%;height:100%;object-fit:cover;">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}
+                    @endif
+                </div>
                 <div style="flex:1;min-width:0;">
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Student' }}</div>
                     <div class="sidebar-user-role">Student Intern</div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0;">
                     @csrf
-                    <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" title="Log out">
+                    <button type="submit"
+                            style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;"
+                            title="Log out">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
                             <polyline points="16,17 21,12 16,7"/>
@@ -852,7 +683,6 @@
     {{-- ═══ MAIN BODY ═══ --}}
     <div class="layout-body">
 
-        {{-- TOPBAR --}}
         <header class="topbar">
             <button class="topbar-btn" id="menu-toggle" onclick="toggleSidebar()"
                     style="display:none;" aria-label="Menu">
@@ -867,7 +697,7 @@
 
             <div class="topbar-actions">
 
-             {{-- Theme toggle --}}
+                {{-- Theme toggle --}}
                 <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
                     <svg id="icon-moon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -880,7 +710,7 @@
                         <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                     </svg>
                 </button>
-                
+
                 <div class="topbar-divider"></div>
 
                 @php
@@ -914,20 +744,17 @@
                         <div style="display:flex;align-items:center;justify-content:space-between;
                                     padding:12px 16px;border-bottom:1px solid var(--border);">
                             <span style="font-family:'{{ $cssFontName }} Condensed',sans-serif;font-size:11px;
-                                        font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                                        color:var(--muted);">
+                                        font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);">
                                 Notifications
                                 @if($tenantUnread > 0)
                                     <span style="color:var(--crimson);">({{ $tenantUnread }})</span>
                                 @endif
                             </span>
                             <a href="{{ route('student.notifications.index') }}"
-                            style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
-                                    text-transform:uppercase;color:var(--muted);text-decoration:none;"
-                            onmouseover="this.style.color='var(--text)'"
-                            onmouseout="this.style.color='var(--muted)'">
-                                View all
-                            </a>
+                               style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
+                                      text-transform:uppercase;color:var(--muted);text-decoration:none;"
+                               onmouseover="this.style.color='var(--text)'"
+                               onmouseout="this.style.color='var(--muted)'">View all</a>
                         </div>
                         <div style="max-height:320px;overflow-y:auto;">
                             @forelse($tenantNotifs as $tn)
@@ -945,41 +772,24 @@
                                 <div style="width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;
                                             justify-content:center;border:1px solid {{ $tnc['border'] }};
                                             background:{{ $tnc['bg'] }};margin-top:2px;">
-                                    <span style="width:5px;height:5px;border-radius:50%;
-                                                background:{{ $tnc['color'] }};display:inline-block;"></span>
+                                    <span style="width:5px;height:5px;border-radius:50%;background:{{ $tnc['color'] }};display:inline-block;"></span>
                                 </div>
                                 <div style="flex:1;min-width:0;">
-                                    <div style="font-size:12px;font-weight:600;
-                                                color:{{ $tn->is_read ? 'var(--text2)' : 'var(--text)' }};
-                                                line-height:1.3;">
-                                        {{ $tn->title }}
-                                    </div>
-                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;
-                                                line-height:1.4;white-space:nowrap;overflow:hidden;
-                                                text-overflow:ellipsis;">
-                                        {{ $tn->message }}
-                                    </div>
-                                    <div style="font-family:'DM Mono',monospace;font-size:9px;
-                                                color:var(--muted);margin-top:3px;opacity:0.6;">
-                                        {{ $tn->created_at->diffForHumans() }}
-                                    </div>
+                                    <div style="font-size:12px;font-weight:600;color:{{ $tn->is_read ? 'var(--text2)' : 'var(--text)' }};line-height:1.3;">{{ $tn->title }}</div>
+                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $tn->message }}</div>
+                                    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;opacity:0.6;">{{ $tn->created_at->diffForHumans() }}</div>
                                 </div>
                                 @if(!$tn->is_read)
-                                <span style="width:5px;height:5px;border-radius:50%;background:var(--crimson);
-                                            flex-shrink:0;margin-top:5px;"></span>
+                                <span style="width:5px;height:5px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:5px;"></span>
                                 @endif
                             </div>
                             @empty
-                            <div style="padding:28px 16px;text-align:center;font-family:'DM Mono',monospace;
-                                        font-size:11px;color:var(--muted);">
-                                // No notifications
-                            </div>
+                            <div style="padding:28px 16px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">// No notifications</div>
                             @endforelse
                         </div>
                         <div style="padding:10px 16px;border-top:1px solid var(--border);text-align:center;">
                             <a href="{{ route('student.notifications.index') }}"
-                            style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;
-                                    text-transform:uppercase;color:var(--muted);text-decoration:none;">
+                               style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">
                                 View all notifications →
                             </a>
                         </div>
@@ -990,8 +800,15 @@
 
                 {{-- User dropdown --}}
                 <div class="topbar-user" id="topbar-user-btn" onclick="toggleDropdown()">
-                    <div class="topbar-user-avatar">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}
+                    {{-- Avatar or initials --}}
+                    <div class="topbar-user-avatar" style="padding:0;overflow:hidden;">
+                        @if(auth()->user()->avatar)
+                            <img src="{{ auth()->user()->avatar_url }}"
+                                 alt="avatar"
+                                 style="width:100%;height:100%;object-fit:cover;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}
+                        @endif
                     </div>
                     <span class="topbar-user-name" id="topbar-name">
                         {{ explode(' ', auth()->user()->name ?? 'Student')[0] }}
@@ -1010,7 +827,6 @@
                         </a>
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="{{ route('logout') }}" id="logout-form">@csrf</form>
-                        @csrf
                         <a href="#" class="dropdown-item danger"
                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1023,7 +839,6 @@
             </div>
         </header>
 
-        {{-- PAGE CONTENT --}}
         <main class="main-content">
 
             @include('layouts.partials.tenant_announcement')
@@ -1035,14 +850,12 @@
                 {{ session('success') }}
             </div>
             @endif
-
             @if(session('error'))
             <div class="alert error fade-up">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 {{ session('error') }}
             </div>
             @endif
-
             @if(session('info'))
             <div class="alert info fade-up">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1056,12 +869,10 @@
 </div>
 
 <script>
-    // ── Theme ─────────────────────────────────────────────────────
     (function() {
         const saved = localStorage.getItem('ojt-theme') || 'dark';
         applyTheme(saved);
     })();
-
     function applyTheme(mode) {
         document.documentElement.setAttribute('data-theme', mode);
         document.getElementById('icon-moon').style.display = mode === 'dark'  ? 'block' : 'none';
@@ -1072,18 +883,12 @@
         const cur = document.documentElement.getAttribute('data-theme') || 'dark';
         applyTheme(cur === 'dark' ? 'light' : 'dark');
     }
-
-    // ── Dropdown ──────────────────────────────────────────────────
-    function toggleDropdown() {
-        document.getElementById('user-dropdown').classList.toggle('open');
-    }
+    function toggleDropdown() { document.getElementById('user-dropdown').classList.toggle('open'); }
     document.addEventListener('click', function(e) {
         const btn = document.getElementById('topbar-user-btn');
         const dd  = document.getElementById('user-dropdown');
         if (btn && !btn.contains(e.target)) dd.classList.remove('open');
     });
-
-    // ── Mobile sidebar ────────────────────────────────────────────
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -1101,8 +906,6 @@
     }
     mq.addEventListener('change', handleMq);
     handleMq(mq);
-
-    // ── Tenant notifications dropdown ─────────────────────────────
     function toggleTenantNotif() {
         const dd = document.getElementById('tenant-notif-dropdown');
         dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
