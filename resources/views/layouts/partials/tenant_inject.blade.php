@@ -1,13 +1,13 @@
 {{--
     Tenant CSS + Font injection partial.
     Include in the <head> of EVERY layout, AFTER the main <style> block.
-
-    File: resources/views/layouts/partials/tenant_inject.blade.php
 --}}
 @php
     $tPrimary      = $tenantBrandColor ?? null;
     $tSecondary    = $tenantBrandColorSecondary ?? null;
     $tFont         = $tenantBrandFont ?? 'barlow';
+    $settings      = $tenantSettings ?? [];
+
     $tPrimaryLight = $settings['brand_color_light'] ?? $tPrimary;
     $lightBg       = $settings['light_bg_color'] ?? null;
     $lightText     = $settings['light_text_color'] ?? null;
@@ -27,10 +27,19 @@
 
     $uiDensity    = $settings['ui_density'] ?? null;
     $headingStyle = $settings['heading_style'] ?? null;
+
+    // Detect if any actual customization exists — skip output entirely if not
+    $hasColorOverride  = $tPrimary || $tSecondary || $darkText || $darkBorder;
+    $hasLightOverride  = $lightBg || $lightText || $lightBorder || $lightSidebar || $lightSurface || $tPrimaryLight;
+    $hasFontOverride   = $tFont && $tFont !== 'barlow';
+    $hasSizeOverride   = (bool)$cssFontSize;
+    $hasDensityOverride = (bool)$uiDensity;
+    $hasHeadingOverride = (bool)$headingStyle;
+    $hasAnyOverride    = $hasColorOverride || $hasLightOverride || $hasFontOverride || $hasSizeOverride || $hasDensityOverride || $hasHeadingOverride;
 @endphp
 
-{{-- ── Google Font import ───────────────────────────────────────────────────── --}}
-@if($tFont && $tFont !== 'barlow')
+{{-- ── Google Font import (only if font changed) ───────────────────────────── --}}
+@if($hasFontOverride)
 @php
     $fontImports = [
         'inter'   => 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
@@ -54,28 +63,14 @@
 @php $fontStack = null; @endphp
 @endif
 
-{{--
-    CRITICAL SPECIFICITY FIX:
-    ─────────────────────────
-    The base stylesheet defines dark defaults on :root AND [data-theme="dark"].
-    Tenant overrides must ALSO target [data-theme="dark"] — never bare :root —
-    so they don't bleed into light mode.
-
-    Load order in app.blade.php head:
-      1. Base <style> block  (:root dark defaults + [data-theme="light"] overrides)
-      2. @stack('styles')
-      3. @include('layouts.partials.tenant_inject')   ← this file, comes LAST
-      4. The inline brand_color <style> block that was in app.blade.php
-         → that block must be REMOVED from app.blade.php (we handle it here)
---}}
+{{-- Only inject override styles if something actually changed --}}
+@if($hasAnyOverride)
 <style>
 
     /* ═══════════════════════════════════════════════════════════════
-       DARK MODE tenant overrides
-       Selector [data-theme="dark"] matches the default state of <html>
-       and has identical specificity to [data-theme="light"], so order
-       in the file controls which wins — light overrides come after.
+       DARK MODE tenant overrides — only emitted when values exist
     ═══════════════════════════════════════════════════════════════ */
+    @if($hasColorOverride)
     [data-theme="dark"] {
         @if($tPrimary)
         --crimson:    #{{ $tPrimary }};
@@ -102,11 +97,12 @@
         --border2: rgba({{ $hexToRgb($darkBorder) }}, 0.75);
         @endif
     }
+    @endif
 
     /* ═══════════════════════════════════════════════════════════════
-       LIGHT MODE tenant overrides
-       Comes AFTER the dark block → same specificity, later position wins.
+       LIGHT MODE tenant overrides — only emitted when values exist
     ═══════════════════════════════════════════════════════════════ */
+    @if($hasLightOverride)
     [data-theme="light"] {
         @if($tPrimaryLight)
         --crimson:    #{{ $tPrimaryLight }};
@@ -114,48 +110,63 @@
         --crimson-md: rgba({{ $hexToRgb($tPrimaryLight) }}, 0.18);
         @endif
 
-        /* Always restore light base variables even without tenant overrides */
-        --bg:      {{ $lightBg ? '#'.$lightBg : '#F5F4F0' }};
-        --surface: {{ $lightSurface ? '#'.$lightSurface : '#FFFFFF' }};
-        --surface2: {{ $lightBg ? 'color-mix(in srgb, #'.$lightBg.' 60%, #ffffff 40%)' : '#F0EEE9' }};
-        --surface3: {{ $lightBg ? 'color-mix(in srgb, #'.$lightBg.' 35%, #ffffff 65%)' : '#E8E5DE' }};
-        --text:    {{ $lightText ? '#'.$lightText : '#0D0D0D' }};
-        --text2:   {{ $lightText ? 'rgba('.$hexToRgb($lightText).', 0.65)' : '#333740' }};
-        --muted:   {{ $lightText ? 'rgba('.$hexToRgb($lightText).', 0.42)' : '#8a8e99' }};
-        --muted2:  {{ $lightText ? 'rgba('.$hexToRgb($lightText).', 0.55)' : '#6b7280' }};
-        --border:  {{ $lightBorder ? 'rgba('.$hexToRgb($lightBorder).', 0.55)' : 'rgba(51,55,64,0.1)' }};
-        --border2: {{ $lightBorder ? 'rgba('.$hexToRgb($lightBorder).', 0.85)' : 'rgba(51,55,64,0.18)' }};
+        @if($lightBg)
+        --bg:      #{{ $lightBg }};
+        --surface2: color-mix(in srgb, #{{ $lightBg }} 60%, #ffffff 40%);
+        --surface3: color-mix(in srgb, #{{ $lightBg }} 35%, #ffffff 65%);
+        @endif
+
+        @if($lightSurface)
+        --surface: #{{ $lightSurface }};
+        @endif
+
+        @if($lightText)
+        --text:    #{{ $lightText }};
+        --text2:   rgba({{ $hexToRgb($lightText) }}, 0.65);
+        --muted:   rgba({{ $hexToRgb($lightText) }}, 0.42);
+        --muted2:  rgba({{ $hexToRgb($lightText) }}, 0.55);
+        @endif
+
+        @if($lightBorder)
+        --border:  rgba({{ $hexToRgb($lightBorder) }}, 0.55);
+        --border2: rgba({{ $hexToRgb($lightBorder) }}, 0.85);
+        @endif
     }
 
-    /* Sidebar in light mode: its own background separate from --surface */
+    @if($lightSidebar)
     [data-theme="light"] .sidebar,
     [data-theme="light"] .sidebar-brand,
     [data-theme="light"] .sidebar-footer {
-        background: {{ $lightSidebar ? '#'.$lightSidebar : '#FFFFFF' }};
+        background: #{{ $lightSidebar }};
     }
+    @endif
 
-    /* ── Body / page background in light mode ───────────────────── */
+    @if($lightBg)
     [data-theme="light"] body,
     [data-theme="light"] .layout-body,
     [data-theme="light"] .topbar,
     [data-theme="light"] .main-content {
-        background: {{ $lightBg ? '#'.$lightBg : '#F5F4F0' }};
+        background: #{{ $lightBg }};
     }
 
-    /* ── Cards in light mode ────────────────────────────────────── */
-    [data-theme="light"] .card,
-    [data-theme="light"] .stat-card {
-        background: {{ $lightSurface ? '#'.$lightSurface : '#FFFFFF' }};
-        border-color: {{ $lightBorder ? 'rgba('.$hexToRgb($lightBorder ?? 'D1D5DB').', 0.55)' : 'rgba(51,55,64,0.1)' }};
-    }
-
-    /* ── Tables in light mode ────────────────────────────────────── */
     [data-theme="light"] thead th {
-        background: {{ $lightBg ? 'color-mix(in srgb, #'.$lightBg.' 60%, #ffffff 40%)' : '#F0EEE9' }};
+        background: color-mix(in srgb, #{{ $lightBg }} 60%, #ffffff 40%);
     }
     [data-theme="light"] tbody tr:hover {
-        background: {{ $lightBg ? 'color-mix(in srgb, #'.$lightBg.' 40%, #ffffff 60%)' : '#F0EEE9' }};
+        background: color-mix(in srgb, #{{ $lightBg }} 40%, #ffffff 60%);
     }
+    @endif
+
+    @if($lightSurface)
+    [data-theme="light"] .card,
+    [data-theme="light"] .stat-card {
+        background: #{{ $lightSurface }};
+        @if($lightBorder)
+        border-color: rgba({{ $hexToRgb($lightBorder) }}, 0.55);
+        @endif
+    }
+    @endif
+    @endif
 
     /* ── Typography ─────────────────────────────────────────────── */
     @if($fontStack ?? false)
@@ -207,3 +218,4 @@
     @endif
 
 </style>
+@endif
