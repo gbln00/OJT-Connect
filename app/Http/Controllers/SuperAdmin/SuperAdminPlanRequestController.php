@@ -27,6 +27,23 @@ class SuperAdminPlanRequestController extends Controller
             return back()->with('error', 'Requested plan not found.');
         }
 
+        $plan = Plan::where('name', $planRequest->requested_plan)->first();
+        $days = ($plan?->billing_cycle === 'monthly') ? 30 : 365;
+
+        // Assign the new plan with calculated expiry
+        $tenant->assignPlan($planRequest->requested_plan);
+
+        // Record in history
+        TenantPlanHistory::create([
+            'tenant_id'    => $tenant->id,
+            'plan_id'      => $plan?->id,
+            'price_paid'   => $plan?->base_price ?? 0,
+            'starts_at'    => now(),
+            'ends_at'      => now()->addDays($days),
+            'changed_by'   => auth()->id(),
+            'notes'        => $request->admin_notes,
+        ]);
+
         // Update tenant plan
         $oldPlan = $tenant->plan;
         $tenant->update(['plan' => $planRequest->requested_plan]);
@@ -43,12 +60,21 @@ class SuperAdminPlanRequestController extends Controller
             'notes'        => 'Approved via plan request. ' . ($data['admin_notes'] ?? ''),
         ]);
 
+         // Mark request as approved
+        $planRequest->update([
+            'status'      => 'approved',
+            'admin_notes' => $request->admin_notes,
+            'actioned_at' => now(),
+        ]);
+
         // Mark request as approved
         $planRequest->update([
             'status'       => 'approved',
             'admin_notes'  => $data['admin_notes'] ?? null,
             'actioned_at'  => now(),
         ]);
+
+        return back()->with('success', "Plan approved. {$tenant->id} → {$planRequest->requested_plan}");
 
         // Notify tenant (runs inside tenant context)
         $requestType = $planRequest->request_type;

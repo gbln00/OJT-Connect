@@ -1214,6 +1214,12 @@
             </div>
             @endif
 
+            @if (session('subscription_warning'))
+                @include('partials.subscription-warning', [
+                    'warning' => session('subscription_warning')
+                ])
+            @endif
+
             @yield('content')
         </main>
 

@@ -21,3 +21,12 @@ Schedule::command('ojt:send-reminders')
     ->name('ojt-reminders');
 
 Schedule::command('tenants:aggregate-bandwidth --days=1')->dailyAt('00:30');
+
+Schedule::command('subscriptions:expire')
+    ->dailyAt('01:00')
+    ->name('expire-subscriptions')
+    ->withoutOverlapping();
+
+Schedule::command('subscriptions:remind')
+    ->dailyAt('08:00')
+    ->name('subscription-reminders');

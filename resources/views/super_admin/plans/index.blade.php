@@ -10,7 +10,6 @@ $planColors = [
     'standard' => ['border'=>'rgba(140,14,3,0.4)',     'bg'=>'rgba(140,14,3,0.1)',     'color'=>'rgba(200,100,90,0.9)',    'dot'=>'#c0392b'],
     'premium'  => ['border'=>'rgba(160,120,40,0.45)', 'bg'=>'rgba(160,120,40,0.1)',   'color'=>'rgba(210,170,70,0.9)',    'dot'=>'#c9a84c'],
 ];
-
 $featureKeys = [
     'hour_logs'      => 'Hour Log Tracking',
     'weekly_reports' => 'Weekly Reports',
@@ -34,12 +33,10 @@ $featureKeys = [
 </div>
 @endif
 
-{{-- ── Header action ── --}}
+{{-- ── Header ── --}}
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
-            // {{ $plans->count() }} plan{{ $plans->count() !== 1 ? 's' : '' }} configured
-        </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+        // {{ $plans->count() }} plan{{ $plans->count() !== 1 ? 's' : '' }} · {{ $plans->sum(fn($p) => $p->tenantCount()) }} active tenants
     </div>
     <button onclick="toggleSection('create-plan-form')" class="btn btn-primary btn-sm">
         <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -49,12 +46,13 @@ $featureKeys = [
     </button>
 </div>
 
-{{-- ── Stat strip ── --}}
+{{-- ── Stat Strip ── --}}
 <div class="stats-grid fade-up" style="grid-template-columns:repeat({{ min($plans->count(), 4) }},1fr);margin-bottom:20px;">
     @foreach($plans as $plan)
     @php
         $pc = $planColors[$plan->name] ?? ['border'=>'rgba(150,150,150,0.3)','bg'=>'rgba(150,150,150,0.08)','color'=>'rgba(180,180,180,0.85)','dot'=>'#888'];
         $tenantCount = $plan->tenantCount();
+        $daysLeft    = $plan->daysUntilRenewal();
     @endphp
     <div class="stat-card" style="border-top:2px solid {{ $pc['dot'] }};">
         <div class="stat-top">
@@ -78,6 +76,13 @@ $featureKeys = [
                 {{ $tenantCount }} tenant{{ $tenantCount !== 1 ? 's' : '' }}
             </span>
         </div>
+        {{-- Renewal warning on stat card --}}
+        @if($plan->renewal_date && $daysLeft !== null && $daysLeft <= 30)
+        <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:9px;
+                    color:{{ $daysLeft <= 7 ? '#ef4444' : '#f59e0b' }};letter-spacing:0.06em;">
+            ⚠ {{ $daysLeft > 0 ? $daysLeft.' days to renewal' : ($daysLeft === 0 ? 'due today' : abs($daysLeft).' days overdue') }}
+        </div>
+        @endif
     </div>
     @endforeach
 </div>
@@ -94,16 +99,14 @@ $featureKeys = [
             </div>
             <button type="button" onclick="toggleSection('create-plan-form')" class="btn btn-ghost btn-sm">✕ Cancel</button>
         </div>
-
         <div style="padding:20px 24px;">
             <form method="POST" action="{{ route('super_admin.plans.store') }}">
                 @csrf
-
                 {{-- Row 1: name / label / billing / sort --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label">Plan Key <span style="color:var(--crimson);">✦</span>
-                            <span style="text-transform:none;font-weight:300;"> (e.g. basic, gold)</span>
+                            <span style="text-transform:none;font-weight:300;"> (lowercase, no spaces)</span>
                         </label>
                         <input type="text" name="name" class="form-input" required placeholder="e.g. gold"
                                pattern="[a-z0-9_]+" title="Lowercase letters, numbers, underscores only"
@@ -116,8 +119,8 @@ $featureKeys = [
                     <div>
                         <label class="form-label">Billing Cycle <span style="color:var(--crimson);">✦</span></label>
                         <select name="billing_cycle" class="form-select">
-                            <option value="yearly">Yearly</option>
-                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly (365 days)</option>
+                            <option value="monthly">Monthly (30 days)</option>
                         </select>
                     </div>
                     <div>
@@ -125,7 +128,6 @@ $featureKeys = [
                         <input type="number" name="sort_order" class="form-input" min="0" placeholder="0">
                     </div>
                 </div>
-
                 {{-- Row 2: price / cap / renewal --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
@@ -137,17 +139,18 @@ $featureKeys = [
                         <input type="number" name="student_cap" class="form-input" min="1" placeholder="Leave blank for unlimited">
                     </div>
                     <div>
-                        <label class="form-label">Renewal / Due Date <span style="font-weight:300;text-transform:none;">(optional)</span></label>
+                        <label class="form-label">
+                            Plan-wide Renewal Date
+                            <span style="font-weight:300;text-transform:none;">(optional — per-tenant is preferred)</span>
+                        </label>
                         <input type="date" name="renewal_date" class="form-input">
                     </div>
                 </div>
-
                 {{-- Row 3: description --}}
                 <div style="margin-bottom:14px;">
-                    <label class="form-label">Description <span style="font-weight:300;text-transform:none;">(shown to tenants, optional)</span></label>
+                    <label class="form-label">Description <span style="font-weight:300;text-transform:none;">(shown to tenants)</span></label>
                     <input type="text" name="description" class="form-input" placeholder="A short tagline for this plan..." maxlength="500">
                 </div>
-
                 {{-- Row 4: features --}}
                 <div style="margin-bottom:16px;">
                     <label class="form-label" style="margin-bottom:10px;">Included Features</label>
@@ -163,7 +166,6 @@ $featureKeys = [
                         @endforeach
                     </div>
                 </div>
-
                 {{-- Row 5: active + submit --}}
                 <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -183,12 +185,14 @@ $featureKeys = [
     </div>
 </div>
 
-{{-- ══ PLAN CARDS (EDIT + PROMOS) ══ --}}
+{{-- ══ PLAN CARDS ══ --}}
 @foreach($plans as $plan)
 @php
     $pc = $planColors[$plan->name] ?? ['border'=>'rgba(150,150,150,0.3)','bg'=>'rgba(150,150,150,0.08)','color'=>'rgba(180,180,180,0.85)','dot'=>'#888'];
-    $tenantCount  = $plan->tenantCount();
-    $daysLeft     = $plan->daysUntilRenewal();
+    $tenantCount = $plan->tenantCount();
+    $daysLeft    = $plan->daysUntilRenewal();
+    $promoCount  = $plan->promotions->count();
+    $activePromos = $plan->promotions->filter(fn($p) => $p->isCurrentlyActive())->count();
 @endphp
 
 <div class="card fade-up" style="margin-bottom:20px;border-top:2px solid {{ $pc['dot'] }};">
@@ -211,6 +215,11 @@ $featureKeys = [
                     @else
                     <span class="badge badge-active">Active</span>
                     @endif
+                    @if($activePromos > 0)
+                    <span style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(201,168,76,0.8);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);padding:2px 7px;letter-spacing:0.06em;">
+                        {{ $activePromos }} promo{{ $activePromos !== 1 ? 's' : '' }} live
+                    </span>
+                    @endif
                 </div>
                 <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;">
                     <span>₱{{ number_format($plan->base_price) }} / {{ $plan->billing_cycle ?? 'year' }}</span>
@@ -221,15 +230,14 @@ $featureKeys = [
                     @if($plan->renewal_date)
                     <span>·</span>
                     <span style="color:{{ $daysLeft !== null && $daysLeft <= 30 ? ($daysLeft <= 7 ? '#ef4444' : '#f59e0b') : 'var(--muted)' }};">
-                        Due {{ $plan->renewal_date->format('M d, Y') }}
+                        Plan-wide renewal: {{ $plan->renewal_date->format('M d, Y') }}
                         @if($daysLeft !== null)
-                            ({{ $daysLeft > 0 ? $daysLeft.' days left' : ($daysLeft === 0 ? 'today' : abs($daysLeft).' days overdue') }})
+                            ({{ $daysLeft > 0 ? $daysLeft.' days' : ($daysLeft === 0 ? 'today' : abs($daysLeft).' overdue') }})
                         @endif
                     </span>
                     @endif
                     @if($plan->description)
-                    <span>·</span>
-                    <span style="font-style:italic;">{{ $plan->description }}</span>
+                    <span>·</span><span style="font-style:italic;">{{ $plan->description }}</span>
                     @endif
                 </div>
             </div>
@@ -237,9 +245,7 @@ $featureKeys = [
         <div style="display:flex;gap:6px;flex-shrink:0;">
             <form method="POST" action="{{ route('super_admin.plans.toggle', $plan) }}" style="margin:0;">
                 @csrf @method('PATCH')
-                <button type="submit" class="btn btn-ghost btn-sm" title="{{ $plan->is_active ? 'Deactivate' : 'Activate' }}">
-                    {{ $plan->is_active ? 'Deactivate' : 'Activate' }}
-                </button>
+                <button type="submit" class="btn btn-ghost btn-sm">{{ $plan->is_active ? 'Deactivate' : 'Activate' }}</button>
             </form>
             <button onclick="toggleSection('plan-edit-{{ $plan->id }}')" class="btn btn-ghost btn-sm">
                 <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -252,35 +258,44 @@ $featureKeys = [
             <form method="POST" action="{{ route('super_admin.plans.destroy', $plan) }}"
                   onsubmit="return confirm('Delete plan \'{{ $plan->label }}\'? This cannot be undone.')" style="margin:0;">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm" title="Delete plan">
+                <button type="submit" class="btn btn-danger btn-sm">
                     <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <polyline points="3,6 5,6 21,6"/>
-                        <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
+                        <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
                     </svg>
                     Delete
                 </button>
             </form>
             @else
-            <button class="btn btn-ghost btn-sm" disabled title="Cannot delete — {{ $tenantCount }} tenant(s) on this plan" style="opacity:0.4;cursor:not-allowed;">
-                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <polyline points="3,6 5,6 21,6"/>
-                    <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
-                </svg>
-                Delete
-            </button>
+            <button class="btn btn-ghost btn-sm" disabled title="Cannot delete — {{ $tenantCount }} tenant(s) on this plan" style="opacity:0.4;cursor:not-allowed;">Delete</button>
             @endif
         </div>
     </div>
 
+    {{-- ── Feature overview strip ── --}}
+    <div style="padding:10px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-right:4px;">Features:</span>
+        @foreach($featureKeys as $key => $label)
+        @php $has = $plan->hasFeature($key); @endphp
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;
+                     border:1px solid {{ $has ? $pc['border'] : 'var(--border)' }};
+                     background:{{ $has ? $pc['bg'] : 'transparent' }};
+                     color:{{ $has ? $pc['color'] : 'var(--muted)' }};">
+            @if($has)
+            <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+            @else
+            <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            @endif
+            {{ $label }}
+        </span>
+        @endforeach
+    </div>
+
     {{-- ── Edit Plan Form ── --}}
     <div id="plan-edit-{{ $plan->id }}" style="display:none;">
-        <div style="padding:20px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">
-                // Editing: {{ $plan->label }}
-            </div>
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface2);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">// Editing: {{ $plan->label }}</div>
             <form method="POST" action="{{ route('super_admin.plans.update', $plan) }}">
                 @csrf @method('PUT')
-
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label">Display Label <span style="color:var(--crimson);">✦</span></label>
@@ -289,8 +304,8 @@ $featureKeys = [
                     <div>
                         <label class="form-label">Billing Cycle</label>
                         <select name="billing_cycle" class="form-select">
-                            <option value="yearly" {{ ($plan->billing_cycle ?? 'yearly') === 'yearly' ? 'selected' : '' }}>Yearly</option>
-                            <option value="monthly" {{ ($plan->billing_cycle ?? '') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="yearly" {{ ($plan->billing_cycle ?? 'yearly') === 'yearly' ? 'selected' : '' }}>Yearly (365 days)</option>
+                            <option value="monthly" {{ ($plan->billing_cycle ?? '') === 'monthly' ? 'selected' : '' }}>Monthly (30 days)</option>
                         </select>
                     </div>
                     <div>
@@ -302,30 +317,26 @@ $featureKeys = [
                         <input type="number" name="sort_order" value="{{ old('sort_order', $plan->sort_order) }}" class="form-input" min="0">
                     </div>
                 </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label">Student Cap <span style="font-weight:300;text-transform:none;">(blank = unlimited)</span></label>
                         <input type="number" name="student_cap" value="{{ old('student_cap', $plan->student_cap) }}" class="form-input" min="1" placeholder="Unlimited">
                     </div>
                     <div>
-                        <label class="form-label">Renewal / Due Date</label>
+                        <label class="form-label">Plan-wide Renewal Date</label>
                         <input type="date" name="renewal_date" value="{{ old('renewal_date', $plan->renewal_date?->format('Y-m-d')) }}" class="form-input">
                     </div>
+                    <div>
+                        <label class="form-label">Description</label>
+                        <input type="text" name="description" value="{{ old('description', $plan->description) }}" class="form-input" placeholder="Short tagline..." maxlength="500">
+                    </div>
                 </div>
-
-                <div style="margin-bottom:14px;">
-                    <label class="form-label">Description <span style="font-weight:300;text-transform:none;">(shown to tenants)</span></label>
-                    <input type="text" name="description" value="{{ old('description', $plan->description) }}" class="form-input" placeholder="Short plan tagline..." maxlength="500">
-                </div>
-
                 <div style="margin-bottom:16px;">
                     <label class="form-label" style="margin-bottom:10px;">Included Features</label>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
                         @foreach($featureKeys as $key => $label)
                         <label class="feature-toggle">
-                            <input type="checkbox" name="features[{{ $key }}]" value="1"
-                                   {{ ($plan->features[$key] ?? false) ? 'checked' : '' }}>
+                            <input type="checkbox" name="features[{{ $key }}]" value="1" {{ ($plan->features[$key] ?? false) ? 'checked' : '' }}>
                             <span class="feature-toggle-inner">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
                                 {{ $label }}
@@ -334,7 +345,6 @@ $featureKeys = [
                         @endforeach
                     </div>
                 </div>
-
                 <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
                         <input type="checkbox" name="is_active" value="1" {{ $plan->is_active ? 'checked' : '' }} style="accent-color:var(--crimson);">
@@ -355,9 +365,19 @@ $featureKeys = [
     {{-- ── Promotions Section ── --}}
     <div style="padding:0 24px 4px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;">
-            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
-                Promotions ({{ $plan->promotions->count() }})
-            </span>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+                    Promotions ({{ $promoCount }})
+                </span>
+                @if($activePromos > 0)
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;
+                             border:1px solid rgba(52,211,153,0.3);background:rgba(52,211,153,0.06);
+                             font-family:'DM Mono',monospace;font-size:9px;color:#34d399;letter-spacing:0.06em;">
+                    <span style="width:4px;height:4px;border-radius:50%;background:#34d399;display:inline-block;"></span>
+                    {{ $activePromos }} active
+                </span>
+                @endif
+            </div>
             <button onclick="toggleSection('promo-new-{{ $plan->id }}')" class="btn btn-ghost btn-sm">
                 <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
@@ -374,12 +394,10 @@ $featureKeys = [
                 <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">
                     // New promotion for {{ $plan->label }}
                 </div>
-
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label">Code <span style="color:var(--crimson);">✦</span></label>
-                        <input type="text" name="code" placeholder="BACK2SCHOOL" class="form-input" required
-                               oninput="this.value=this.value.toUpperCase()">
+                        <input type="text" name="code" placeholder="BACK2SCHOOL" class="form-input" required oninput="this.value=this.value.toUpperCase()">
                     </div>
                     <div>
                         <label class="form-label">Label <span style="color:var(--crimson);">✦</span></label>
@@ -387,14 +405,12 @@ $featureKeys = [
                     </div>
                     <div>
                         <label class="form-label">Discount Type <span style="color:var(--crimson);">✦</span></label>
-                        <select name="discount_type" class="form-select" id="dtype-{{ $plan->id }}"
-                                onchange="updateDTypeHint({{ $plan->id }}, this.value)">
+                        <select name="discount_type" class="form-select" id="dtype-{{ $plan->id }}" onchange="updateDTypeHint({{ $plan->id }}, this.value)">
                             <option value="percent">Percent (%)</option>
                             <option value="fixed">Fixed (₱)</option>
                         </select>
                     </div>
                 </div>
-
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
                     <div>
                         <label class="form-label" id="dval-label-{{ $plan->id }}">Discount (%) <span style="color:var(--crimson);">✦</span></label>
@@ -413,7 +429,6 @@ $featureKeys = [
                         <input type="number" name="max_uses" min="1" class="form-input" placeholder="Unlimited">
                     </div>
                 </div>
-
                 <div style="display:flex;gap:8px;justify-content:flex-end;">
                     <button type="button" onclick="toggleSection('promo-new-{{ $plan->id }}')" class="btn btn-ghost btn-sm">Cancel</button>
                     <button type="submit" class="btn btn-approve btn-sm">
@@ -441,6 +456,10 @@ $featureKeys = [
                 </thead>
                 <tbody>
                     @foreach($plan->promotions as $promo)
+                    @php
+                        $isActive = $promo->isCurrentlyActive();
+                        $usagePercent = $promo->max_uses ? min(100, round(($promo->used_count / $promo->max_uses) * 100)) : 0;
+                    @endphp
                     <tr>
                         <td>
                             <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);
@@ -449,7 +468,6 @@ $featureKeys = [
                         </td>
                         <td>
                             <div style="font-size:13px;color:var(--text2);">{{ $promo->label }}</div>
-                            {{-- Inline edit toggle --}}
                             <button onclick="toggleSection('promo-edit-{{ $promo->id }}')"
                                     style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;margin-top:2px;">
                                 edit ↓
@@ -467,11 +485,18 @@ $featureKeys = [
                                 No expiry
                             @endif
                         </td>
-                        <td style="font-family:'DM Mono',monospace;font-size:11px;">
-                            {{ $promo->used_count }} / {{ $promo->max_uses ?? '∞' }}
+                        <td>
+                            <div style="font-family:'DM Mono',monospace;font-size:11px;margin-bottom:4px;">
+                                {{ $promo->used_count }} / {{ $promo->max_uses ?? '∞' }}
+                            </div>
+                            @if($promo->max_uses)
+                            <div style="width:80px;height:3px;background:var(--border2);">
+                                <div style="width:{{ $usagePercent }}%;height:100%;background:{{ $usagePercent >= 90 ? '#ef4444' : ($usagePercent >= 70 ? '#f59e0b' : '#34d399') }};transition:width 0.3s;"></div>
+                            </div>
+                            @endif
                         </td>
                         <td>
-                            @if($promo->isCurrentlyActive())
+                            @if($isActive)
                                 <span class="badge badge-active">
                                     <span style="width:5px;height:5px;border-radius:50%;background:#34d399;display:inline-block;margin-right:3px;"></span>
                                     Active
@@ -493,8 +518,7 @@ $featureKeys = [
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--muted);">
                                         <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <polyline points="3,6 5,6 21,6"/>
-                                            <path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
+                                            <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/>
                                         </svg>
                                     </button>
                                 </form>
@@ -509,8 +533,7 @@ $featureKeys = [
                                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:flex-end;">
                                     <div>
                                         <label class="form-label">Code</label>
-                                        <input type="text" name="code" value="{{ $promo->code }}" class="form-input"
-                                               oninput="this.value=this.value.toUpperCase()" required>
+                                        <input type="text" name="code" value="{{ $promo->code }}" class="form-input" oninput="this.value=this.value.toUpperCase()" required>
                                     </div>
                                     <div>
                                         <label class="form-label">Label</label>
@@ -560,18 +583,15 @@ $featureKeys = [
     <div style="font-size:32px;margin-bottom:12px;">📋</div>
     <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;">No plans yet</div>
     <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:16px;">Create your first plan to get started.</div>
-    <button onclick="toggleSection('create-plan-form');window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary btn-sm">
-        Create First Plan
-    </button>
+    <button onclick="toggleSection('create-plan-form');window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary btn-sm">Create First Plan</button>
 </div>
 @endif
 
-{{-- Info note --}}
 <div class="flash flash-info fade-up" style="margin-top:8px;">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    Plans with active tenants cannot be deleted. Deactivated plans remain for existing tenants but are hidden from new assignments. Promotions apply a one-time discount at plan assignment time.
+    Plans with active tenants cannot be deleted. The <strong>plan-wide renewal date</strong> is a display marker — per-tenant expiry is tracked on the tenant record via <code>plan_expires_at</code>. Promotions apply a one-time discount at plan assignment time.
 </div>
 
 @endsection
@@ -594,7 +614,6 @@ $featureKeys = [
     font-size: 10px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
 }
-/* Feature toggle checkboxes */
 .feature-toggle { display: block; cursor: pointer; }
 .feature-toggle input { display: none; }
 .feature-toggle-inner {
@@ -605,11 +624,11 @@ $featureKeys = [
     font-size: 12px; color: var(--muted);
     transition: all 0.15s;
 }
-.feature-toggle-inner svg { opacity: 0; transition: opacity 0.15s; color: var(--muted); }
+.feature-toggle-inner svg { opacity: 0; transition: opacity 0.15s; }
 .feature-toggle:hover .feature-toggle-inner { border-color: var(--border2); color: var(--text2); }
 .feature-toggle input:checked + .feature-toggle-inner {
-    border-color: rgba(var(--crimson-rgb, 192,38,38), 0.5);
-    background: rgba(var(--crimson-rgb, 192,38,38), 0.06);
+    border-color: rgba(192,38,38,0.5);
+    background: rgba(192,38,38,0.06);
     color: var(--text);
 }
 .feature-toggle input:checked + .feature-toggle-inner svg { opacity: 1; color: var(--crimson); }
@@ -636,7 +655,6 @@ function toggleSection(id) {
         setTimeout(() => { el.style.display = 'none'; el.style.transform = ''; }, 200);
     }
 }
-
 function updateDTypeHint(planId, type) {
     const label = document.getElementById('dval-label-' + planId);
     if (label) {
