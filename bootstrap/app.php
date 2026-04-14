@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'plan'                  => \App\Http\Middleware\CheckTenantPlan::class,
             '2fa'                   => \App\Http\Middleware\Require2FA::class,
             'tenant_customize'      => \App\Http\Middleware\ApplyTenantCustomization::class,
+            'subscription.warning'  => \App\Http\Middleware\CheckSubscriptionWarning::class,
         
         ]);
 
@@ -48,7 +49,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
             \App\Http\Middleware\LogTenantRequest::class,
             \App\Http\Middleware\ApplyTenantCustomization::class,  
-
         ]);
     })
     

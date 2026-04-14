@@ -122,7 +122,7 @@ Route::middleware([
     // ADMIN  (Basic plan = all core routes; Standard+ = reports/evals;
     //         Premium = exports)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:admin', '2fa'])
+    Route::middleware(['auth', 'role:admin', '2fa', 'subscription.warning'])
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
@@ -227,7 +227,7 @@ Route::middleware([
     // COORDINATOR  (Basic = applications, hours; Standard+ = reports,
     //               evaluations)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:ojt_coordinator', '2fa'])
+    Route::middleware(['auth', 'role:ojt_coordinator', '2fa', 'subscription.warning'])
         ->prefix('coordinator')
         ->name('coordinator.')
         ->group(function () {
@@ -304,7 +304,7 @@ Route::middleware([
     // ══════════════════════════════════════════════════════════════════
     // SUPERVISOR  (Basic = hour logs; Standard+ = evaluations)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:company_supervisor', '2fa'])
+    Route::middleware(['auth', 'role:company_supervisor', '2fa', 'subscription.warning'])
         ->prefix('supervisor')
         ->name('supervisor.')
         ->group(function () {
@@ -355,7 +355,7 @@ Route::middleware([
     // ══════════════════════════════════════════════════════════════════
     // STUDENT  (Basic = application, hours; Standard+ = reports, evals)
     // ══════════════════════════════════════════════════════════════════
-    Route::middleware(['auth', 'role:student_intern', '2fa'])
+    Route::middleware(['auth', 'role:student_intern', '2fa', 'subscription.warning'])
         ->prefix('student')
         ->name('student.')
         ->group(function () {

@@ -46,7 +46,7 @@ class SuperAdminTenantManagementController extends Controller
         ], [
             'id.regex' => 'Tenant ID may only contain lowercase letters, numbers, and hyphens.',
         ]);
-        
+
         // If plan changed, use assignPlan() to compute expiry
         if ($data['plan'] && $data['plan'] !== $tenant->plan) {
             $customExpiry = $data['plan_expires_at']
@@ -141,8 +141,17 @@ class SuperAdminTenantManagementController extends Controller
             ? $currentPlan->activePromotions()->get()
             : collect();
 
+        $expiresAt     = $tenant->plan_expires_at;
+        $isExpired     = $tenant->subscriptionExpired();
+        $inGrace       = $tenant->inGracePeriod();
+        $daysUntil     = $tenant->daysUntilExpiry();
+        $graceEndAt    = $expiresAt ? $expiresAt->copy()->addDays(7) : null;
+        $graceDaysLeft = $graceEndAt ? (int) now()->diffInDays($graceEndAt, false) : null;
+
         return view('super_admin.tenants.edit', compact(
-            'tenant', 'plans', 'activePromos', 'currentPlan'
+            'tenant', 'plans', 'activePromos', 'currentPlan',
+            'expiresAt', 'isExpired', 'inGrace', 'daysUntil',
+            'graceEndAt', 'graceDaysLeft'
         ));
     }
 

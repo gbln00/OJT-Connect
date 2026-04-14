@@ -19,7 +19,7 @@ $currentStatus  = $tenant->status ?? 'active';
 $currentPlan    = $tenant->plan ?? '';
 $expiresAt      = $tenant->plan_expires_at;
 $daysLeft       = $tenant->daysUntilExpiry ?? null;
-$inGrace        = $tenant->inGracePeriod ?? false;
+$inGrace        = $tenant->in_grace_period; 
 $isExpired      = $tenant->subscriptionExpired ?? false;
 
 // Urgency color for expiry badge

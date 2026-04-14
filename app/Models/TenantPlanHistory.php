@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TenantPlanHistory extends Model
 {
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'tenant_id', 'plan_id', 'promotion_id',
         'price_paid', 'starts_at', 'ends_at', 'changed_by', 'notes',

@@ -6,6 +6,7 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 use Carbon\Carbon;
 
@@ -48,10 +49,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     }
 
     /** Days remaining before expiry (negative = overdue) */
-    public function daysUntilExpiry(): ?int
+    public function daysUntilExpiry(): Attribute
     {
-        if (! $this->plan_expires_at) return null;
-        return (int) now()->startOfDay()->diffInDays($this->plan_expires_at, false);
+         return Attribute::make(
+            get: function () {
+                if (! $this->plan_expires_at) return null;
+                return (int) now()->startOfDay()->diffInDays($this->plan_expires_at, false);
+            }
+        );
     }
 
     /** Set plan + expiry at once (called on plan approval) */
@@ -67,4 +72,25 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'grace_started_at'=> null,
         ]);
     }
+    public function checkSubscriptionExpired(): bool
+    {
+        if (! $this->plan_expires_at) return false;
+        return now()->gt($this->plan_expires_at);
+    }
+
+    public function checkInGracePeriod(): bool
+    {
+        if (! $this->plan_expires_at) return false;
+
+        $graceEnd = $this->plan_expires_at->copy()->addDays(7);
+
+        return now()->gt($this->plan_expires_at) && now()->lte($graceEnd);
+    }
+
+    public function checkDaysUntilExpiry(): ?int
+    {
+        if (! $this->plan_expires_at) return null;
+        return (int) now()->startOfDay()->diffInDays($this->plan_expires_at, false);
+    }
+  
 }

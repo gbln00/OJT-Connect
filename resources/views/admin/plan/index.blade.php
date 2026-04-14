@@ -137,7 +137,7 @@ $featureLabels = [
                     'warning'  => ['bg'=>'rgba(245,158,11,0.08)', 'border'=>'rgba(245,158,11,0.3)', 'color'=>'#fbbf24',  'label'=>'Renewal Due'],
                     'ok'       => ['bg'=>'rgba(52,211,153,0.06)', 'border'=>'rgba(52,211,153,0.25)','color'=>'#34d399',  'label'=>'Active'],
                 ];
-                $um = $ urgencyMap[$subUrgency];
+                $um = $urgencyMap[$subUrgency];
             @endphp
             <div style="padding:8px 14px;border:1px solid {{ $um['border'] }};background:{{ $um['bg'] }};
                         font-family:'DM Mono',monospace;font-size:10px;color:{{ $um['color'] }};text-align:right;min-width:160px;">

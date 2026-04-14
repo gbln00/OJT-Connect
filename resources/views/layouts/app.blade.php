@@ -1212,10 +1212,8 @@
                         style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;
                             line-height:1;flex-shrink:0;" aria-label="Dismiss">✕</button>
             </div>
-            @endif
-
-            @if (session('subscription_warning'))
-                @include('partials.subscription-warning', [
+            @elseif (session('subscription_warning'))
+                @include('layouts.partials.subscription-warning', [
                     'warning' => session('subscription_warning')
                 ])
             @endif
