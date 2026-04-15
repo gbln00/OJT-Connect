@@ -200,6 +200,10 @@ Route::middleware([
             // ── Evaluation management ─────────────────────────────────────────────
             Route::get('/evaluations',                  [EvaluationController::class, 'index'])->name('evaluations.index');
             Route::get('/evaluations/{evaluation}',     [EvaluationController::class, 'show'])->name('evaluations.show');
+
+            Route::get('/import',                               [CsvImportController::class, 'index'])->name('import.index');
+            Route::get('/import/template/{type}',               [CsvImportController::class, 'template'])->name('import.template');
+            Route::post('/import',                              [CsvImportController::class, 'import'])->name('import.store');
         });
 
         // ── Premium plan only ───────────────────────────────────────────
@@ -270,11 +274,7 @@ Route::middleware([
         Route::get('/applications/{application}',           [CoordinatorApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
-        
-        Route::get('/import',                               [CsvImportController::class, 'index'])->name('import.index');
-        Route::get('/import/template/{type}',               [CsvImportController::class, 'template'])->name('import.template');
-        Route::post('/import',                              [CsvImportController::class, 'import'])->name('import.store');
-
+    
         // Hour log view — read-only, Basic+
         Route::get('/hours',                                [CoordinatorHourLogController::class, 'index'])->name('hours.index');
 
@@ -303,6 +303,20 @@ Route::middleware([
             Route::get('/evaluations',                              [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
             Route::get('/evaluations/{evaluation}',                 [CoordinatorEvaluationController::class, 'show'])->name('evaluations.show');
             Route::post('/evaluations/{evaluation}/complete',       [CoordinatorEvaluationController::class, 'complete'])->name('evaluations.complete');
+
+            Route::get('/import',                               [CsvImportController::class, 'index'])->name('import.index');
+            Route::get('/import/template/{type}',               [CsvImportController::class, 'template'])->name('import.template');
+            Route::post('/import',                              [CsvImportController::class, 'import'])->name('import.store');
+
+        });
+
+        Route::middleware('plan:premium')->group(function () { 
+             // ── Data exports ─────────────────────────────────────────────
+            Route::get('/export',                              [ExportController::class, 'index'])->name('export.index');
+            Route::get('/export/pdf/students',                 [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
+            Route::get('/export/pdf/evaluations',              [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
+            Route::get('/export/excel',                        [ExportController::class, 'excelFull'])->name('export.excel');
+            Route::get('/export/certificate/{application}',    [ExportController::class, 'certificate'])->name('export.certificate');
         });
 
         // ── Plan overview ─────────────────────────────────────────────

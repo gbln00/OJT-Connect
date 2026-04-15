@@ -780,13 +780,29 @@
                 Evaluations
             </a>
 
+           {{-- ── TOOLS ───────────────────────────────────────────────── --}}
+            <div class="nav-section-label">Tools</div>
+
+            {{-- Import CSV --}}
             <a href="{{ route('coordinator.import.index') }}"
             class="nav-item {{ request()->routeIs('coordinator.import.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path d="M9 11l3 3L22 4"/>
-                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
-                Imports
+                Import CSV
+            </a>
+
+            {{-- Export Reports (Premium only) --}}
+            <a href="{{ route('coordinator.export.index') }}"
+            class="nav-item {{ request()->routeIs('coordinator.export.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Reports
             </a>
         
             {{-- ── NOTIFICATIONS ────────────────────────────────────────── --}}

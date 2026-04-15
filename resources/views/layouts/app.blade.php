@@ -828,6 +828,7 @@
                     </svg>
                     Evaluations
                 </a>
+                
             @else
                 {{-- Locked: Weekly Reports --}}
                 <span class="nav-item-locked" title="Upgrade to Standard or above to access Weekly Reports">
@@ -862,6 +863,17 @@
                     <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
                 </span>
             @endif
+
+            {{-- Import CSV --}}
+            <a href="{{ route('admin.import.index') }}"
+            class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import CSV
+            </a>
 
             {{-- ── Premium only ── --}}
             @if($tenantPlan === 'premium')
