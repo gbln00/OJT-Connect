@@ -11,7 +11,6 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantManagementController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantApprovalController as TenantApprovalController;
-use App\Http\Controllers\SuperAdmin\SuperAdminTenantManualController as TenantManualController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantRegisterController as TenantRegisterController;
 use App\Http\Controllers\SuperAdmin\SuperAdminNotificationController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanController as PlanController;
