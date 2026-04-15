@@ -25,12 +25,14 @@ class ApplyTenantCustomization
             : null;
 
         // ── Primary color (drives --crimson) ──────────────────────────────────
-        // Strip # if present; fallback to system crimson
-        $brandColor = ltrim($settings['brand_color'] ?? '8C0E03', '#');
+       $brandColor = isset($settings['brand_color']) && $settings['brand_color'] !== ''
+            ? ltrim($settings['brand_color'], '#')
+            : null;
 
-        // ── Secondary color (drives --night / sidebar / hero bg) ─────────────
-        // Fallback to system dark navy
-        $brandColorSecondary = ltrim($settings['brand_color_secondary'] ?? '0E1126', '#');
+        // ── Secondary color (drives --crimson-secondary) ───────────────────────────────
+        $brandColorSecondary = isset($settings['brand_color_secondary']) && $settings['brand_color_secondary'] !== ''
+            ? ltrim($settings['brand_color_secondary'], '#')
+            : null;
 
         // ── Font ──────────────────────────────────────────────────────────────
         // One of: barlow | inter | poppins | roboto | default (Barlow)
