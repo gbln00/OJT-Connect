@@ -87,6 +87,8 @@ class OjtApplication extends Model
     {
         return max(0, $this->required_hours - $this->total_logged_hours);
     }
+    // Check if application is under document review
+    public function isUnderReview(): bool { return $this->status === 'document_review'; }
 
     // Accessor for human-readable status label
     public function getStatusLabelAttribute(): string
@@ -102,6 +104,8 @@ class OjtApplication extends Model
     // Scope: student's current active application
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'approved']);
+        return $query->whereIn('status', ['pending', 'document_review', 'approved']);
     }
+
+    
 }

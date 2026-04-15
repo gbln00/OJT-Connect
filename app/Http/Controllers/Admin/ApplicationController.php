@@ -177,4 +177,30 @@ class ApplicationController extends Controller
         return back()->with('success', "{$count} application(s) {$label} successfully.");
     }
 
+    public function sendToReview(Request $request, OjtApplication $application)
+    {
+        $validated = $request->validate([
+            'review_notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $application->update([
+            'status' => 'under_review',
+            'remarks' => $validated['review_notes'] ?? $application->remarks,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        TenantNotification::notify(
+            title:      'Document Review Required',
+            message:    "Your OJT application for {$application->company->name} is under document review.",
+            type:       'info',
+            targetRole: 'student_intern',
+            userId:     $application->student_id
+        );
+
+        return redirect()
+            ->route('admin.applications.show', $application)
+            ->with('success', 'Application sent for document review.');
+    }
+
 }

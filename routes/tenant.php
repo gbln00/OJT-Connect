@@ -166,8 +166,11 @@ Route::middleware([
         Route::delete('/applications/{application}',       [ApplicationController::class, 'destroy'])->name('applications.destroy');
         Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',  [ApplicationController::class, 'reject'])->name('applications.reject');
-
-        Route::post('/applications/bulk',                   [ApplicationController::class, 'bulkAction'])->name('applications.bulk');
+        Route::post('/applications/{application}/review',  [ApplicationController::class, 'sendToReview'])->name('applications.sendToReview');
+        // Bulk actions for applications
+        Route::post('/applications/bulk',                           [ApplicationController::class, 'bulkAction'])->name('applications.bulk');
+        // New route to send application back to document review
+        
 
         // ── Hour log management ─────────────────────────────────────────────
         Route::get('/hours',                       [HoursController::class, 'index'])->name('hours.index');

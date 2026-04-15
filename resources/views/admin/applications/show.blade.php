@@ -127,9 +127,10 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                     @else
                         <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.05em;">// No document uploaded.</div>
                     @endif
+                    
                 </div>
             </div>
-
+             
             {{-- Remarks --}}
             @if($application->remarks)
             <div class="card">
@@ -168,6 +169,7 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                     </div>
                     @endforeach
                 </div>
+               
             </div>
 
             {{-- Actions --}}
@@ -191,7 +193,7 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                         </button>
                     </form>
 
-                    <div style="height:1px;background:var(--border);"></div>
+                   
 
                     <form method="POST" action="{{ route('admin.applications.reject', $application) }}">
                         @csrf
@@ -206,6 +208,34 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                         </button>
                     </form>
 
+                    <div style="height:1px;background:var(--border);"></div>
+
+                    @if($application->isPending())
+                    <form method="POST"
+                        action="{{ route('admin.applications.sendToReview', $application) }}"
+                        style="display:inline;">
+                        @csrf
+                        <textarea name="review_notes" placeholder="Review notes (optional)"
+                                style="width:100%;padding:8px;margin-bottom:8px;
+                                        background:var(--surface2);border:1px solid var(--border2);
+                                        color:var(--text);font-size:13px;" rows="2"></textarea>
+                        <button type="submit" class="btn btn-ghost">
+                            ⟳ Send for Document Review
+                        </button>
+                    </form>
+                    @endif
+
+                    @if($application->isUnderReview())
+                    <div style="padding:12px 16px;border:1px solid rgba(96,165,250,0.3);
+                        background:rgba(96,165,250,0.07);margin-bottom:16px;">
+                        <strong style="color:#60a5fa;">Under Document Review</strong>
+                        <p style="font-size:13px;color:var(--text2);margin-top:4px;">
+                            Review notes: {{ $application->remarks ?? 'None' }}
+                        </p>
+                        {{-- Show approve/reject buttons to complete the review --}}
+                    </div>
+                    @endif
+                    
                 </div>
             </div>
             @endif
