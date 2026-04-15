@@ -20,6 +20,17 @@
     $hexToRgb = fn(string $hex): string =>
         implode(',', array_map('hexdec', str_split(ltrim($hex, '#'), 2)));
 
+    $darkenHex = function(string $hex, int $amount = 8): string {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        // Slightly lighten (add brightness) for surface2, keep it dark
+        $r = min(255, $r + $amount);
+        $g = min(255, $g + $amount);
+        $b = min(255, $b + $amount);
+        return sprintf('%02x%02x%02x', $r, $g, $b);
+    };
+
     $rawFontSize  = $settings['font_size_base'] ?? null;
     $cssFontSize  = $rawFontSize
         ? (str_ends_with((string)$rawFontSize, 'px') ? $rawFontSize : $rawFontSize . 'px')
@@ -28,7 +39,6 @@
     $uiDensity    = $settings['ui_density'] ?? null;
     $headingStyle = $settings['heading_style'] ?? null;
 
-    // Detect if any actual customization exists — skip output entirely if not
     $hasColorOverride  = $tPrimary || $tSecondary || $darkText || $darkBorder;
     $hasLightOverride  = $lightBg || $lightText || $lightBorder || $lightSidebar || $lightSurface || $tPrimaryLight;
     $hasFontOverride   = $tFont && $tFont !== 'barlow';
@@ -78,11 +88,12 @@
         --crimson-md: rgba({{ $hexToRgb($tPrimary) }}, 0.18);
         @endif
 
+
         @if($tSecondary)
         --night:    #{{ $tSecondary }};
         --surface:  #{{ $tSecondary }};
-        --surface2: color-mix(in srgb, #{{ $tSecondary }} 78%, #ffffff 22%);
-        --surface3: color-mix(in srgb, #{{ $tSecondary }} 60%, #ffffff 40%);
+        --surface2: #{{ $darkenHex($tSecondary, 8) }};
+        --surface3: #{{ $darkenHex($tSecondary, 16) }};
         @endif
 
         @if($darkText)
@@ -112,12 +123,19 @@
 
         @if($lightBg)
         --bg:      #{{ $lightBg }};
-        --surface2: color-mix(in srgb, #{{ $lightBg }} 60%, #ffffff 40%);
-        --surface3: color-mix(in srgb, #{{ $lightBg }} 35%, #ffffff 65%);
         @endif
 
         @if($lightSurface)
         --surface: #{{ $lightSurface }};
+        @endif
+
+        {{-- Derive surface2/surface3 from lightBg or lightSurface for light mode --}}
+        @if($lightBg && !$lightSurface)
+        --surface2: color-mix(in srgb, #{{ $lightBg }} 60%, #ffffff 40%);
+        --surface3: color-mix(in srgb, #{{ $lightBg }} 35%, #ffffff 65%);
+        @elseif($lightSurface)
+        --surface2: color-mix(in srgb, #{{ $lightSurface }} 88%, #000000 12%);
+        --surface3: color-mix(in srgb, #{{ $lightSurface }} 75%, #000000 25%);
         @endif
 
         @if($lightText)
