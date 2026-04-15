@@ -43,6 +43,7 @@ use App\Http\Controllers\Coordinator\CoordinatorEvaluationController;
 use App\Http\Controllers\Coordinator\CoordinatorPlanController;
 use App\Http\Controllers\Coordinator\CoordinatorCompanyController;
 use App\Http\Controllers\Coordinator\CoordinatorSettingsController;
+use App\Http\Controllers\Coordinator\CsvImportController;  
 
 // Student
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -270,6 +271,9 @@ Route::middleware([
         Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
         
+        Route::get('/import',                               [CsvImportController::class, 'index'])->name('import.index');
+        Route::get('/import/template/{type}',               [CsvImportController::class, 'template'])->name('import.template');
+        Route::post('/import',                              [CsvImportController::class, 'import'])->name('import.store');
 
         // Hour log view — read-only, Basic+
         Route::get('/hours',                                [CoordinatorHourLogController::class, 'index'])->name('hours.index');
