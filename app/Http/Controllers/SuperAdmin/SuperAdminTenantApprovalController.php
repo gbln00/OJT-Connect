@@ -69,7 +69,7 @@ class SuperAdminTenantApprovalController extends Controller
             ))->run();
         });
 
-        Mail::to($registration->email)->send(new TenantApproved($registration, $plainPassword));  // 👈 pass password to mail
+        Mail::to($registration->email)->send(new TenantApproved($registration, $plainPassword));  // pass password to mail
 
         SuperAdminNotification::notify(
             type:    'approval',
