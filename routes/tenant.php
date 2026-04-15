@@ -167,6 +167,8 @@ Route::middleware([
         Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject',  [ApplicationController::class, 'reject'])->name('applications.reject');
 
+        Route::post('/applications/bulk',                   [ApplicationController::class, 'bulkAction'])->name('applications.bulk');
+
         // ── Hour log management ─────────────────────────────────────────────
         Route::get('/hours',                       [HoursController::class, 'index'])->name('hours.index');
         Route::get('/hours/{student}',             [HoursController::class, 'show'])->name('hours.show');
@@ -362,11 +364,11 @@ Route::middleware([
 
         // ── Available on ALL plans (Basic+) ────────────────────────────
 
-        Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard',                    [StudentController::class, 'dashboard'])->name('dashboard');
 
-        Route::get('/application/create',        [StudentApplicationController::class, 'create'])->name('application.create');
-        Route::post('/application',              [StudentApplicationController::class, 'store'])->name('application.store');
-        Route::get('/application/{application}', [StudentApplicationController::class, 'show'])->name('application.show');
+        Route::get('/application/create',           [StudentApplicationController::class, 'create'])->name('application.create');
+        Route::post('/application',                 [StudentApplicationController::class, 'store'])->name('application.store');
+        Route::get('/application/{application}',    [StudentApplicationController::class, 'show'])->name('application.show');
 
         Route::get('/hours',                 [StudentHourLogController::class, 'index'])->name('hours.index');
         Route::get('/hours/create',          [StudentHourLogController::class, 'create'])->name('hours.create');

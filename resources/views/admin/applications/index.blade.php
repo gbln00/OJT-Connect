@@ -86,98 +86,77 @@
     </form>
 </div>
 
-{{-- TABLE --}}
-<div class="card fade-up fade-up-2">
+{{-- Bulk Action Bar (shown when items are selected) --}}
+<form method="POST" action="{{ route('admin.applications.bulk') }}" id="bulk-form">
+    @csrf
+    <input type="hidden" name="action" id="bulk-action-input" value="">
+
+    <div id="bulk-bar" style="display:none;background:rgba(140,14,3,0.08);
+         border:1px solid rgba(140,14,3,0.2);padding:12px 16px;margin-bottom:12px;
+         display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span id="selected-count" style="font-family:'DM Mono',monospace;font-size:11px;
+              color:var(--text2);">0 selected</span>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+            <input type="text" name="remarks" placeholder="Remarks (optional)"
+                   style="padding:5px 10px;border:1px solid var(--border2);
+                          background:var(--surface2);color:var(--text);font-size:12px;
+                          width:220px;" />
+            <button type="button" onclick="bulkSubmit('approve')"
+                    class="btn btn-approve btn-sm">✓ Approve Selected</button>
+            <button type="button" onclick="bulkSubmit('reject')"
+                    class="btn btn-danger btn-sm">✕ Reject Selected</button>
+        </div>
+    </div>
+
+    {{-- Table with checkboxes --}}
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th style="width:40px;">
+                        <input type="checkbox" id="select-all"
+                               onchange="toggleAll(this)">
+                    </th>
                     <th>Student</th>
                     <th>Company</th>
                     <th>Program</th>
-                    <th>Semester</th>
-                    <th>Req. Hours</th>
                     <th>Status</th>
                     <th>Submitted</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($applications as $app)
-                @php
-                $pillMap = ['pending'=>'gold','approved'=>'green','rejected'=>'crimson'];
-                $pillCls = $pillMap[$app->status] ?? 'steel';
-                @endphp
+                @foreach($applications as $app)
                 <tr>
-                    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $app->id }}</td>
                     <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <div style="width:30px;height:30px;flex-shrink:0;border:1px solid rgba(140,14,3,0.3);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--crimson);">
-                                {{ strtoupper(substr($app->student->name, 0, 2)) }}
-                            </div>
-                            <div>
-                                <div style="font-size:13px;color:var(--text);font-weight:500;">{{ $app->student->name }}</div>
-                                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">{{ $app->student->email }}</div>
-                            </div>
-                        </div>
+                        @if($app->status === 'pending')
+                        <input type="checkbox" name="ids[]"
+                               value="{{ $app->id }}"
+                               class="app-checkbox"
+                               onchange="updateBulkBar()">
+                        @endif
                     </td>
-                    <td style="color:var(--text);font-size:13px;">{{ $app->company->name }}</td>
-                    <td style="font-size:12px;color:var(--text2);">{{ $app->program }}</td>
-                    <td style="font-size:12px;color:var(--text2);">{{ $app->semester }} — {{ $app->school_year }}</td>
-                    <td style="font-family:'DM Mono',monospace;font-size:12px;">{{ number_format($app->required_hours) }} hrs</td>
-                    <td><span class="status-pill {{ $pillCls }}">{{ $app->status_label }}</span></td>
-                    <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $app->created_at->format('M d, Y') }}</td>
+                    <td>{{ $app->student->name }}</td>
+                    <td>{{ $app->company->name }}</td>
+                    <td>{{ $app->program }}</td>
                     <td>
-                        <div style="display:flex;align-items:center;gap:4px;">
-                            <a href="{{ route('admin.applications.show', $app) }}" class="btn btn-ghost btn-sm">View</a>
-
-                            @if($app->isPending())
-                            <button onclick="openApprove({{ $app->id }}, '{{ addslashes($app->student->name) }}')"
-                                class="btn btn-approve btn-sm">Approve</button>
-                            <button onclick="openReject({{ $app->id }}, '{{ addslashes($app->student->name) }}')"
-                                class="btn btn-danger btn-sm">Reject</button>
-                            @endif
-
-                            <form method="POST" action="{{ route('admin.applications.destroy', $app) }}"
-                                  onsubmit="return confirm('Delete this application?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--muted);">Delete</button>
-                            </form>
-                        </div>
+                        <span class="status-pill
+                            {{ $app->status === 'approved' ? 'teal' : ($app->status === 'rejected' ? 'coral' : 'gold') }}">
+                            {{ ucfirst($app->status) }}
+                        </span>
+                    </td>
+                    <td>{{ $app->created_at->format('M d, Y') }}</td>
+                    <td>
+                        {{-- existing individual action buttons here --}}
+                        <a href="{{ route('admin.applications.show', $app) }}"
+                           class="btn btn-ghost btn-sm">View</a>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="9" style="text-align:center;padding:48px;color:var(--muted);">
-                        No applications found.
-                    </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
-
-    @if($applications->hasPages())
-    <div class="pagination">
-        <span class="pagination-info">
-            Showing {{ $applications->firstItem() }}–{{ $applications->lastItem() }} of {{ $applications->total() }}
-        </span>
-        <div style="display:flex;gap:4px;">
-            @if($applications->onFirstPage())
-                <span class="page-link disabled">← Prev</span>
-            @else
-                <a href="{{ $applications->previousPageUrl() }}" class="page-link">← Prev</a>
-            @endif
-            @if($applications->hasMorePages())
-                <a href="{{ $applications->nextPageUrl() }}" class="page-link">Next →</a>
-            @else
-                <span class="page-link disabled">Next →</span>
-            @endif
-        </div>
-    </div>
-    @endif
-</div>
+</form>
 
 {{-- APPROVE MODAL --}}
 <div class="modal-backdrop" id="approve-modal">
@@ -219,6 +198,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 function openApprove(id, name) {
     document.getElementById('approve-name').textContent = name;
@@ -236,6 +216,37 @@ function closeModals() {
 document.querySelectorAll('.modal-backdrop').forEach(b => {
     b.addEventListener('click', function(e) { if (e.target === this) closeModals(); });
 });
+
+
+function toggleAll(cb) {
+    document.querySelectorAll('.app-checkbox')
+            .forEach(c => c.checked = cb.checked);
+    updateBulkBar();
+}
+
+function updateBulkBar() {
+    const checked = document.querySelectorAll('.app-checkbox:checked');
+    const bar = document.getElementById('bulk-bar');
+    const count = document.getElementById('selected-count');
+    bar.style.display  = checked.length > 0 ? 'flex' : 'none';
+    count.textContent  = `${checked.length} selected`;
+}
+
+function bulkSubmit(action) {
+    const checked = document.querySelectorAll('.app-checkbox:checked');
+    if (checked.length === 0) {
+        alert('Please select at least one application.');
+        return;
+    }
+    const label = action === 'approve' ? 'approve' : 'reject';
+    if (!confirm(`${label.charAt(0).toUpperCase() + label.slice(1)} ${checked.length} application(s)?`)) return;
+    document.getElementById('bulk-action-input').value = action;
+    document.getElementById('bulk-form').submit();
+}
+
 </script>
+@endpush
+
+
 
 @endsection

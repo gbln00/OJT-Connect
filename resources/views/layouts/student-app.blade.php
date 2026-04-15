@@ -618,6 +618,8 @@
                 My Evaluation
             </a>
 
+            <div class="nav-section-label">Alerts</div>
+
             <a href="{{ route('student.notifications.index') }}"
                class="nav-item {{ request()->routeIs('student.notifications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -661,18 +663,6 @@
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Student' }}</div>
                     <div class="sidebar-user-role">Student Intern</div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0;">
-                    @csrf
-                    <button type="submit"
-                            style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;"
-                            title="Log out">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                            <polyline points="16,17 21,12 16,7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                    </button>
-                </form>
             </div>
         </div>
     </aside>

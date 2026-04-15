@@ -380,6 +380,21 @@
 @push('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6/index.global.min.js'></script>
 <script>
+    
+let calendar = null;
+let calendarLoaded = false;
+
+function toggleCalendar() {
+    const container = document.getElementById('hour-calendar-container');
+    const isHidden = container.style.display === 'none';
+    container.style.display = isHidden ? 'block' : 'none';
+    document.getElementById('cal-toggle-btn').textContent =
+        isHidden ? 'Hide Calendar' : 'Toggle Calendar View';
+
+    if (isHidden && !calendarLoaded) {
+        loadCalendar();
+    }
+}
 document.addEventListener('DOMContentLoaded', function () {
     const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: 'dayGridMonth',
@@ -417,15 +432,18 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         },
         // Clicking a day scrolls down to that date's log card
-        dateClick: function (info) {
-            const key  = info.dateStr;                         // YYYY-MM-DD
-            const card = document.querySelector(`[data-date="${key}"]`);
-            if (card) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                card.style.outline = '2px solid var(--crimson)';
-                setTimeout(() => card.style.outline = '', 1800);
-            }
-        },
+        eventClick: function(info) {
+                const s = info.event.extendedProps.status;
+                const h = info.event.extendedProps.hours;
+                const ses = info.event.extendedProps.session;
+                alert(
+                    `${info.event.title}\n` +
+                    `Date: ${info.event.startStr}\n` +
+                    `Session: ${ses}\n` +
+                    `Hours: ${h}\n` +
+                    `Status: ${s}`
+                );
+            },
     });
     cal.render();
 });

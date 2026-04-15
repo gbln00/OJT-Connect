@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ApproveApplicationRequest;
 use App\Http\Requests\Admin\RejectApplicationRequest;
+use App\Http\Requests\Admin\BulkApplicationRequest;
 use App\Models\OjtApplication;
 use App\Models\Company;
 use Illuminate\Http\Request;
@@ -123,4 +124,57 @@ class ApplicationController extends Controller
         return redirect()->route('admin.applications.index')
             ->with('success', 'Application deleted successfully.');
     }
+
+
+    public function bulkAction(BulkApplicationRequest $request)
+    {
+        $action  = $request->validated()['action'];
+        $ids     = $request->validated()['ids'];
+        $remarks = $request->validated()['remarks'] ?? null;
+        $status  = $action === 'approve' ? 'approved' : 'rejected';
+
+        $applications = OjtApplication::whereIn('id', $ids)->get();
+        $count = 0;
+
+        foreach ($applications as $application) {
+            if ($application->status !== 'pending') continue;
+
+            $application->update([
+                'status'      => $status,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+                'remarks'     => $remarks,
+            ]);
+
+            $msgTitle = $action === 'approve' ? 'Application Approved' : 'Application Rejected';
+            $msgText  = $action === 'approve'
+                ? "Your OJT application for {$application->company->name} has been approved."
+                : "Your OJT application for {$application->company->name} was rejected."
+                . ($remarks ? " Remarks: {$remarks}" : '');
+
+            TenantNotification::notify(
+                title:      $msgTitle,
+                message:    $msgText,
+                type:       $action === 'approve' ? 'success' : 'warning',
+                targetRole: 'student_intern',
+                userId:     $application->student_id
+            );
+
+            $mailClass = $action === 'approve'
+                ? new \App\Mail\ApplicationApproved($application)
+                : new \App\Mail\ApplicationRejected($application);
+
+            try {
+                Mail::to($application->student->email)->send($mailClass);
+            } catch (\Throwable $e) {
+                \Log::error("Bulk mail failed for app {$application->id}: " . $e->getMessage());
+            }
+
+            $count++;
+        }
+
+        $label = $action === 'approve' ? 'approved' : 'rejected';
+        return back()->with('success', "{$count} application(s) {$label} successfully.");
+    }
+
 }
