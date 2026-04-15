@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminPlanRequestController;
 use App\Http\Controllers\Admin\TenantCustomizationController;
 use App\Http\Controllers\Admin\AdminQrController;
+use App\Http\Controllers\Admin\AdminCsvImportController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -44,6 +45,7 @@ use App\Http\Controllers\Coordinator\CoordinatorPlanController;
 use App\Http\Controllers\Coordinator\CoordinatorCompanyController;
 use App\Http\Controllers\Coordinator\CoordinatorSettingsController;
 use App\Http\Controllers\Coordinator\CsvImportController;  
+use App\Http\Controllers\Coordinator\CoordinatorExportController;
 
 // Student
 use App\Http\Controllers\Student\StudentApplicationController;
@@ -201,9 +203,9 @@ Route::middleware([
             Route::get('/evaluations',                  [EvaluationController::class, 'index'])->name('evaluations.index');
             Route::get('/evaluations/{evaluation}',     [EvaluationController::class, 'show'])->name('evaluations.show');
 
-            Route::get('/import',                               [CsvImportController::class, 'index'])->name('import.index');
-            Route::get('/import/template/{type}',               [CsvImportController::class, 'template'])->name('import.template');
-            Route::post('/import',                              [CsvImportController::class, 'import'])->name('import.store');
+            Route::get('/import',                               [AdminCsvImportController::class, 'index'])->name('import.index');
+            Route::get('/import/template/{type}',               [AdminCsvImportController::class, 'template'])->name('import.template');
+            Route::post('/import',                              [AdminCsvImportController::class, 'import'])->name('import.store');
         });
 
         // ── Premium plan only ───────────────────────────────────────────
@@ -312,11 +314,11 @@ Route::middleware([
 
         Route::middleware('plan:premium')->group(function () { 
              // ── Data exports ─────────────────────────────────────────────
-            Route::get('/export',                              [ExportController::class, 'index'])->name('export.index');
-            Route::get('/export/pdf/students',                 [ExportController::class, 'pdfStudents'])->name('export.pdf.students');
-            Route::get('/export/pdf/evaluations',              [ExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
-            Route::get('/export/excel',                        [ExportController::class, 'excelFull'])->name('export.excel');
-            Route::get('/export/certificate/{application}',    [ExportController::class, 'certificate'])->name('export.certificate');
+            Route::get('/export',                           [CoordinatorExportController::class, 'index'])->name('export.index');
+            Route::get('/export/pdf/students',              [CoordinatorExportController::class, 'pdfStudents'])->name('export.pdf.students');
+            Route::get('/export/pdf/evaluations',           [CoordinatorExportController::class, 'pdfEvaluations'])->name('export.pdf.evaluations');
+            Route::get('/export/excel',                     [CoordinatorExportController::class, 'excelFull'])->name('export.excel');
+            Route::get('/export/certificate/{application}', [CoordinatorExportController::class, 'certificate'])->name('export.certificate');
         });
 
         // ── Plan overview ─────────────────────────────────────────────

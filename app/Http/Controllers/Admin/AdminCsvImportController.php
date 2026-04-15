@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Coordinator;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\{Company, User, StudentProfile};
@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class CsvImportController extends Controller
+class AdminCsvImportController extends Controller
 {
     // ── Show import page ──────────────────────────────────────
     public function index()
     {
-        return view('admin.import.index');
+        return view('admin.import.index');  // ← was 'coordinator.import.index'
     }
 
     // ── Download CSV template ──────────────────────────────────
@@ -34,7 +34,6 @@ class CsvImportController extends Controller
         return response()->streamDownload(function () use ($headers) {
             $out = fopen('php://output', 'w');
             fputcsv($out, $headers);
-            // Add one example row
             if ($headers[0] === 'name') {
                 fputcsv($out, count($headers) === 10
                     ? ['Juan Dela Cruz','juan@buksu.edu.ph','Password123',
@@ -61,7 +60,7 @@ class CsvImportController extends Controller
         $type    = $request->type;
         $file    = $request->file('file');
         $handle  = fopen($file->getRealPath(), 'r');
-        $headers = fgetcsv($handle); // Skip header row
+        $headers = fgetcsv($handle);
 
         $results = ['created' => 0, 'skipped' => 0, 'errors' => []];
         $row = 1;
@@ -76,8 +75,7 @@ class CsvImportController extends Controller
         }
         fclose($handle);
 
-        $msg = "Import complete. Created: {$results['created']}, 
-               Skipped: {$results['skipped']}.";
+        $msg = "Import complete. Created: {$results['created']}, Skipped: {$results['skipped']}.";
 
         return back()->with('import_results', $results)->with('success', $msg);
     }
@@ -85,8 +83,6 @@ class CsvImportController extends Controller
     // ── Import one student row ─────────────────────────────────
     private function importStudent(array $data, int $row, array &$results): void
     {
-        // Expected columns: name,email,password,student_id,course,
-        //                   year_level,section,required_hours,phone,address
         if (count($data) < 6) {
             $results['errors'][] = "Row {$row}: Not enough columns.";
             $results['skipped']++;
@@ -96,7 +92,6 @@ class CsvImportController extends Controller
         [$name, $email, $password, $studentId, $course,
          $yearLevel, $section, $reqHours, $phone, $address] = array_pad($data, 10, null);
 
-        // Validate
         $v = Validator::make(
             ['name' => $name, 'email' => $email, 'course' => $course],
             [
@@ -139,7 +134,6 @@ class CsvImportController extends Controller
     // ── Import one company row ─────────────────────────────────
     private function importCompany(array $data, int $row, array &$results): void
     {
-        // Expected columns: name,address,contact_person,contact_email,contact_phone,industry
         if (count($data) < 1 || empty(trim($data[0]))) {
             $results['errors'][] = "Row {$row}: Company name is required.";
             $results['skipped']++;

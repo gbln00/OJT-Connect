@@ -3,7 +3,22 @@
 @section('page-title', 'Export Reports')
 @section('content')
 
+@php
+    $brandColor     = '#' . (app(\App\Models\TenantSetting::class)::get('brand_color') ?? '8C0E03');
+    $brandSecondary = '#' . (app(\App\Models\TenantSetting::class)::get('brand_color_secondary') ?? '0E1126');
+    $brandName      = app(\App\Models\TenantSetting::class)::get('brand_name') ?? 'OJTConnect';
+    $logoPath       = app(\App\Models\TenantSetting::class)::get('brand_logo');
+    $tenantLogoUrl  = $logoPath ? tenant_asset($logoPath) : null;
+@endphp
 
+@if(session('success'))
+<div class="alert-success fade-up">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/>
+    </svg>
+    {{ session('success') }}
+</div>
+@endif
 
 {{-- ── PAGE HEADER ─────────────────────────────────────────────────────────── --}}
 <div class="exp-page-header fade-up">

@@ -1,4 +1,4 @@
-@extends('layouts.admintor-app')
+@extends('layouts.app')
 @section('title', 'CSV Import')
 @section('page-title', 'CSV Bulk Import')
 
@@ -30,15 +30,15 @@
         <div style="margin-bottom:24px;">
             <div class="form-label">Download Templates</div>
             <div style="display:flex;gap:10px;margin-top:8px;">
-                <a href="{{ route('admintor.import.template', 'students') }}"
+                <a href="{{ route('admin.import.template', 'students') }}"
                    class="btn btn-ghost btn-sm">⬇ Student Template</a>
-                <a href="{{ route('admintor.import.template', 'companies') }}"
+                <a href="{{ route('admin.import.template', 'companies') }}"
                    class="btn btn-ghost btn-sm">⬇ Company Template</a>
             </div>
         </div>
 
         {{-- Upload Form --}}
-        <form method="POST" action="{{ route('admintor.import.store') }}"
+        <form method="POST" action="{{ route('admin.import.store') }}"
               enctype="multipart/form-data">
             @csrf
             <div style="margin-bottom:16px;">
