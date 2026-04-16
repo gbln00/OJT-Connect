@@ -26,19 +26,19 @@ class HourLogReminder extends Mailable
         );
     }
 
-    public function content(): Content
+   public function content(): Content
     {
         return new Content(
             markdown: 'emails.hourlogs.reminder',
             with: [
-                'studentName'    => $this->student->name,
-                'companyName'    => $this->application->company->name,
-                'approvedHours'  => number_format(
+                'studentName'        => $this->student->name,
+                'companyName'        => $this->application->company->name,
+                'totalApprovedHours' => number_format(   // ← was 'approvedHours'
                     \App\Models\HourLog::where('application_id', $this->application->id)
                         ->where('status', 'approved')->sum('total_hours'), 1
                 ),
-                'requiredHours'  => number_format($this->application->required_hours),
-                'logsUrl'        => url('/student/hours'),
+                'requiredHours'      => number_format($this->application->required_hours),
+                'logsUrl'            => url('/student/hours'),
             ],
         );
     }

@@ -21,7 +21,7 @@ class CoordinatorHourLogController extends Controller
     public function index(Request $request)
     {
         $query = HourLog::with(['student', 'application.company'])
-            ->where('status', 'approved')           // ← view approved only
+            ->where('status', 'approved')   
             ->orderBy('date', 'desc')
             ->orderByRaw("FIELD(session, 'morning', 'afternoon')");
 

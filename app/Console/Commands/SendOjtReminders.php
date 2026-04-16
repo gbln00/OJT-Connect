@@ -1,7 +1,11 @@
 <?php
 
 namespace App\Console\Commands;
-
+use App\Models\Tenant;
+use App\Models\OjtApplication;
+use App\Models\HourLog; 
+use App\Mail\HourLogReminder;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Console\Command;
 
 class SendOjtReminders extends Command
