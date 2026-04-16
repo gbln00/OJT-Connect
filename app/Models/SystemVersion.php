@@ -1,8 +1,8 @@
 <?php
-namespace AppModels;
+namespace App\Models;
 
-use IlluminateDatabaseEloquentModel;
-use IlluminateSupportStr;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class SystemVersion extends Model
 {
