@@ -35,77 +35,66 @@ class OjtApplication extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    // Company relationship
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Reviewer (coordinator/admin who approved/rejected)
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    // Hour logs relationship (one-to-many)
     public function hourLogs()
     {
         return $this->hasMany(HourLog::class, 'application_id');
     }
 
-    // Weekly reports relationship (one-to-many)
     public function weeklyReports()
     {
         return $this->hasMany(WeeklyReport::class, 'application_id');
     }
 
-    // Evaluation relationship (one-to-one)
     public function evaluation()
     {
         return $this->hasOne(Evaluation::class, 'application_id');
     }
 
-    // QR code relationship (one-to-one)
     public function qrClockIn()
     {
         return $this->hasOne(\App\Models\QrClockIn::class, 'application_id');
     }
 
-    // Helpers
-    public function isPending(): bool  { return $this->status === 'pending'; }
-    public function isApproved(): bool { return $this->status === 'approved'; }
-    public function isRejected(): bool { return $this->status === 'rejected'; }
+    // Status helpers
+    public function isPending(): bool      { return $this->status === 'pending'; }
+    public function isApproved(): bool     { return $this->status === 'approved'; }
+    public function isRejected(): bool     { return $this->status === 'rejected'; }
+    public function isUnderReview(): bool  { return $this->status === 'under_review'; }
 
-    // Accessors for total logged hours and remaining hours
+    // Computed hour attributes
     public function getTotalLoggedHoursAttribute(): float
     {
         return $this->hourLogs()->where('status', 'approved')->sum('total_hours');
     }
 
-    // Remaining hours = required hours - total approved logged hours
     public function getRemainingHoursAttribute(): float
     {
         return max(0, $this->required_hours - $this->total_logged_hours);
     }
-    // Check if application is under document review
-    public function isUnderReview(): bool { return $this->status === 'document_review'; }
 
-    // Accessor for human-readable status label
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'pending'  => 'Pending Review',
-            'approved' => 'Approved',
-            'rejected' => 'Rejected',
-            default    => 'Unknown',
+            'pending'      => 'Pending Review',
+            'under_review' => 'Under Review',
+            'approved'     => 'Approved',
+            'rejected'     => 'Rejected',
+            default        => 'Unknown',
         };
     }
 
-    // Scope: student's current active application
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'document_review', 'approved']);
+        return $query->whereIn('status', ['pending', 'under_review', 'approved']);
     }
-
-    
 }

@@ -46,10 +46,11 @@ class ApplicationController extends Controller
         $applications = $query->paginate(15)->withQueryString();
 
         $counts = [
-            'total'    => OjtApplication::count(),
-            'pending'  => OjtApplication::where('status', 'pending')->count(),
-            'approved' => OjtApplication::where('status', 'approved')->count(),
-            'rejected' => OjtApplication::where('status', 'rejected')->count(),
+            'total'        => OjtApplication::count(),
+            'pending'      => OjtApplication::where('status', 'pending')->count(),
+            'under_review' => OjtApplication::where('status', 'under_review')->count(),
+            'approved'     => OjtApplication::where('status', 'approved')->count(),
+            'rejected'     => OjtApplication::where('status', 'rejected')->count(),
         ];
 
         $companies = Company::where('is_active', true)->orderBy('name')->get();
@@ -70,7 +71,6 @@ class ApplicationController extends Controller
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
             'remarks'     => $request->validated()['remarks'] ?? null,
-            
         ]);
 
         TenantNotification::notify(
@@ -81,13 +81,10 @@ class ApplicationController extends Controller
             userId:     $application->student_id
         );
 
-        // Send approval email
         Mail::to($application->student->email)->send(new ApplicationApproved($application));
 
         return back()->with('success', "Application for {$application->student->name} has been approved.");
     }
-
-    
 
     public function reject(RejectApplicationRequest $request, OjtApplication $application)
     {
@@ -106,9 +103,7 @@ class ApplicationController extends Controller
             userId:     $application->student_id
         );
 
-        // Send rejection email
         Mail::to($application->student->email)->send(new ApplicationRejected($application));
-
 
         return back()->with('success', "Application for {$application->student->name} has been rejected.");
     }
@@ -125,7 +120,6 @@ class ApplicationController extends Controller
             ->with('success', 'Application deleted successfully.');
     }
 
-
     public function bulkAction(BulkApplicationRequest $request)
     {
         $action  = $request->validated()['action'];
@@ -137,7 +131,8 @@ class ApplicationController extends Controller
         $count = 0;
 
         foreach ($applications as $application) {
-            if ($application->status !== 'pending') continue;
+            // Allow actioning both pending and under_review applications
+            if (!in_array($application->status, ['pending', 'under_review'])) continue;
 
             $application->update([
                 'status'      => $status,
@@ -184,8 +179,8 @@ class ApplicationController extends Controller
         ]);
 
         $application->update([
-            'status' => 'under_review',
-            'remarks' => $validated['review_notes'] ?? $application->remarks,
+            'status'      => 'under_review',
+            'remarks'     => $validated['review_notes'] ?? $application->remarks,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
@@ -202,5 +197,4 @@ class ApplicationController extends Controller
             ->route('admin.applications.show', $application)
             ->with('success', 'Application sent for document review.');
     }
-
 }

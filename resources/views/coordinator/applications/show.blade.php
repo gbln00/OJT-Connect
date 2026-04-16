@@ -1,216 +1,333 @@
 @extends('layouts.coordinator-app')
-@section('title', 'Application — ' . $application->student->name)
-@section('page-title', 'Application Detail')
-@section('content')
+@section('title', 'Application Details')
+@section('page-title', 'Application Details')
 
+@section('content')
 @php
-    $statusMap = [
-        'pending'  => ['class' => 'gold',  'label' => 'Pending Review'],
-        'approved' => ['class' => 'teal',  'label' => 'Approved'],
-        'rejected' => ['class' => 'coral', 'label' => 'Rejected'],
-    ];
-    $s = $statusMap[$application->status] ?? $statusMap['pending'];
+$pillMap = [
+    'pending'      => 'gold',
+    'under_review' => 'blue',
+    'approved'     => 'teal',
+    'rejected'     => 'coral',
+];
+$pillCls = $pillMap[$application->status] ?? 'steel';
 @endphp
 
-{{-- Eyebrow --}}
-<div class="fade-up" style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-    <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
-        Applications / Detail
-    </span>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--border2);">·</span>
-    <a href="{{ route('coordinator.companies.index') }}" class="btn btn-ghost btn-sm">
-        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        Back
-    </a>x`
-</div>
+<div style="max-width:1100px;display:flex;flex-direction:column;gap:12px;">
 
-<div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;" class="fade-up fade-up-1">
+    {{-- Eyebrow + back --}}
+    <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:5px;height:5px;background:var(--crimson);display:inline-block;" class="flicker"></span>
+            <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);">
+                Applications / #{{ $application->id }}
+            </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span class="status-pill {{ $pillCls }}">{{ $application->status_label }}</span>
+            <a href="{{ route('coordinator.applications.index') }}" class="btn btn-ghost btn-sm">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back
+            </a>
+        </div>
+    </div>
 
-    {{-- LEFT COLUMN --}}
-    <div style="display:flex;flex-direction:column;gap:16px;">
-        
-        {{-- Student info card --}}
-        <div class="card">
-            <div class="card-header">
-                <div style="display:flex;align-items:center;gap:14px;">
-                    <div style="width:40px;height:40px;flex-shrink:0;border:1px solid rgba(140,14,3,0.35);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:900;color:var(--crimson);">
-                        {{ strtoupper(substr($application->student->name ?? 'S', 0, 2)) }}
+    {{-- TWO COLUMN GRID --}}
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start;" class="fade-up fade-up-1">
+
+        {{-- LEFT COLUMN --}}
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+            {{-- Student card --}}
+            <div class="card">
+                <div class="card-header">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:40px;height:40px;flex-shrink:0;border:1px solid rgba(140,14,3,0.35);background:rgba(140,14,3,0.07);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:900;color:var(--crimson);">
+                            {{ strtoupper(substr($application->student->name ?? 'S', 0, 2)) }}
+                        </div>
+                        <div>
+                            <div class="card-title">{{ $application->student->name ?? '—' }}</div>
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">{{ $application->student->email ?? '' }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="card-title">{{ $application->student->name ?? '—' }}</div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;">{{ $application->student->email ?? '' }}</div>
+                    <span class="status-dot {{ $application->student->is_active ? 'active' : 'inactive' }}">
+                        {{ $application->student->is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+                <div style="padding:20px;">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Program / Course</div>
+                            <div class="detail-value">{{ $application->program }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Account status</div>
+                            <div class="detail-value">{{ $application->student->is_active ? 'Active' : 'Inactive' }}</div>
+                        </div>
                     </div>
                 </div>
-                <span class="status-dot {{ $application->status }}" style="font-size:13px;">{{ $s['label'] }}</span>
-                
             </div>
 
-            {{-- Application fields --}}
-            <div style="padding:20px;">
-                <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Application Details</div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Company</div>
-                        <div style="font-size:13.5px;font-weight:600;color:var(--text);">{{ $application->company->name ?? '—' }}</div>
-                        @if($application->company?->address)
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">{{ $application->company->address }}</div>
-                        @endif
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Program</div>
-                        <div style="font-size:13.5px;color:var(--text);">{{ $application->program }}</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">School Year</div>
-                        <div style="font-size:13.5px;color:var(--text);">{{ $application->school_year }}</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Semester</div>
-                        <div style="font-size:13.5px;color:var(--text);">{{ $application->semester }}</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Required Hours</div>
-                        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--blue);">{{ number_format($application->required_hours) }}</div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">hours</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Submitted</div>
-                        <div style="font-size:13.5px;color:var(--text);">{{ $application->created_at->format('M d, Y') }}</div>
+            {{-- OJT details --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">OJT Details</div>
+                    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;">
+                        {{ $application->semester }} — {{ $application->school_year }}
+                    </span>
+                </div>
+                <div style="padding:20px;">
+                    <div class="detail-grid" style="grid-template-columns:repeat(3,1fr);">
+                        <div class="detail-item">
+                            <div class="detail-label">Company</div>
+                            <div class="detail-value" style="font-weight:600;">{{ $application->company->name ?? '—' }}</div>
+                            @if($application->company?->address)
+                            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">{{ $application->company->address }}</div>
+                            @endif
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Industry</div>
+                            <div class="detail-value">{{ $application->company->industry ?? '—' }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Required hours</div>
+                            <div class="detail-value">
+                                <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--text);">{{ number_format($application->required_hours) }}</span>
+                                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);"> hrs</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">School year</div>
+                            <div class="detail-value">{{ $application->school_year }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Semester</div>
+                            <div class="detail-value">{{ $application->semester }} Semester</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Date submitted</div>
+                            <div class="detail-value" style="font-family:'DM Mono',monospace;font-size:12px;">{{ $application->created_at->format('M d, Y') }}</div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                {{-- Document --}}
-                <div style="border-top:1px solid var(--border);margin-top:20px;padding-top:18px;">
-                    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Supporting Document</div>
+            {{-- Document --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Submitted Document</div>
+                </div>
+                <div style="padding:20px;">
                     @if($application->document_path)
-                    <a href="{{ Storage::url($application->document_path) }}" target="_blank" class="btn btn-ghost btn-sm">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                            <polyline points="14,2 14,8 20,8"/>
-                        </svg>
-                        View Document
-                    </a>
+                        <a href="{{ Storage::url($application->document_path) }}" target="_blank"
+                           style="display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);text-decoration:none;transition:border-color 0.15s;"
+                           onmouseover="this.style.borderColor='var(--crimson)'" onmouseout="this.style.borderColor='var(--border2)'">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                            </svg>
+                            <span style="font-size:13px;font-weight:500;">View document</span>
+                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;color:var(--muted);">
+                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                                <polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                            </svg>
+                        </a>
                     @else
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">No document uploaded.</span>
+                        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.05em;">// No document uploaded.</div>
                     @endif
                 </div>
             </div>
-        </div>
 
-        {{-- Review record (if reviewed) --}}
-        @if($application->reviewed_at)
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">Review record</div>
-            </div>
-            <div style="padding:20px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Reviewed by</div>
-                        <div style="font-size:13px;color:var(--text);font-weight:600;">{{ $application->reviewer->name ?? '—' }}</div>
-                    </div>
-                    <div>
-                        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Reviewed on</div>
-                        <div style="font-size:13px;color:var(--text);">{{ $application->reviewed_at->format('M d, Y \a\t h:i A') }}</div>
-                    </div>
+            {{-- Remarks --}}
+            @if($application->remarks)
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Remarks / Review Notes</div>
                 </div>
-                @if($application->remarks)
-                <div>
-                    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Remarks</div>
-                    <div style="padding:12px 14px;background:var(--surface2);border-left:2px solid var(--crimson);font-size:13px;color:var(--text);line-height:1.6;">
+                <div style="padding:20px;">
+                    <div style="font-size:13.5px;color:var(--text2);line-height:1.7;border-left:2px solid
+                        @if($application->isUnderReview()) #60a5fa
+                        @elseif($application->isRejected()) var(--crimson)
+                        @else var(--border2)
+                        @endif;padding-left:16px;">
                         {{ $application->remarks }}
                     </div>
                 </div>
-                @endif
             </div>
-        </div>
-        @endif
+            @endif
 
-    </div>
-
-    {{-- RIGHT COLUMN --}}
-    <div style="display:flex;flex-direction:column;gap:14px;">
-
-        @if($application->status === 'pending')
-
-        {{-- Approve --}}
-        <div class="card" style="border-color:rgba(45,212,191,0.2);">
-            <div class="card-header" style="border-bottom-color:rgba(45,212,191,0.15);">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:6px;">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
-                    Approve Application
+            {{-- Review record (if reviewed) --}}
+            @if($application->reviewed_at)
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Review record</div>
+                </div>
+                <div style="padding:20px;">
+                    <div class="detail-grid" style="margin-bottom:{{ $application->remarks ? '14px' : '0' }};">
+                        <div class="detail-item">
+                            <div class="detail-label">Reviewed by</div>
+                            <div class="detail-value" style="font-weight:600;">{{ $application->reviewer->name ?? '—' }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Reviewed on</div>
+                            <div class="detail-value" style="font-family:'DM Mono',monospace;font-size:12px;">{{ $application->reviewed_at->format('M d, Y \a\t h:i A') }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <form method="POST" action="{{ route('coordinator.applications.approve', $application->id) }}" style="padding:16px;">
-                @csrf
-                <label class="form-label">Remarks <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></label>
-                <textarea name="remarks" rows="3" placeholder="Add a note for the student…"
-                          class="form-input" style="resize:vertical;margin-bottom:12px;border-color:rgba(45,212,191,0.2);"
-                          onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='rgba(45,212,191,0.2)'"></textarea>
-                <button type="submit" class="btn btn-approve" style="width:100%;justify-content:center;">
-                    ✓ Confirm Approve
-                </button>
-            </form>
+            @endif
+
         </div>
 
-        {{-- Reject --}}
-        <div class="card" style="border-color:rgba(248,113,113,0.2);">
-            <div class="card-header" style="border-bottom-color:rgba(248,113,113,0.15);">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--coral);display:flex;align-items:center;gap:6px;">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    Reject Application
+        {{-- RIGHT COLUMN --}}
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+            {{-- Review Status card --}}
+            <div class="card" style="position:relative;overflow:hidden;">
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:
+                    @if($application->isUnderReview()) #60a5fa
+                    @elseif($application->isApproved()) var(--teal, #2dd4bf)
+                    @elseif($application->isRejected()) var(--crimson)
+                    @else var(--gold, #f59e0b)
+                    @endif;"></div>
+                <div class="card-header">
+                    <div class="card-title">Review Status</div>
+                </div>
+                <div style="padding:4px 0;">
+                    @php
+                    $reviewRows = [
+                        ['Status',      '<span class="status-pill ' . $pillCls . '">' . $application->status_label . '</span>'],
+                        ['Reviewed by', $application->reviewer?->name ?? '—'],
+                        ['Reviewed at', $application->reviewed_at?->format('M d, Y') ?? '—'],
+                    ];
+                    @endphp
+                    @foreach($reviewRows as [$lbl, $val])
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);">
+                        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">{{ $lbl }}</span>
+                        <span style="font-size:13px;color:var(--text);">{!! $val !!}</span>
+                    </div>
+                    @endforeach
                 </div>
             </div>
-            <form method="POST" action="{{ route('coordinator.applications.reject', $application->id) }}" style="padding:16px;">
-                @csrf
-                <label class="form-label">Reason <span style="color:var(--crimson);">✦</span></label>
-                <textarea name="remarks" rows="3" placeholder="State the reason for rejection…" required
-                          class="form-input" style="resize:vertical;margin-bottom:12px;border-color:rgba(248,113,113,0.2);"
-                          onfocus="this.style.borderColor='var(--coral)'" onblur="this.style.borderColor='rgba(248,113,113,0.2)'"></textarea>
-                <button type="submit" class="btn btn-reject" style="width:100%;justify-content:center;">
-                    ✕ Confirm Reject
-                </button>
-            </form>
+
+            {{-- Actions panel --}}
+            @if($application->isPending() || $application->isUnderReview())
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Actions</div>
+                    @if($application->isUnderReview())
+                    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#60a5fa;padding:3px 8px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.07);">
+                        Under Review
+                    </span>
+                    @endif
+                </div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+
+                    {{-- Under review notice --}}
+                    @if($application->isUnderReview())
+                    <div style="padding:10px 14px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.07);font-size:12px;color:#60a5fa;line-height:1.6;">
+                        Documents are currently being reviewed. Approve or reject once verification is complete.
+                        @if($application->remarks)
+                        <div style="margin-top:6px;color:var(--text2);font-size:12px;font-style:italic;">{{ $application->remarks }}</div>
+                        @endif
+                    </div>
+                    @endif
+
+                    {{-- Approve form --}}
+                    <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}">
+                        @csrf
+                        <div style="margin-bottom:8px;">
+                            <label class="form-label-sm">Remarks <span style="color:var(--muted);text-transform:none;">(optional)</span></label>
+                            <textarea name="remarks" rows="2" placeholder="Add a note for the student..."
+                                class="form-input-sm" style="resize:none;font-family:inherit;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-approve" style="width:100%;justify-content:center;padding:10px;">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+                            Approve application
+                        </button>
+                    </form>
+
+                    {{-- Reject form --}}
+                    <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}">
+                        @csrf
+                        <div style="margin-bottom:8px;">
+                            <label class="form-label-sm">Reason for rejection <span style="color:var(--crimson);">✦</span></label>
+                            <textarea name="remarks" rows="2" required placeholder="Explain the reason..."
+                                class="form-input-sm" style="resize:none;font-family:inherit;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;padding:10px;">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            Reject application
+                        </button>
+                    </form>
+
+                    {{-- Send for document review (only when still pending) --}}
+                    @if($application->isPending())
+                    <div style="height:1px;background:var(--border);"></div>
+                    <form method="POST" action="{{ route('coordinator.applications.sendToReview', $application) }}">
+                        @csrf
+                        <div style="margin-bottom:8px;">
+                            <label class="form-label-sm">Review notes <span style="color:var(--muted);text-transform:none;">(optional)</span></label>
+                            <textarea name="review_notes" rows="2" placeholder="Notes for document review..."
+                                class="form-input-sm" style="resize:none;font-family:inherit;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-ghost" style="width:100%;justify-content:center;">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Send for Document Review
+                        </button>
+                    </form>
+                    @endif
+
+                </div>
+            </div>
+            @endif
+
+            {{-- Finalized notice --}}
+            @if($application->isApproved() || $application->isRejected())
+            <div class="card" style="text-align:center;padding:20px;">
+                <div style="font-size:24px;margin-bottom:8px;">{{ $application->isApproved() ? '✓' : '✕' }}</div>
+                <span class="status-pill {{ $pillCls }}" style="display:inline-block;margin-bottom:10px;">{{ $application->status_label }}</span>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;letter-spacing:0.04em;">
+                    // This application has been reviewed<br>and cannot be changed.
+                </div>
+            </div>
+            @endif
+
+            {{-- Timeline --}}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Timeline</div>
+                </div>
+                <div style="padding:4px 0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px;color:var(--text2);">Submitted</span>
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $application->created_at->format('M d, Y') }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);">
+                        <span style="font-size:12px;color:var(--text2);">Last updated</span>
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $application->updated_at->format('M d, Y') }}</span>
+                    </div>
+                    @if($application->reviewed_at)
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
+                        <span style="font-size:12px;color:var(--text2);">Reviewed</span>
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--{{ $pillCls }});">{{ $application->reviewed_at->format('M d, Y') }}</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
         </div>
-
-        @else
-
-        <div class="card" style="padding:24px;text-align:center;">
-            <div style="font-size:28px;margin-bottom:10px;">{{ $application->status === 'approved' ? '✅' : '✕' }}</div>
-            <span class="status-dot {{ $application->status }}" style="font-size:14px;font-weight:600;">{{ $s['label'] }}</span>
-            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6;letter-spacing:0.04em;">
-                // This application has already been<br>reviewed and cannot be changed.
-            </div>
-        </div>
-
-        @endif
-
-        {{-- Timeline --}}
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">Timeline</div>
-            </div>
-            <div style="padding:4px 0;">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--border);">
-                    <span style="font-size:12px;color:var(--text2);">Submitted</span>
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $application->created_at->format('M d, Y') }}</span>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--border);">
-                    <span style="font-size:12px;color:var(--text2);">Last updated</span>
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">{{ $application->updated_at->format('M d, Y') }}</span>
-                </div>
-                @if($application->reviewed_at)
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;">
-                    <span style="font-size:12px;color:var(--text2);">Reviewed</span>
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--{{ $s['class'] }});">{{ $application->reviewed_at->format('M d, Y') }}</span>
-                </div>
-                @endif
-            </div>
-        </div>
-
     </div>
 </div>
 
+@push('styles')
+<style>
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.detail-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.detail-value { font-size:13.5px; color:var(--text); }
+.form-label-sm { display:block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.form-input-sm { width:100%; padding:8px 10px; background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-size:12px; outline:none; transition:border-color 0.15s; box-sizing:border-box; border-radius:0; }
+.form-input-sm:focus { border-color:var(--crimson); }
+</style>
+@endpush
 @endsection

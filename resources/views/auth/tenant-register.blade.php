@@ -943,13 +943,14 @@
                     @enderror
                 </div>
 
+                
+
                {{-- reCAPTCHA --}}
                 <div class="field full" style="margin-top:.5rem;">
                     <label class="field-label">Security Check <span class="req">✦</span></label>
-                    <div class="recaptcha-wrap">
+                    <div class="recaptcha-wrap" style="display: flex; justify-content: center;">
                         <div class="g-recaptcha"
-                            data-sitekey="{{ config('services.recaptcha.site_key') }}"
-                            data-theme="dark">
+                            data-sitekey="{{ config('services.recaptcha.site_key') }}">
                         </div>
                     </div>
                     @error('g-recaptcha-response')
@@ -970,10 +971,6 @@
                             <polyline points="12 5 19 12 12 19"/>
                         </svg>
                     </button>
-                </div>
-
-                <div class="login-link">
-                    Already registered? <a href="{{ route('login') }}">Sign in here</a>
                 </div>
 
             </div>{{-- /.form-grid --}}

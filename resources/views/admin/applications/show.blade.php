@@ -4,7 +4,12 @@
 
 @section('content')
 @php
-$pillMap = ['pending'=>'gold','approved'=>'green','rejected'=>'crimson'];
+$pillMap = [
+    'pending'      => 'gold',
+    'under_review' => 'blue',
+    'approved'     => 'green',
+    'rejected'     => 'crimson',
+];
 $pillCls = $pillMap[$application->status] ?? 'steel';
 @endphp
 
@@ -127,17 +132,20 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                     @else
                         <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.05em;">// No document uploaded.</div>
                     @endif
-                    
                 </div>
             </div>
-             
-            {{-- Remarks --}}
+
+            {{-- Remarks (if any) --}}
             @if($application->remarks)
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Remarks</div>
+                    <div class="card-title">Remarks / Review Notes</div>
                 </div>
-                <div style="padding:20px;font-size:13.5px;color:var(--text2);line-height:1.7;">
+                <div style="padding:20px;font-size:13.5px;color:var(--text2);line-height:1.7;border-left:2px solid
+                    @if($application->isUnderReview()) #60a5fa
+                    @elseif($application->isRejected()) var(--crimson)
+                    @else var(--border2)
+                    @endif;padding-left:16px;margin:0 20px 20px;">
                     {{ $application->remarks }}
                 </div>
             </div>
@@ -150,7 +158,12 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
 
             {{-- Review status --}}
             <div class="card" style="position:relative;overflow:hidden;">
-                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--crimson);"></div>
+                <div style="position:absolute;top:0;left:0;right:0;height:2px;background:
+                    @if($application->isUnderReview()) #60a5fa
+                    @elseif($application->isApproved()) var(--teal, #2dd4bf)
+                    @elseif($application->isRejected()) var(--crimson)
+                    @else var(--gold, #f59e0b)
+                    @endif;"></div>
                 <div class="card-header">
                     <div class="card-title">Review Status</div>
                 </div>
@@ -169,17 +182,32 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                     </div>
                     @endforeach
                 </div>
-               
             </div>
 
-            {{-- Actions --}}
-            @if($application->isPending())
+            {{-- Actions panel --}}
+            @if($application->isPending() || $application->isUnderReview())
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Actions</div>
+                    @if($application->isUnderReview())
+                    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#60a5fa;padding:3px 8px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.07);">
+                        Under Review
+                    </span>
+                    @endif
                 </div>
                 <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
 
+                    {{-- Under review notice --}}
+                    @if($application->isUnderReview())
+                    <div style="padding:10px 14px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.07);font-size:12px;color:#60a5fa;line-height:1.6;">
+                        Documents are currently being reviewed. Approve or reject once verification is complete.
+                        @if($application->remarks)
+                        <div style="margin-top:6px;color:var(--text2);font-size:12px;font-style:italic;">{{ $application->remarks }}</div>
+                        @endif
+                    </div>
+                    @endif
+
+                    {{-- Approve form --}}
                     <form method="POST" action="{{ route('admin.applications.approve', $application) }}">
                         @csrf
                         <div style="margin-bottom:8px;">
@@ -193,8 +221,7 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                         </button>
                     </form>
 
-                   
-
+                    {{-- Reject form --}}
                     <form method="POST" action="{{ route('admin.applications.reject', $application) }}">
                         @csrf
                         <div style="margin-bottom:8px;">
@@ -208,34 +235,34 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
                         </button>
                     </form>
 
-                    <div style="height:1px;background:var(--border);"></div>
-
+                    {{-- Send for document review (only when still pending) --}}
                     @if($application->isPending())
-                    <form method="POST"
-                        action="{{ route('admin.applications.sendToReview', $application) }}"
-                        style="display:inline;">
+                    <div style="height:1px;background:var(--border);"></div>
+                    <form method="POST" action="{{ route('admin.applications.sendToReview', $application) }}">
                         @csrf
-                        <textarea name="review_notes" placeholder="Review notes (optional)"
-                                style="width:100%;padding:8px;margin-bottom:8px;
-                                        background:var(--surface2);border:1px solid var(--border2);
-                                        color:var(--text);font-size:13px;" rows="2"></textarea>
-                        <button type="submit" class="btn btn-ghost">
-                            ⟳ Send for Document Review
+                        <div style="margin-bottom:8px;">
+                            <label class="form-label-sm">Review notes <span style="color:var(--muted);text-transform:none;">(optional)</span></label>
+                            <textarea name="review_notes" rows="2" placeholder="Notes for document review..."
+                                class="form-input-sm" style="resize:none;font-family:inherit;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-ghost" style="width:100%;justify-content:center;">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Send for Document Review
                         </button>
                     </form>
                     @endif
 
-                    @if($application->isUnderReview())
-                    <div style="padding:12px 16px;border:1px solid rgba(96,165,250,0.3);
-                        background:rgba(96,165,250,0.07);margin-bottom:16px;">
-                        <strong style="color:#60a5fa;">Under Document Review</strong>
-                        <p style="font-size:13px;color:var(--text2);margin-top:4px;">
-                            Review notes: {{ $application->remarks ?? 'None' }}
-                        </p>
-                        {{-- Show approve/reject buttons to complete the review --}}
-                    </div>
-                    @endif
-                    
+                </div>
+            </div>
+            @endif
+
+            {{-- Finalized notice --}}
+            @if($application->isApproved() || $application->isRejected())
+            <div class="card" style="text-align:center;padding:20px;">
+                <div style="font-size:24px;margin-bottom:8px;">{{ $application->isApproved() ? '✓' : '✕' }}</div>
+                <span class="status-pill {{ $pillCls }}" style="display:inline-block;margin-bottom:10px;">{{ $application->status_label }}</span>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;letter-spacing:0.04em;">
+                    // This application has been reviewed<br>and cannot be changed.
                 </div>
             </div>
             @endif
@@ -262,28 +289,12 @@ $pillCls = $pillMap[$application->status] ?? 'steel';
 
 @push('styles')
 <style>
-.detail-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-}
-.detail-item {}
-.detail-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 5px;
-}
-.detail-value { font-size: 13.5px; color: var(--text); }
-.form-label-sm {
-    display: block; font-family: 'DM Mono', monospace;
-    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 5px;
-}
-.form-input-sm {
-    width: 100%; padding: 8px 10px;
-    background: var(--surface2); border: 1px solid var(--border2);
-    color: var(--text); font-size: 12px; outline: none;
-    transition: border-color 0.15s; box-sizing: border-box; border-radius: 0;
-}
-.form-input-sm:focus { border-color: var(--crimson); }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.detail-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.detail-value { font-size:13.5px; color:var(--text); }
+.form-label-sm { display:block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.form-input-sm { width:100%; padding:8px 10px; background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-size:12px; outline:none; transition:border-color 0.15s; box-sizing:border-box; border-radius:0; }
+.form-input-sm:focus { border-color:var(--crimson); }
 </style>
 @endpush
 @endsection
