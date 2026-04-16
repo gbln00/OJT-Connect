@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\SystemVersion;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SuperAdminVersionController extends Controller
 {
@@ -30,7 +32,7 @@ class SuperAdminVersionController extends Controller
 
         SystemVersion::create($data + [
             'is_published' => false,
-            'created_by'  => auth()->id(),
+            'created_by'  => Auth::id(),
         ]);
 
         return redirect()->route('super_admin.versions.index')
@@ -79,7 +81,7 @@ class SuperAdminVersionController extends Controller
                 tenancy()->end();
             } catch (\Throwable $e) {
                 tenancy()->end();
-                \Log::error("Version notify failed for {$tenant->id}: " . $e->getMessage());
+                Log::error("Version notify failed for {$tenant->id}: " . $e->getMessage());
             }
         }
 

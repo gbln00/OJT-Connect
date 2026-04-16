@@ -978,6 +978,16 @@
                 Settings
             </a>
 
+             <a href="{{ route('admin.whats-new') }}"
+               class="nav-item {{ request()->routeIs('admin.whats-new*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+                </svg>
+                What's New
+            </a>
+
+
         </nav>
 
         <div class="sidebar-footer">

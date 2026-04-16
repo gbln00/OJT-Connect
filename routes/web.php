@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // Authentication Controllers
 use App\Http\Controllers\Auth\LoginController;
@@ -27,8 +28,8 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // ── Root Redirect ─────────────────────────────────────────────────
         Route::get('/', function () {
-            if (auth()->check()) {
-                $role = auth()->user()->role;
+            if (Auth::check()) {
+                $role = Auth::user()->role;
 
                 if ($role === 'super_admin') {
                     return redirect()->route('super_admin.dashboard');
@@ -114,11 +115,11 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::patch ('/plans/promotions/{promo}/toggle', [SuperAdminPlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
             Route::delete('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
 
-            // 
+            //
             Route::resource('super-admin/versions', SuperAdminVersionController::class)->names('super_admin.versions');
             Route::post('super-admin/versions/{version}/publish',   [SuperAdminVersionController::class, 'publish'])->name('super_admin.versions.publish');
             
-
+            
             // ── Notifications ─────────────────────────────────────────────
             Route::get('notifications',                      [SuperAdminNotificationController::class, 'index'])->name('notifications.index');
             Route::post('notifications/mark-all-read',       [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Illuminate\Support\Facades\Auth;
 
 // QR Code scanning for clock-ins
 use App\Http\Controllers\QrScanController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Admin\AdminPlanRequestController;
 use App\Http\Controllers\Admin\TenantCustomizationController;
 use App\Http\Controllers\Admin\AdminQrController;
 use App\Http\Controllers\Admin\AdminCsvImportController;
+use App\Http\Controllers\Admin\AdminVersionController;
 
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
@@ -71,8 +73,8 @@ Route::middleware([
 
     // ── Root redirect ──────────────────────────────────────────────────
     Route::get('/', function () {
-        if (auth()->check()) {
-            $path = match(auth()->user()->role) {
+        if (Auth::check()) {
+            $path = match(Auth::user()->role) {
                 'admin'              => '/admin/dashboard',
                 'ojt_coordinator'    => '/coordinator/dashboard',
                 'company_supervisor' => '/supervisor/dashboard',
@@ -229,6 +231,10 @@ Route::middleware([
             Route::post('/customization/reset',         [TenantCustomizationController::class, 'reset'])->name('customization.reset');  
         });
         
+        // ── What's New / Version Updates ────────────────────────────────────────
+        Route::get('/whats-new', [AdminVersionController::class, 'index'])->name('whats-new.index');
+        Route::post('/whats-new/{version}/read', [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
+
         // ── Plans & Promotions ────────────────────────────────────────
         Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
         Route::post('/plan/request', [AdminPlanRequestController::class, 'store'])->name('plan.request');
