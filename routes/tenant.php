@@ -269,14 +269,17 @@ Route::middleware([
         Route::patch('/companies/{company}/toggle', [CoordinatorCompanyController::class, 'toggleActive'])->name('companies.toggle');
         Route::delete('/companies/{company}',       [CoordinatorCompanyController::class, 'destroy'])->name('companies.destroy');
 
+        // ── Bulk action for applications (approve/reject multiple at once) ─────────────────────────────────────────────
+        Route::post('/applications/bulk',                           [CoordinatorApplicationController::class, 'bulk'])->name('applications.bulk');
 
-        Route::post('/applications/bulk',                   [CoordinatorApplicationController::class, 'bulk'])->name('applications.bulk');
-
-        Route::get('/applications',                         [CoordinatorApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/{application}',           [CoordinatorApplicationController::class, 'show'])->name('applications.show');
-        Route::post('/applications/{application}/approve',  [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
-        Route::post('/applications/{application}/reject',   [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
-    
+        // ── OJT Application management ─────────────────────────────────────────────
+        Route::get('/applications',                                 [CoordinatorApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/{application}',                   [CoordinatorApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{application}/approve',          [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
+        Route::post('/applications/{application}/reject',           [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
+        Route::post('/applications/{application}/send-to-review',   [CoordinatorApplicationController::class, 'sendToReview'])->name('applications.sendToReview');
+       
+        
         // Hour log view — read-only, Basic+
         Route::get('/hours',                                [CoordinatorHourLogController::class, 'index'])->name('hours.index');
 

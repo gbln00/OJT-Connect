@@ -13,7 +13,7 @@ $pillMap = [
 $pillCls = $pillMap[$application->status] ?? 'steel';
 @endphp
 
-<div style="max-width:1100px;display:flex;flex-direction:column;gap:12px;">
+<div style="display:flex;flex-direction:column;gap:12px;">
 
     {{-- Eyebrow + back --}}
     <div class="fade-up" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">

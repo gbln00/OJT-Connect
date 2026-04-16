@@ -139,7 +139,7 @@ class CoordinatorApplicationController extends Controller
     {
         $request->validate([
             'ids'     => ['required', 'array'],
-            'ids.*'   => ['integer', 'exists:applications,id'],
+            'ids.*'   => ['integer', 'exists:ojt_applications,id'],
             'action'  => ['required', 'in:approve,reject'],
             'remarks' => ['nullable', 'string', 'max:1000'],
         ]);

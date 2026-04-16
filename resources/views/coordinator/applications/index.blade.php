@@ -98,6 +98,13 @@
 </div>
 
 {{-- Bulk Action Bar --}}
+@if($errors->any())
+    <div style="background:red;color:white;padding:10px;margin-bottom:10px;">
+        @foreach($errors->all() as $error)
+            <div>{{ $error }}</div>
+        @endforeach
+    </div>
+@endif
 <form method="POST" action="{{ route('coordinator.applications.bulk') }}" id="bulk-form">
     @csrf
     <input type="hidden" name="action" id="bulk-action-input" value="">
@@ -207,7 +214,7 @@
     @endif
 </form>
 
-@push('scripts')
+@push('js')
 <script>
 function toggleAll(cb) {
     document.querySelectorAll('.app-checkbox').forEach(c => c.checked = cb.checked);
