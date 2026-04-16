@@ -745,6 +745,7 @@
         @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'admin.dashboard'])
 
         <nav class="sidebar-nav">
+             @php $tenantPlan = tenancy()->tenant?->plan ?? 'basic'; @endphp
             {{-- Tenant name pill --}}
             @if(tenant('name'))
             <span class="hidden md:flex items-center gap-1.5 px-2 py-0.5 border border-[#8C0E03]/20 bg-[#8C0E03]/[0.06]
@@ -807,131 +808,78 @@
             </a>
 
             {{-- ── Standard+ only ── --}}
-            @php $tenantPlan = tenancy()->tenant?->plan ?? 'basic'; @endphp
-
-            @if(in_array($tenantPlan, ['standard', 'premium']))
                 <a href="{{ route('admin.reports.index') }}"
-                   class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                         <polyline points="14,2 14,8 20,8"/>
                         <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
                     </svg>
                     Weekly Reports
+                    @if(!in_array($tenantPlan, ['standard', 'premium']))
+                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                    @endif
                 </a>
 
                 <a href="{{ route('admin.evaluations.index') }}"
-                   class="nav-item {{ request()->routeIs('admin.evaluations.*') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('admin.evaluations.*') ? 'active' : '' }}">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path d="M9 11l3 3L22 4"/>
                         <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
                     </svg>
                     Evaluations
+                    @if(!in_array($tenantPlan, ['standard', 'premium']))
+                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                    @endif
                 </a>
+
+                <div class="nav-section-label">Tools</div>
                 
-            @else
-                {{-- Locked: Weekly Reports --}}
-                <span class="nav-item-locked" title="Upgrade to Standard or above to access Weekly Reports">
+                {{-- Import CSV --}}
+                <a href="{{ route('admin.import.index') }}"
+                class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Weekly Reports
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
-                </span>
+                    Import CSV
+                    @if(!in_array($tenantPlan, ['standard', 'premium']))
+                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                    @endif
+                </a>
 
-                {{-- Locked: Evaluations --}}
-                <span class="nav-item-locked" title="Upgrade to Standard or above to access Evaluations">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M9 11l3 3L22 4"/>
-                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                    </svg>
-                    Evaluations
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
-                </span>
-            @endif
-
-            {{-- Import CSV --}}
-            <a href="{{ route('admin.import.index') }}"
-            class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                    <polyline points="17,8 12,3 7,8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                Import CSV
-            </a>
-
-            {{-- ── Premium only ── --}}
-            @if($tenantPlan === 'premium')
+                {{-- ── Premium only ── --}}
                 <a href="{{ route('admin.export.index') }}"
-                   class="nav-item {{ request()->routeIs('admin.export.*') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('admin.export.*') ? 'active' : '' }}">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
                     Export Reports
-                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                    @if($tenantPlan === 'premium')
+                        <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                    @else
+                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                    @endif
                 </a>
 
                 <a href="{{ route('admin.analytics.index') }}"
-                   class="nav-item {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <line x1="18" y1="20" x2="18" y2="10"/>
                         <line x1="12" y1="20" x2="12" y2="4"/>
                         <line x1="6"  y1="20" x2="6"  y2="14"/>
                     </svg>
                     Analytics
-                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                    @if($tenantPlan === 'premium')
+                        <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                    @else
+                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                    @endif
                 </a>
-            @else
-                {{-- Locked: Export Reports --}}
-                <span class="nav-item-locked" title="Upgrade to Premium to access Export Reports">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7,10 12,15 17,10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Export Reports
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
-                </span>
-
-                {{-- Locked: Analytics --}}
-                <span class="nav-item-locked" title="Upgrade to Premium to access Analytics">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <line x1="18" y1="20" x2="18" y2="10"/>
-                        <line x1="12" y1="20" x2="12" y2="4"/>
-                        <line x1="6"  y1="20" x2="6"  y2="14"/>
-                    </svg>
-                    Analytics
-                    <span class="nav-lock-icon">
-                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                    </span>
-                </span>
-            @endif
+                        
 
             <div class="nav-section-label">Plan & Promotions</div>
 

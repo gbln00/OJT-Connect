@@ -49,14 +49,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     }
 
     /** Days remaining before expiry (negative = overdue) */
-   protected function daysUntilExpiry(): Attribute
+    public function daysUntilExpiry(): ?int
     {
-        return Attribute::make(
-            get: function () {
-                if (! $this->plan_expires_at) return null;
-                return (int) now()->startOfDay()->diffInDays($this->plan_expires_at, false);
-            }
-        );
+        if (! $this->plan_expires_at) return null;
+        return (int) now()->startOfDay()->diffInDays($this->plan_expires_at, false);
     }
 
     /** Set plan + expiry at once (called on plan approval) */

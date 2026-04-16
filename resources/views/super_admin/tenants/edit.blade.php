@@ -18,10 +18,9 @@ $currentDomain  = $tenant->domains->first()?->domain;
 $currentStatus  = $tenant->status ?? 'active';
 $currentPlan    = $tenant->plan ?? '';
 $expiresAt      = $tenant->plan_expires_at;
-$daysLeft       = $tenant->daysUntilExpiry ?? null;
-$inGrace        = $tenant->in_grace_period; 
-$isExpired      = $tenant->subscriptionExpired ?? false;
-
+$daysLeft      = $tenant->daysUntilExpiry();
+$inGrace       = $tenant->inGracePeriod();
+$isExpired     = $tenant->subscriptionExpired(); 
 // Urgency color for expiry badge
 if ($expiresAt) {
     $daysCalc = (int) now()->startOfDay()->diffInDays($expiresAt, false);
