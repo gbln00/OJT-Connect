@@ -214,7 +214,7 @@
     @endif
 </form>
 
-@push('js')
+
 <script>
 function toggleAll(cb) {
     document.querySelectorAll('.app-checkbox').forEach(c => c.checked = cb.checked);
@@ -237,6 +237,5 @@ function bulkSubmit(action) {
     document.getElementById('bulk-form').submit();
 }
 </script>
-@endpush
 
 @endsection
