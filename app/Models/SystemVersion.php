@@ -50,5 +50,11 @@ class SystemVersion extends Model
             'read_by'    => $email,
         ])->exists();
     }
+
+    //
+    public static function current(): ?self
+    {
+        return static::published()->first(); // already ordered by published_at desc
+    }
 }
 

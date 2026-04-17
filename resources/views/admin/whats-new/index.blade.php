@@ -36,7 +36,8 @@
             </span>
             @if(!$isRead)
             <button data-version-id="{{ $v->id }}"
-                    class="btn btn-ghost btn-sm mark-read-btn" id="mark-btn-{{ $v->id }}">
+                data-mark-url="{{ route('admin.whats-new.markRead', $v) }}"
+                class="btn btn-ghost btn-sm mark-read-btn" id="mark-btn-{{ $v->id }}">
                 ✓ Mark as Read
             </button>
             @endif
@@ -61,24 +62,28 @@
 @push('scripts')
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-
-// Event delegation for mark-read buttons
+ 
 document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('mark-read-btn')) {
-        const id = e.target.dataset.versionId;
-        markRead(id);
-    }
+    const btn = e.target.closest('.mark-read-btn');
+    if (btn) markRead(btn.dataset.versionId, btn.dataset.markUrl);
 });
-
-function markRead(id) {
-    fetch(`/admin/whats-new/${id}/read`, {
+ 
+function markRead(id, url) {
+    fetch(url, {
         method: 'POST',
         headers: { 'X-CSRF-TOKEN': CSRF }
-    }).then(() => {
-        const btn = document.getElementById(`mark-btn-${id}`);
+    }).then(r => {
+        if (!r.ok) return;
         const card = document.getElementById(`version-${id}`);
-        if (btn) btn.remove();
-        if (card) card.style.borderLeft = '';
+        const btn  = document.getElementById(`mark-btn-${id}`);
+        const pill = card?.querySelector('.status-pill.gold');
+ 
+        if (btn)  btn.remove();
+        if (pill && pill.textContent.trim() === 'New') pill.remove();
+        if (card) {
+            card.classList.remove('card-unread');
+            card.style.borderLeft = '';
+        }
     });
 }
 </script>

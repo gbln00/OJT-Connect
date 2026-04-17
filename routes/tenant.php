@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\AdminQrController;
 use App\Http\Controllers\Admin\AdminCsvImportController;
 use App\Http\Controllers\Admin\AdminVersionController;
 
+
 // Coordinator
 use App\Http\Controllers\Coordinator\CoordinatorController;
 use App\Http\Controllers\Coordinator\CoordinatorStudentController;
@@ -232,8 +233,8 @@ Route::middleware([
         });
         
         // ── What's New / Version Updates ────────────────────────────────────────
-        Route::get('/whats-new', [AdminVersionController::class, 'index'])->name('whats-new.index');
-        Route::post('/whats-new/{version}/read', [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
+        Route::get('/whats-new',                        [AdminVersionController::class, 'index'])->name('whats-new.index');
+        Route::post('/whats-new/{version}/read',        [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
 
         // ── Plans & Promotions ────────────────────────────────────────
         Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');

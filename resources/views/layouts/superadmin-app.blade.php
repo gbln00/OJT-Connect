@@ -848,12 +848,12 @@
              <a href="{{ route('super_admin.versions.index') }}"
                 class="nav-item {{ request()->routeIs('super_admin.versions.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    {{-- Tag / release icon --}}
                     <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        d="M7 7h.01M3 3h8l10 10a2 2 0 010 2.828l-5.172 5.172a2 2 0 01-2.828 0L3 11V3z"/>
                 </svg>
                 Versions
             </a>
-
 
             @php $notifUnread = \App\Models\SuperAdminNotification::unread()->count(); @endphp
             <a href="{{ route('super_admin.notifications.index') }}"

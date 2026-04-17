@@ -22,6 +22,7 @@
             'roboto'  => 'Roboto:wght@300;400;500;700',
             default   => '{{ $cssFontName }}:ital,wght@0,300;0,400;0,500;0,600;1,300',
         };
+        SystemVersion::current()?->version 
     @endphp
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family={{ $cssFontName }}+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&family={{ $fontQuery }}&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -384,6 +385,11 @@
             letter-spacing: 0.08em; text-transform: uppercase;
             transition: opacity 0.2s;
         }
+        .card-unread {
+            border-left: 3px solid var(--crimson) !important;
+            background: rgba(140,14,3,0.03);
+        }
+        
         .card-action:hover { opacity: 0.7; }
 
         /* ═══════════════════════════════════════════════
@@ -500,10 +506,15 @@
         .status-pill.crimson { background: rgba(140,14,3,0.1);    color: #c0392b; border:1px solid rgba(140,14,3,0.2); }
         .status-pill.blue    { background: var(--blue-dim);   color: var(--blue-color); border:1px solid var(--blue-border); }
         .status-pill.steel   { background: rgba(171,171,171,0.07);color: var(--ash); border:1px solid var(--border2); }
+       
+        .status-pill.teal  { background: var(--teal-dim);  color: var(--teal-color);  border: 1px solid var(--teal-border); }
+        .status-pill.coral { background: var(--coral-dim); color: var(--coral-color); border: 1px solid var(--coral-border); }
+
 
         [data-theme="light"] .status-pill.green   { color: #0f9660; background: rgba(16,155,96,0.08); border-color: rgba(16,155,96,0.2); }
         [data-theme="light"] .status-pill.crimson { color: #8C0E03; }
 
+        
         /* ═══════════════════════════════════════════════
            BUTTONS
         ═══════════════════════════════════════════════ */
@@ -978,15 +989,25 @@
                 Settings
             </a>
 
-             <a href="{{ route('admin.whats-new') }}"
-               class="nav-item {{ request()->routeIs('admin.whats-new*') ? 'active' : '' }}">
+             <a href="{{ route('admin.whats-new.index') }}"
+                class="nav-item {{ request()->routeIs('admin.whats-new*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+                    {{-- Sparkle / stars icon --}}
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4.5L19 9l-4.5 1.5L13 15l-1.5-4.5L7 9l4.5-1.5L13 3z"/>
                 </svg>
                 What's New
+                @php
+                    $whatsNewUnread = \App\Models\SystemVersion::published()
+                        ->whereDoesntHave('readReceipts', fn($q) =>
+                            $q->where('tenant_id', tenancy()->tenant?->id)
+                            ->where('read_by', Auth::user()?->email)
+                        )->count();
+                @endphp
+                @if($whatsNewUnread > 0)
+                    <span class="nav-badge">{{ $whatsNewUnread }}</span>
+                @endif
             </a>
-
 
         </nav>
 
@@ -1152,16 +1173,13 @@
                         </a>
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="/logout" id="logout-form">@csrf</form>
-                        <a href="#" class="dropdown-item danger"
-                           onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
-                            </svg>
-                            Log out
-                        </a>
                     </div>
                 </div>
-
+                <div style="font-family:'DM Mono',monospace;font-size:9px;
+                            color:var(--muted);text-align:center;margin-top:6px;
+                            letter-spacing:0.08em;">
+                    v{{ \App\Models\SystemVersion::current()?->version ?? '—' }}
+                </div>
             </div>
         </header>
 
@@ -1253,6 +1271,9 @@
         const dd = document.getElementById('tenant-notif-dropdown');
         if (wrapper && dd && !wrapper.contains(e.target)) dd.style.display = 'none';
     });
+
+    const newPill = card?.querySelector('.status-pill.gold');
+    if (newPill && newPill.textContent.trim() === 'New') newPill.remove();
 </script>
 
  @stack('scripts')
