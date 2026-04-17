@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         
         $this->call([
-            // SuperAdminSeeder::class,
-            TenantAdminSeeder::class,
+            SuperAdminSeeder::class,
+            // TenantAdminSeeder::class,
             PlanSeeder::class,
         ]);
     }

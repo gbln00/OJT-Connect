@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 
+    @php
+        $currentVersion = \App\Models\SystemVersion::current()?->version;
+    @endphp
     <style>
         /* ═══════════════════════════════════════════════
            CSS CUSTOM PROPERTIES — THEME TOKENS
@@ -876,17 +879,28 @@
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Super Admin' }}</div>
                     <div class="sidebar-user-role">Super Admin</div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" style="flex-shrink:0;">
-                    @csrf
-                    <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;align-items:center;" title="Log out">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                            <polyline points="16,17 21,12 16,7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                    </button>
-                </form>
             </div>
+            {{-- Version tag --}}
+            @if(!empty($currentVersion))
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px 0;">
+                <a href="{{ route('super_admin.versions.index') }}"
+                   style="display:inline-flex;align-items:center;gap:5px;
+                          font-family:'DM Mono',monospace;font-size:10px;
+                          letter-spacing:0.08em;color:var(--muted);text-decoration:none;
+                          transition:color 0.15s;"
+                   onmouseover="this.style.color='#2dd4bf'"
+                   onmouseout="this.style.color='var(--muted)'"
+                   title="Manage versions">
+                    <span style="width:5px;height:5px;border-radius:50%;background:#2dd4bf;flex-shrink:0;"></span>
+                    v{{ $currentVersion }}
+                </a>
+                <span style="font-family:'DM Mono',monospace;font-size:9px;
+                             letter-spacing:0.1em;text-transform:uppercase;
+                             color:var(--muted);opacity:0.5;">
+                    live
+                </span>
+            </div>
+            @endif
         </div>
     </aside>
 
@@ -909,7 +923,21 @@
 
             {{-- Page title --}}
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
-
+            {{-- Version chip --}}
+            @if(!empty($currentVersion))
+            <a href="{{ route('super_admin.versions.index') }}"
+               style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+                      border:1px solid var(--border2);background:var(--surface);
+                      font-family:'DM Mono',monospace;font-size:10px;
+                      letter-spacing:0.08em;color:var(--muted2);text-decoration:none;
+                      transition:all 0.15s;"
+               onmouseover="this.style.borderColor='rgba(45,212,191,0.3)';this.style.color='#2dd4bf';this.style.background='rgba(45,212,191,0.06)';"
+               onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted2)';this.style.background='var(--surface)';"
+               title="Version Control">
+                <span style="width:5px;height:5px;border-radius:50%;background:#2dd4bf;flex-shrink:0;"></span>
+                v{{ $currentVersion }}
+            </a>
+            @endif
             <div class="topbar-actions">
 
                 @yield('topbar-actions')

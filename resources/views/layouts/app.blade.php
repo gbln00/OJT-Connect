@@ -14,15 +14,17 @@
             'inter'   => 'Inter',
             'poppins' => 'Poppins',
             'roboto'  => 'Roboto',
-            default   => '{{ $cssFontName }}',
+            default   => 'Barlow',
         };
         $fontQuery = match($activeFont) {
             'inter'   => 'Inter:wght@300;400;500;600;700',
             'poppins' => 'Poppins:wght@300;400;500;600;700',
             'roboto'  => 'Roboto:wght@300;400;500;700',
-            default   => '{{ $cssFontName }}:ital,wght@0,300;0,400;0,500;0,600;1,300',
+            default   => 'Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300',
         };
-        SystemVersion::current()?->version 
+        // FIX: fully-qualified class name so the central-db model resolves
+        // inside tenant context (app.blade.php runs under tenant middleware).
+        $currentVersion = \App\Models\SystemVersion::current()?->version;
     @endphp
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family={{ $cssFontName }}+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&family={{ $fontQuery }}&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -275,6 +277,25 @@
             letter-spacing: 0.05em; text-transform: uppercase; margin-top: 1px;
         }
 
+        /* Version tag in sidebar footer */
+        .sidebar-version {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 7px 10px 0;
+        }
+        .sidebar-version-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 0.08em;
+            color: var(--muted);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .sidebar-version-tag::before {
+            content: '';
+            width: 5px; height: 5px;
+            background: var(--teal-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
         /* ═══════════════════════════════════════════════
            MAIN AREA
         ═══════════════════════════════════════════════ */
@@ -314,6 +335,32 @@
         }
         .topbar-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
         .topbar-divider { width: 1px; height: 20px; background: var(--border2); }
+
+        /* Version chip in topbar */
+        .topbar-version {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 9px;
+            border: 1px solid var(--border2);
+            background: var(--surface);
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 0.08em;
+            color: var(--muted2);
+            text-decoration: none;
+            transition: all 0.15s;
+            cursor: default;
+        }
+        .topbar-version:hover {
+            border-color: var(--teal-border);
+            color: var(--teal-color);
+            background: var(--teal-dim);
+        }
+        .topbar-version::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--teal-color);
+            flex-shrink: 0;
+        }
 
         .topbar-user {
             display: flex; align-items: center; gap: 7px;
@@ -389,7 +436,7 @@
             border-left: 3px solid var(--crimson) !important;
             background: rgba(140,14,3,0.03);
         }
-        
+
         .card-action:hover { opacity: 0.7; }
 
         /* ═══════════════════════════════════════════════
@@ -418,7 +465,6 @@
             border: 1px solid;
             display: flex; align-items: center; justify-content: center;
         }
-        /* Stat icon color variants */
         .stat-icon.crimson { border-color: rgba(140,14,3,0.35);    background: rgba(140,14,3,0.08);    color: var(--crimson); }
         .stat-icon.steel   { border-color: rgba(171,171,171,0.2);  background: rgba(171,171,171,0.06); color: var(--ash); }
         .stat-icon.night   { border-color: rgba(14,17,38,0.5);     background: rgba(14,17,38,0.2);     color: #60A5FA; }
@@ -506,15 +552,12 @@
         .status-pill.crimson { background: rgba(140,14,3,0.1);    color: #c0392b; border:1px solid rgba(140,14,3,0.2); }
         .status-pill.blue    { background: var(--blue-dim);   color: var(--blue-color); border:1px solid var(--blue-border); }
         .status-pill.steel   { background: rgba(171,171,171,0.07);color: var(--ash); border:1px solid var(--border2); }
-       
-        .status-pill.teal  { background: var(--teal-dim);  color: var(--teal-color);  border: 1px solid var(--teal-border); }
-        .status-pill.coral { background: var(--coral-dim); color: var(--coral-color); border: 1px solid var(--coral-border); }
-
+        .status-pill.teal    { background: var(--teal-dim);   color: var(--teal-color); border: 1px solid var(--teal-border); }
+        .status-pill.coral   { background: var(--coral-dim);  color: var(--coral-color); border: 1px solid var(--coral-border); }
 
         [data-theme="light"] .status-pill.green   { color: #0f9660; background: rgba(16,155,96,0.08); border-color: rgba(16,155,96,0.2); }
         [data-theme="light"] .status-pill.crimson { color: #8C0E03; }
 
-        
         /* ═══════════════════════════════════════════════
            BUTTONS
         ═══════════════════════════════════════════════ */
@@ -737,12 +780,11 @@
         ::-webkit-scrollbar-thumb { background: var(--border2); }
         ::-webkit-scrollbar-thumb:hover { background: var(--steel); }
     </style>
-    
 
     @stack('styles')
 
     @include('layouts.partials.tenant_inject')
- 
+
 </head>
 <body>
 
@@ -756,7 +798,7 @@
         @include('layouts.partials.tenant_brand', ['dashboardRoute' => 'admin.dashboard'])
 
         <nav class="sidebar-nav">
-             @php $tenantPlan = tenancy()->tenant?->plan ?? 'basic'; @endphp
+            @php $tenantPlan = tenancy()->tenant?->plan ?? 'basic'; @endphp
             {{-- Tenant name pill --}}
             @if(tenant('name'))
             <span class="hidden md:flex items-center gap-1.5 px-2 py-0.5 border border-[#8C0E03]/20 bg-[#8C0E03]/[0.06]
@@ -779,7 +821,6 @@
 
             <div class="nav-section-label">Management</div>
 
-            {{-- ── Basic+ (always visible) ── --}}
             <a href="{{ route('admin.users.index') }}"
                class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -818,79 +859,75 @@
                 Hour Logs
             </a>
 
-            {{-- ── Standard+ only ── --}}
-                <a href="{{ route('admin.reports.index') }}"
-                class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                    Weekly Reports
-                    @if(!in_array($tenantPlan, ['standard', 'premium']))
-                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
-                    @endif
-                </a>
+            <a href="{{ route('admin.reports.index') }}"
+               class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Weekly Reports
+                @if(!in_array($tenantPlan, ['standard', 'premium']))
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                @endif
+            </a>
 
-                <a href="{{ route('admin.evaluations.index') }}"
-                class="nav-item {{ request()->routeIs('admin.evaluations.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M9 11l3 3L22 4"/>
-                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                    </svg>
-                    Evaluations
-                    @if(!in_array($tenantPlan, ['standard', 'premium']))
-                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
-                    @endif
-                </a>
+            <a href="{{ route('admin.evaluations.index') }}"
+               class="nav-item {{ request()->routeIs('admin.evaluations.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+                Evaluations
+                @if(!in_array($tenantPlan, ['standard', 'premium']))
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                @endif
+            </a>
 
-                <div class="nav-section-label">Tools</div>
-                
-                {{-- Import CSV --}}
-                <a href="{{ route('admin.import.index') }}"
-                class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="17,8 12,3 7,8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Import CSV
-                    @if(!in_array($tenantPlan, ['standard', 'premium']))
-                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
-                    @endif
-                </a>
+            <div class="nav-section-label">Tools</div>
 
-                {{-- ── Premium only ── --}}
-                <a href="{{ route('admin.export.index') }}"
-                class="nav-item {{ request()->routeIs('admin.export.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7,10 12,15 17,10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Export Reports
-                    @if($tenantPlan === 'premium')
-                        <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
-                    @else
-                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
-                    @endif
-                </a>
+            <a href="{{ route('admin.import.index') }}"
+               class="nav-item {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import CSV
+                @if(!in_array($tenantPlan, ['standard', 'premium']))
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">STD</span>
+                @endif
+            </a>
 
-                <a href="{{ route('admin.analytics.index') }}"
-                class="nav-item {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <line x1="18" y1="20" x2="18" y2="10"/>
-                        <line x1="12" y1="20" x2="12" y2="4"/>
-                        <line x1="6"  y1="20" x2="6"  y2="14"/>
-                    </svg>
-                    Analytics
-                    @if($tenantPlan === 'premium')
-                        <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
-                    @else
-                        <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
-                    @endif
-                </a>
-                        
+            <a href="{{ route('admin.export.index') }}"
+               class="nav-item {{ request()->routeIs('admin.export.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Reports
+                @if($tenantPlan === 'premium')
+                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                @else
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.analytics.index') }}"
+               class="nav-item {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6"  y1="20" x2="6"  y2="14"/>
+                </svg>
+                Analytics
+                @if($tenantPlan === 'premium')
+                    <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
+                @else
+                    <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
+                @endif
+            </a>
 
             <div class="nav-section-label">Plan & Promotions</div>
 
@@ -901,7 +938,6 @@
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 Plan
-                {{-- Show current plan badge --}}
                 @if($tenantPlan === 'premium')
                     <span class="nav-badge" style="background:var(--teal-color);font-size:8px;margin-left:auto;">PREMIUM</span>
                 @elseif($tenantPlan === 'standard')
@@ -910,17 +946,11 @@
                     <span class="nav-badge" style="background:var(--muted);font-size:8px;margin-left:auto;">BASIC</span>
                 @endif
             </a>
-            {{-- ── <a href="{{ route('admin.2fa.setup') }}" class="nav-item {{ request()->routeIs('admin.2fa.*') ? 'active' : '' }}">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-                </svg>
-                {{ auth()->user()->two_factor_enabled ? 'Manage 2FA' : 'Enable 2FA' }}
-            </a> ── --}}
-            
+
             <div class="nav-section-label">Alerts</div>
-            {{-- ── Always visible ── --}}
+
             <a href="{{ route('admin.notifications.index') }}"
-                class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+               class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -929,56 +959,35 @@
                 @php
                     $notifCount = \App\Models\TenantNotification::forRole('admin')->forUser(auth()->id())->unread()->count();
                 @endphp
-                
                 @if($notifCount > 0)
                     <span class="nav-badge">{{ $notifCount }}</span>
                 @endif
             </a>
 
             <div class="nav-section-label">System</div>
-             @if($tenantPlan === 'premium')
-                 {{-- ── Customization (Premium only) ── --}}
-                <a href="{{ route('admin.customization.index') }}"
-                    class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor"
-                        stroke-width="1.8" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83
-                                2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0
-                                00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0
-                                00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0
-                                004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0
-                                004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06
-                                A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09
-                                a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0
-                                012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21
-                                a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                    </svg>
-                    Customization
+
+            <a href="{{ route('admin.customization.index') }}"
+               class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83
+                            2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0
+                            00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0
+                            00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0
+                            004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0
+                            004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06
+                            A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09
+                            a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0
+                            012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21
+                            a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+                Customization
+                @if($tenantPlan === 'premium')
                     <span class="nav-badge" style="background:var(--teal-color);font-size:8px;">PREMIUM</span>
-                </a>
-            @else
-                {{-- ── Customization (Premium only) ── --}}
-                <a href="{{ route('admin.customization.index') }}"
-                    class="nav-item {{ request()->routeIs('admin.customization.*') ? 'active' : '' }}">
-                    <svg width="15" height="15" fill="none" stroke="currentColor"
-                        stroke-width="1.8" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83
-                                2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0
-                                00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0
-                                00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0
-                                004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0
-                                004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06
-                                A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09
-                                a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0
-                                012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21
-                                a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                    </svg>
-                    Customization
+                @else
                     <span class="nav-badge" style="background:var(--gold-color);font-size:8px;">PREMIUM</span>
-                </a>
-            @endif
+                @endif
+            </a>
 
             <a href="{{ route('admin.settings') }}"
                class="nav-item {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
@@ -989,10 +998,9 @@
                 Settings
             </a>
 
-             <a href="{{ route('admin.whats-new.index') }}"
-                class="nav-item {{ request()->routeIs('admin.whats-new*') ? 'active' : '' }}">
+            <a href="{{ route('admin.whats-new.index') }}"
+               class="nav-item {{ request()->routeIs('admin.whats-new*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    {{-- Sparkle / stars icon --}}
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4.5L19 9l-4.5 1.5L13 15l-1.5-4.5L7 9l4.5-1.5L13 3z"/>
                 </svg>
@@ -1011,6 +1019,7 @@
 
         </nav>
 
+        {{-- ── Sidebar Footer — user info + version tag ── --}}
         <div class="sidebar-footer">
             <div class="sidebar-user">
                 <div class="sidebar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}</div>
@@ -1019,6 +1028,22 @@
                     <div class="sidebar-user-role">{{ str_replace('_', ' ', auth()->user()->role ?? 'admin') }}</div>
                 </div>
             </div>
+            {{-- Version tag — links to What's New --}}
+            @if($currentVersion)
+            <div class="sidebar-version">
+                <a href="{{ route('admin.whats-new.index') }}" class="sidebar-version-tag"
+                   title="View What's New">
+                    v{{ $currentVersion }}
+                </a>
+                @if(($whatsNewUnread ?? 0) > 0)
+                <span style="font-family:'DM Mono',monospace;font-size:9px;
+                             background:var(--crimson);color:#fff;
+                             padding:1px 5px;">
+                    {{ $whatsNewUnread }} new
+                </span>
+                @endif
+            </div>
+            @endif
         </div>
     </aside>
 
@@ -1042,21 +1067,29 @@
             {{-- Breadcrumb / page title --}}
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
 
-             {{-- Theme toggle --}}
-                <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
-                    <svg id="icon-moon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                    </svg>
-                    <svg id="icon-sun" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                </button>
+            {{-- Version chip — clickable, goes to What's New --}}
+            @if($currentVersion)
+            <a href="{{ route('admin.whats-new.index') }}" class="topbar-version"
+               title="What's New · v{{ $currentVersion }}">
+                v{{ $currentVersion }}
+            </a>
+            @endif
 
-                <div class="topbar-divider"></div>
+            {{-- Theme toggle --}}
+            <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+                <svg id="icon-moon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+                <svg id="icon-sun" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+
+            <div class="topbar-divider"></div>
 
             <div class="topbar-actions">
                 @php
@@ -1078,7 +1111,7 @@
                         </span>
                         @endif
                     </button>
-                
+
                     <div id="tenant-notif-dropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;
                         width:300px;background:var(--surface);border:1px solid var(--border2);
                         box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:400;">
@@ -1091,11 +1124,11 @@
                                 @endif
                             </span>
                             <a href="{{ route('admin.notifications.index') }}"
-                            style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
-                                    text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.15s;"
-                            onmouseover="this.style.color='var(--text)'"
-                            onmouseout="this.style.color='var(--muted)'">
-                            View all
+                               style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;
+                                      text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.15s;"
+                               onmouseover="this.style.color='var(--text)'"
+                               onmouseout="this.style.color='var(--muted)'">
+                               View all
                             </a>
                         </div>
                         <div style="max-height:320px;overflow-y:auto;">
@@ -1141,8 +1174,8 @@
                         </div>
                         <div style="padding:10px 16px;border-top:1px solid var(--border);text-align:center;">
                             <a href="{{ route('admin.notifications.index') }}"
-                            style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;
-                                    text-transform:uppercase;color:var(--muted);text-decoration:none;">
+                               style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;
+                                      text-transform:uppercase;color:var(--muted);text-decoration:none;">
                                 View all notifications →
                             </a>
                         </div>
@@ -1174,11 +1207,6 @@
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="/logout" id="logout-form">@csrf</form>
                     </div>
-                </div>
-                <div style="font-family:'DM Mono',monospace;font-size:9px;
-                            color:var(--muted);text-align:center;margin-top:6px;
-                            letter-spacing:0.08em;">
-                    v{{ \App\Models\SystemVersion::current()?->version ?? '—' }}
                 </div>
             </div>
         </header>
@@ -1263,7 +1291,6 @@
     function toggleTenantNotif() {
         const dd = document.getElementById('tenant-notif-dropdown');
         dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
-        // Close user dropdown if open
         document.getElementById('user-dropdown')?.classList.remove('open');
     }
     document.addEventListener('click', function(e) {
@@ -1271,12 +1298,9 @@
         const dd = document.getElementById('tenant-notif-dropdown');
         if (wrapper && dd && !wrapper.contains(e.target)) dd.style.display = 'none';
     });
-
-    const newPill = card?.querySelector('.status-pill.gold');
-    if (newPill && newPill.textContent.trim() === 'New') newPill.remove();
 </script>
 
- @stack('scripts')
+@stack('scripts')
 
 </body>
 </html>
