@@ -34,5 +34,13 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \\App\\Models\\TenantSetting::get($expression); ?>";
         });
 
+        \View::composer('*', function ($view) {
+            try {
+                $view->with('currentVersion', SystemVersion::current()?->version);
+            } catch (\Throwable $e) {
+                $view->with('currentVersion', null);
+            }
+        });
+
     }
 }

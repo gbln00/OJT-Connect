@@ -115,9 +115,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::patch ('/plans/promotions/{promo}/toggle', [SuperAdminPlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
             Route::delete('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
 
-            // 
-            Route::resource('versions', SuperAdminVersionController::class);
-            Route::post('versions/{version}/publish', [SuperAdminVersionController::class, 'publish'])->name('versions.publish');
+            
+            Route::resource('versions', \App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class);
+            Route::post('versions/{version}/publish',    [\App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class, 'publish'])->name('versions.publish');
+            Route::post('versions/{version}/set-current',[\App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class, 'setCurrent'])->name('versions.setCurrent');
             
 
             // ── Notifications ─────────────────────────────────────────────
