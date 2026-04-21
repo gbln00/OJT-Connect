@@ -18,7 +18,8 @@ class RequireCriticalUpdates
     public function handle(Request $request, Closure $next)
     {
         // Only applies inside tenant context
-        if (! tenancy()->initialized()) {
+        $tenant = tenancy()->tenant;
+        if (! $tenant) {
             return $next($request);
         }
 

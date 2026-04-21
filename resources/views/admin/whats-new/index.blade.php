@@ -14,13 +14,6 @@
         ->keyBy('version_id');
 @endphp
 
-@forelse($versions as $v)
-@php
-    $isRead       = $v->isReadByTenant($tenantId, $userEmail);
-    $tenantUpdate = $tenantUpdates[$v->id] ?? null;
-    $updateStatus = $tenantUpdate?->status ?? 'no_update';
-    // 'no_update' means this version has no TenantUpdate record (e.g. old versions before feature)
-@endphp
 
 {{-- ── Page Header ── --}}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;">
@@ -85,7 +78,10 @@
 {{-- ── Version Cards ── --}}
 <div style="display:flex;flex-direction:column;gap:14px;">
 @forelse($versions as $v)
-@php $isRead = $v->isReadByTenant($tenantId, $userEmail); @endphp
+@php
+    $isRead       = $v->isReadByTenant($tenantId, $userEmail);
+    $tenantUpdate = $tenantUpdates[$v->id] ?? null;
+@endphp
 
 <div @class(['version-card', 'version-unread' => !$isRead])
      id="version-{{ $v->id }}"
