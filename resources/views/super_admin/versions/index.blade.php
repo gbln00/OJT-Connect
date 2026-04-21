@@ -148,22 +148,41 @@
                     </td>
 
                     {{-- Tenants read count --}}
+                    {{-- Replace existing "Tenants Read" <td> with: --}}
                     <td>
                         @if($v->is_published)
-                        @php $readCount = $v->readTenantCount(); @endphp
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="flex:1;max-width:80px;height:3px;background:var(--border2);overflow:hidden;">
-                                @if($totalTenants > 0)
-                                <div style="height:100%;background:#2dd4bf;width:{{ min(100, round($readCount / $totalTenants * 100)) }}%;
-                                            transition:width 0.4s;"></div>
-                                @endif
+                        @php
+                            $readCount      = $v->readTenantCount();
+                            $installedCount = $v->installedTenantCount();
+                        @endphp
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="font-size:10px;color:var(--muted);width:52px;">Read</span>
+                                <div style="flex:1;max-width:60px;height:3px;background:var(--border2);">
+                                    @if($totalTenants > 0)
+                                    <div style="height:100%;background:var(--blue-color);
+                                                width:{{ min(100, round($readCount/$totalTenants*100)) }}%;"></div>
+                                    @endif
+                                </div>
+                                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">
+                                    {{ $readCount }}/{{ $totalTenants }}
+                                </span>
                             </div>
-                            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
-                                {{ $readCount }}/{{ $totalTenants }}
-                            </span>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="font-size:10px;color:var(--muted);width:52px;">Installed</span>
+                                <div style="flex:1;max-width:60px;height:3px;background:var(--border2);">
+                                    @if($totalTenants > 0)
+                                    <div style="height:100%;background:#2dd4bf;
+                                                width:{{ min(100, round($installedCount/$totalTenants*100)) }}%;"></div>
+                                    @endif
+                                </div>
+                                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">
+                                    {{ $installedCount }}/{{ $totalTenants }}
+                                </span>
+                            </div>
                         </div>
                         @else
-                        <span style="color:var(--muted);font-size:12px;">—</span>
+                        <span style="color:var(--muted);font-size:12px;">Draft</span>
                         @endif
                     </td>
 

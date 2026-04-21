@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // QR Code scanning for clock-ins
 use App\Http\Controllers\QrScanController;
@@ -64,6 +65,11 @@ use App\Http\Controllers\Supervisor\SupervisorHourLogController;
 use App\Http\Controllers\Supervisor\SupervisorEvaluationController;
 use App\Http\Controllers\Supervisor\SupervisorSettingsController;
 use App\Http\Controllers\Supervisor\SupervisorQrController;
+
+
+Route::post('/webhook/github',  [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle'])
+    ->withoutMiddleware(        [\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
 
 Route::middleware([
     'web',
@@ -232,13 +238,22 @@ Route::middleware([
             Route::post('/customization/reset',         [TenantCustomizationController::class, 'reset'])->name('customization.reset');  
         });
         
+     
+        
+       
+        // ── Plans & Promotions ────────────────────────────────────────
+        Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
+        Route::post('/plan/request', [AdminPlanRequestController::class, 'store'])->name('plan.request');
+
         // ── What's New / Version Updates ────────────────────────────────────────
         Route::get('/whats-new',                        [AdminVersionController::class, 'index'])->name('whats-new.index');
         Route::post('/whats-new/{version}/read',        [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
 
-        // ── Plans & Promotions ────────────────────────────────────────
-        Route::get('/plan', [AdminPlanController::class, 'index'])->name('plan.index');
-        Route::post('/plan/request', [AdminPlanRequestController::class, 'store'])->name('plan.request');
+        //
+        Route::prefix('updates')->name('admin.updates.')->group(function () {
+            Route::post('/{tenantUpdate}/install', [\App\Http\Controllers\Admin\AdminUpdateController::class, 'install'])->name('install');
+            Route::get('/{tenantUpdate}/status',  [\App\Http\Controllers\Admin\AdminUpdateController::class, 'status'])->name('status');
+        });
 
     });
 

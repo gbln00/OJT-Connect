@@ -109,6 +109,40 @@
                         Back
                     </a>
                 </div>
+                <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+                <input type="hidden" name="is_critical" value="0">
+                <input type="checkbox" name="is_critical" id="inp-critical" value="1"
+                    {{ old('is_critical', $version->is_critical ?? false) ? 'checked' : '' }}
+                    style="width:16px;height:16px;accent-color:var(--crimson);">
+                <div>
+                    <label for="inp-critical"
+                        style="font-size:13px;font-weight:500;color:var(--text);cursor:pointer;">
+                        Critical update
+                    </label>
+                    <p style="font-size:11px;color:var(--muted);margin:2px 0 0;">
+                        Tenants will be blocked from using the system until they install this update.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Requires version (optional)</label>
+                <input type="text" name="requires_version" class="form-input"
+                    value="{{ old('requires_version', $version->requires_version ?? '') }}"
+                    placeholder="e.g. 1.2.0 (must install this first)">
+                <div class="form-hint">Leave blank if tenants can install this in any order.</div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label class="form-label">Migration folder (optional)</label>
+                <input type="text" name="migration_folder" class="form-input"
+                    value="{{ old('migration_folder', $version->migration_folder ?? '') }}"
+                    placeholder="versions/v1-3-0">
+                <div class="form-hint">
+                    Relative to database/migrations/. Auto-filled by GitHub webhook.
+                    Leave blank if no DB changes in this release.
+                </div>
+            </div>
             </form>
         </div>
     </div>

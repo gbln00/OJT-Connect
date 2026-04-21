@@ -196,7 +196,7 @@
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
             </svg>
-            Log in
+            Super Admin Log In
         </a>
     </div>
 </nav>
@@ -486,15 +486,7 @@
             <p class="text-[#ABABAB]/38 text-[16px] font-light mb-12 max-w-[38ch] mx-auto">
                 Log in to your existing account or register your institution to begin the OJT journey.
             </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="{{ route('login') }}"
-                   class="inline-flex items-center gap-2.5 px-10 py-3.5 btn-crimson
-                          font-['Barlow_Condensed'] font-bold text-[14px] tracking-[0.12em] uppercase group">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-                    </svg>
-                    Log in to OJTConnect
-                </a>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">   
                 <a href="{{ route('tenant.register') }}"
                    class="inline-flex items-center gap-2.5 px-10 py-3.5 btn-ghost
                           font-['Barlow_Condensed'] font-bold text-[14px] tracking-[0.12em] uppercase group">

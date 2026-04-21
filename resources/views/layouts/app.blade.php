@@ -812,7 +812,7 @@
 
             <a href="{{ route('admin.dashboard') }}"
                class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8 " viewBox="0 0 24 24">
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
                 </svg>
@@ -1232,6 +1232,17 @@
                 @include('layouts.partials.subscription-warning', [
                     'warning' => session('subscription_warning')
                 ])
+            @endif
+            @if(session('critical_update_required'))
+            <div style="background:rgba(140,14,3,0.1);border:1px solid rgba(140,14,3,0.35);
+                        padding:12px 18px;margin-bottom:20px;
+                        display:flex;align-items:center;gap:10px;">
+                <span style="font-size:16px;">⚠️</span>
+                <span style="font-size:13px;color:var(--text);font-weight:500;">
+                    A <strong style="color:var(--crimson);">critical system update</strong> is required
+                    before you can continue. Please install it below.
+                </span>
+            </div>
             @endif
 
             @yield('content')

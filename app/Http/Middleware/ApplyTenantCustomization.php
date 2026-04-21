@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Middleware\RequireCriticalUpdates;
 use App\Models\TenantSetting;
 use Closure;
 use Illuminate\Http\Request;

@@ -49,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             \App\Http\Middleware\LogTenantRequest::class,
             \App\Http\Middleware\ApplyTenantCustomization::class,  
+            \App\Http\Middleware\RequireCriticalUpdates::class,
         ]);
     })
     

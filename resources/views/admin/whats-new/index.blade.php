@@ -4,6 +4,24 @@
 
 @section('content')
 
+@php
+    $tenantId  = tenancy()->tenant?->id;
+    $userEmail = Auth::user()?->email;
+    // Pre-load all TenantUpdate records for this tenant
+    $tenantUpdates = \App\Models\TenantUpdate::where('tenant_id', $tenantId)
+        ->whereIn('version_id', $versions->pluck('id'))
+        ->get()
+        ->keyBy('version_id');
+@endphp
+
+@forelse($versions as $v)
+@php
+    $isRead       = $v->isReadByTenant($tenantId, $userEmail);
+    $tenantUpdate = $tenantUpdates[$v->id] ?? null;
+    $updateStatus = $tenantUpdate?->status ?? 'no_update';
+    // 'no_update' means this version has no TenantUpdate record (e.g. old versions before feature)
+@endphp
+
 {{-- ── Page Header ── --}}
 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;">
     <div>
@@ -109,7 +127,16 @@
                 Current
             </span>
             @endif
-        </div>
+
+            {{-- ADD: Install status badge next to existing badges --}}
+            @if($tenantUpdate)
+                <span class="status-pill {{ $tenantUpdate->statusColor() }}"
+                    id="status-pill-{{ $v->id }}">
+                    {{ $tenantUpdate->statusIcon() }}
+                    {{ ucfirst(str_replace('_', ' ', $tenantUpdate->status)) }}
+                </span>
+            @endif
+            </div>
 
         <div style="display:flex;align-items:center;gap:12px;">
             <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
@@ -169,6 +196,100 @@
                 @endif
             @endforeach
         </div>
+        {{-- ── ADD: Install block at the bottom of each card ── --}}
+            @if($tenantUpdate && $tenantUpdate->isPending())
+            <div id="install-block-{{ $v->id }}"
+                style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);
+                        display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                <div>
+                    @if($v->is_critical)
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                        <span style="font-size:12px;">⚠️</span>
+                        <span style="font-size:12px;font-weight:600;color:var(--crimson);">
+                            Critical update — required to continue using the system
+                        </span>
+                    </div>
+                    @endif
+                    <p style="font-size:12px;color:var(--muted);margin:0;">
+                        Install this update to get the latest features and fixes.
+                        The system will briefly enter maintenance mode during install.
+                    </p>
+                </div>
+                <button onclick="installUpdate({{ $tenantUpdate->id }}, {{ $v->id }}, '{{ $v->version }}')"
+                        id="install-btn-{{ $v->id }}"
+                        class="btn btn-primary btn-sm">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Install v{{ $v->version }}
+                </button>
+            </div>
+
+            @elseif($tenantUpdate && $tenantUpdate->isInProgress())
+            <div id="install-block-{{ $v->id }}"
+                style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:14px;height:14px;border:2px solid var(--gold-color);
+                                border-top-color:transparent;border-radius:50%;
+                                animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+                    <span style="font-size:13px;color:var(--gold-color);font-weight:500;">
+                        Installing v{{ $v->version }}... please wait
+                    </span>
+                </div>
+                <p style="font-size:11px;color:var(--muted);margin:6px 0 0;">
+                    Your system is in maintenance mode. This usually takes under a minute.
+                </p>
+                {{-- Hidden poll trigger --}}
+                <span data-poll="{{ $tenantUpdate->id }}" data-version-id="{{ $v->id }}"></span>
+            </div>
+
+            @elseif($tenantUpdate && $tenantUpdate->isCompleted())
+            <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);
+                        display:flex;align-items:center;gap:8px;">
+                <svg width="14" height="14" fill="none" stroke="var(--teal-color)" stroke-width="2.5" viewBox="0 0 24 24">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                <span style="font-size:12px;color:var(--teal-color);font-weight:500;">
+                    Installed {{ $tenantUpdate->installed_at?->format('M d, Y H:i') }}
+                    by {{ $tenantUpdate->installed_by }}
+                </span>
+            </div>
+
+            @elseif($tenantUpdate && $tenantUpdate->isFailed())
+            <div id="install-block-{{ $v->id }}"
+                style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(248,113,113,0.2);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                            <span style="font-size:12px;">❌</span>
+                            <span style="font-size:12px;font-weight:600;color:var(--coral-color);">
+                                Installation failed
+                            </span>
+                        </div>
+                        <p style="font-size:11px;color:var(--muted);margin:0;">
+                            Please contact support or try again.
+                        </p>
+                    </div>
+                    <button onclick="installUpdate({{ $tenantUpdate->id }}, {{ $v->id }}, '{{ $v->version }}')"
+                            id="install-btn-{{ $v->id }}"
+                            class="btn btn-ghost btn-sm"
+                            style="border-color:var(--coral-border);color:var(--coral-color);">
+                        ↺ Retry Installation
+                    </button>
+                </div>
+                @if($tenantUpdate->error_log)
+                <details style="margin-top:8px;">
+                    <summary style="font-size:11px;color:var(--muted);cursor:pointer;">Show error details</summary>
+                    <pre style="font-size:10px;color:var(--coral-color);background:rgba(248,113,113,0.06);
+                                padding:8px;margin-top:6px;overflow-x:auto;border:1px solid var(--coral-border);
+                                white-space:pre-wrap;word-break:break-all;">{{ Str::limit($tenantUpdate->error_log, 500) }}</pre>
+                </details>
+                @endif
+            </div>
+            @endif
+            {{-- End install block --}}
+
     </div>
 </div>
 
@@ -189,6 +310,8 @@
 @push('scripts')
 <script>
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+
+
 
 // Single mark read
 document.addEventListener('click', function(e) {
@@ -264,7 +387,110 @@ function updateUnreadUI() {
         }
     }
 }
+
+// ── Install trigger ───────────────────────────────────────────
+function installUpdate(updateId, versionId, versionNum) {
+    const btn = document.getElementById(`install-btn-${versionId}`);
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Starting...';
+    }
+
+    fetch(`/admin/updates/${updateId}/install`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            if (btn) { btn.disabled = false; btn.textContent = `Install v${versionNum}`; }
+            return;
+        }
+        // Show in-progress UI
+        showInProgress(versionId, versionNum, updateId);
+        // Start polling
+        startPolling(updateId, versionId);
+    })
+    .catch(() => {
+        alert('Something went wrong. Please try again.');
+        if (btn) { btn.disabled = false; }
+    });
+}
+
+// ── Show in-progress spinner ──────────────────────────────────
+function showInProgress(versionId, versionNum, updateId) {
+    const block = document.getElementById(`install-block-${versionId}`);
+    if (block) {
+        block.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:14px;height:14px;border:2px solid var(--gold-color);
+                            border-top-color:transparent;border-radius:50%;
+                            animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+                <span style="font-size:13px;color:var(--gold-color);font-weight:500;">
+                    Installing v${versionNum}... please wait
+                </span>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin:6px 0 0;">
+                Your system is briefly in maintenance mode.
+            </p>`;
+    }
+    // Update the status pill
+    const pill = document.getElementById(`status-pill-${versionId}`);
+    if (pill) {
+        pill.className = 'status-pill gold';
+        pill.textContent = '🔄 In progress';
+    }
+}
+
+// ── Poll for status ───────────────────────────────────────────
+function startPolling(updateId, versionId) {
+    const interval = setInterval(() => {
+        fetch(`/admin/updates/${updateId}/status`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                clearInterval(interval);
+                showCompleted(versionId, data.installed_at);
+            } else if (data.status === 'failed') {
+                clearInterval(interval);
+                location.reload(); // Reload to show full failed UI with error details
+            }
+            // 'in_progress' — keep polling
+        });
+    }, 3000); // Poll every 3 seconds
+}
+
+// ── Show success ──────────────────────────────────────────────
+function showCompleted(versionId, installedAt) {
+    const block = document.getElementById(`install-block-${versionId}`);
+    if (block) {
+        block.innerHTML = `
+            <div style="display:flex;align-items:center;gap:8px;">
+                <svg width="14" height="14" fill="none" stroke="var(--teal-color)" stroke-width="2.5" viewBox="0 0 24 24">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                <span style="font-size:12px;color:var(--teal-color);font-weight:500;">
+                    Installed ${installedAt}
+                </span>
+            </div>`;
+    }
+    const pill = document.getElementById(`status-pill-${versionId}`);
+    if (pill) {
+        pill.className = 'status-pill teal';
+        pill.textContent = '✅ Installed';
+    }
+}
+
+// ── Start polling for any in-progress updates on page load ───
+document.querySelectorAll('[data-poll]').forEach(el => {
+    startPolling(el.dataset.poll, el.dataset.versionId);
+});
 </script>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 @endpush
 
 @endsection

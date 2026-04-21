@@ -27,20 +27,23 @@ class SuperAdminVersionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'version'   => ['required', 'string', 'max:20', 'unique:system_versions,version'],
-            'label'     => ['nullable', 'string', 'max:255'],
-            'type'      => ['required', 'in:major,minor,patch,hotfix'],
-            'changelog' => ['required', 'string'],
+            'version'          => ['required', 'string', 'max:20', 'unique:system_versions,version'],
+            'label'            => ['nullable', 'string', 'max:255'],
+            'type'             => ['required', 'in:major,minor,patch,hotfix'],
+            'changelog'        => ['required', 'string'],
+            'is_critical'      => ['boolean'],          // NEW
+            'requires_version' => ['nullable', 'string'], // NEW
+            'migration_folder' => ['nullable', 'string'], // NEW
         ]);
-
+    
         SystemVersion::create($data + [
             'is_published' => false,
             'is_current'   => false,
             'created_by'   => Auth::id(),
         ]);
-
+    
         return redirect()->route('super_admin.versions.index')
-            ->with('success', "Version {$data['version']} created as draft. Edit and publish when ready.");
+            ->with('success', "Version {$data['version']} created as draft.");
     }
 
     public function edit(SystemVersion $version)
@@ -65,7 +68,6 @@ class SuperAdminVersionController extends Controller
 
     public function publish(SystemVersion $version)
     {
-        // Mark as published and set as current version
         $version->update([
             'is_published' => true,
             'published_at' => now(),
@@ -73,19 +75,22 @@ class SuperAdminVersionController extends Controller
 
         $version->markAsCurrent();
 
-        // Notify all active tenant admins
-        $tenants = Tenant::where('status', 'active')
-            ->orWhereNull('status')
-            ->get();
-
+        $tenants  = Tenant::where('status', 'active')->orWhereNull('status')->get();
         $notified = 0;
+
         foreach ($tenants as $tenant) {
+            // Create TenantUpdate record
+            \App\Models\TenantUpdate::firstOrCreate(
+                ['tenant_id' => $tenant->id, 'version_id' => $version->id],
+                ['status' => 'pending']
+            );
+
             try {
                 tenancy()->initialize($tenant);
                 \App\Models\TenantNotification::notify(
                     title:      "New Update: v{$version->version}",
-                    message:    $version->label ?? "A new system update is available. Check What's New.",
-                    type:       'info',
+                    message:    $version->label ?? "A new system update is available.",
+                    type:       $version->is_critical ? 'warning' : 'info',
                     targetRole: 'admin'
                 );
                 tenancy()->end();
@@ -97,7 +102,7 @@ class SuperAdminVersionController extends Controller
         }
 
         return back()->with('success',
-            "v{$version->version} published, set as current, and {$notified} tenant(s) notified.");
+            "v{$version->version} published and {$notified} tenant(s) notified.");
     }
 
     /** Manually set a published version as the "current" live version */
@@ -125,4 +130,5 @@ class SuperAdminVersionController extends Controller
         return redirect()->route('super_admin.versions.index')
             ->with('success', 'Version deleted.');
     }
+    
 }

@@ -19,11 +19,16 @@ use App\Http\Controllers\SuperAdmin\SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantMonitoringController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanRequestController;
 use App\Http\Controllers\SuperAdmin\SuperAdminVersionController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
 
 foreach (config('tenancy.central_domains') as $domain) {
+
+Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle'])
+    ->withoutMiddleware([VerifyCsrfToken::class]);
+
     Route::domain($domain)->group(function () {
 
         // ── Root Redirect ─────────────────────────────────────────────────
@@ -129,6 +134,6 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::delete('notifications/{notification}',    [SuperAdminNotificationController::class, 'destroy'])->name('notifications.destroy');
 
         });
-
+            
     });
 }
