@@ -23,8 +23,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
-Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle'])
-    ->withoutMiddleware([VerifyCsrfToken::class]);
+Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
 foreach (config('tenancy.central_domains') as $domain) {
 
