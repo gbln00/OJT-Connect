@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InstallTenantUpdate implements ShouldQueue
@@ -61,7 +62,7 @@ class InstallTenantUpdate implements ShouldQueue
             }
 
             // Record the migration batch number
-            $lastBatch = \DB::table('migrations')->max('batch') ?? 0;
+            $lastBatch =  DB::table('migrations')->max('batch') ?? 0;
 
             // ── Phase 5: Run optional DataPatch class ────────────────
             // Convention: app/Updates/V1_3_0/DataPatch.php

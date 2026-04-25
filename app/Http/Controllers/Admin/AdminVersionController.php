@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SystemVersion;
+use App\Models\TenantUpdate;
 use App\Models\VersionReadReceipt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,8 +12,8 @@ class AdminVersionController extends Controller
 {
     public function index()
     {
-        $versions = SystemVersion::published()->paginate(10);
-        $tenantId = tenancy()->tenant?->id;
+        $versions  = SystemVersion::published()->paginate(10);
+        $tenantId  = tenancy()->tenant?->id;
         $userEmail = Auth::user()?->email;
 
         $unreadCount = SystemVersion::published()
@@ -20,7 +21,15 @@ class AdminVersionController extends Controller
                 $q->where('tenant_id', $tenantId)->where('read_by', $userEmail)
             )->count();
 
-        return view('admin.whats-new.index', compact('versions', 'tenantId', 'userEmail', 'unreadCount'));
+        // NEW: pre-load TenantUpdate records for this tenant
+        $tenantUpdates = TenantUpdate::where('tenant_id', $tenantId)
+            ->whereIn('version_id', $versions->pluck('id'))
+            ->get()
+            ->keyBy('version_id');
+
+        return view('admin.whats-new.index', compact(
+            'versions', 'tenantId', 'userEmail', 'unreadCount', 'tenantUpdates'
+        ));
     }
 
     public function markRead(Request $request, SystemVersion $version)
@@ -36,4 +45,3 @@ class AdminVersionController extends Controller
         return response()->json(['ok' => true]);
     }
 }
-

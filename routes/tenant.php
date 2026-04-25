@@ -249,10 +249,10 @@ Route::middleware([
         Route::get('/whats-new',                        [AdminVersionController::class, 'index'])->name('whats-new.index');
         Route::post('/whats-new/{version}/read',        [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
 
-        //
-        Route::prefix('updates')->name('admin.updates.')->group(function () {
-            Route::post('/{tenantUpdate}/install', [\App\Http\Controllers\Admin\AdminUpdateController::class, 'install'])->name('install');
-            Route::get('/{tenantUpdate}/status',  [\App\Http\Controllers\Admin\AdminUpdateController::class, 'status'])->name('status');
+        
+        Route::prefix('updates')->name('updates.')->group(function () {
+            Route::post('/{tenantUpdate}/install',      [\App\Http\Controllers\Admin\AdminUpdateController::class, 'install'])->name('install');
+            Route::get('/{tenantUpdate}/status',        [\App\Http\Controllers\Admin\AdminUpdateController::class, 'status'])->name('status');
         });
 
     });
