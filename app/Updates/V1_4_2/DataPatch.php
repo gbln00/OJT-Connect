@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Updates\V1_4_1;
+namespace App\Updates\V1_4_2;
 
 use App\Models\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class DataPatch
 {
@@ -27,13 +28,20 @@ class DataPatch
      */
     private function backfillReadAt(): void
     {
+        // Guard: column may not exist if migration was skipped
+        if (!Schema::hasColumn('tenant_notifications', 'read_at')) {
+            Log::info("[v1.4.2] Skipping backfillReadAt — column does not exist.");
+            return;
+        }
+    
         $fixed = DB::table('tenant_notifications')
             ->where('is_read', true)
             ->whereNull('read_at')
             ->update(['read_at' => DB::raw('updated_at')]);
-
+    
         Log::info("[v1.4.2] Backfilled read_at for {$fixed} notifications.");
     }
+    
 
     // ── Patch 2 ──────────────────────────────────────────────────────
     /**
@@ -42,11 +50,16 @@ class DataPatch
      */
     private function backfillSubmittedAt(): void
     {
+        if (!Schema::hasColumn('weekly_reports', 'submitted_at')) {
+            Log::info("[v1.4.2] Skipping backfillSubmittedAt — column does not exist.");
+            return;
+        }
+    
         $fixed = DB::table('weekly_reports')
             ->whereIn('status', ['approved', 'returned'])
             ->whereNull('submitted_at')
             ->update(['submitted_at' => DB::raw('updated_at')]);
-
+    
         Log::info("[v1.4.2] Backfilled submitted_at for {$fixed} weekly reports.");
     }
 
@@ -58,16 +71,21 @@ class DataPatch
      */
     private function fixOrphanedApplications(): void
     {
+        if (!Schema::hasTable('applications')) {
+            Log::info("[v1.4.2] Skipping fixOrphanedApplications — table does not exist.");
+            return;
+        }
+    
         $companyIds = DB::table('companies')->pluck('id');
-
+    
         $fixed = DB::table('applications')
             ->whereNotNull('company_id')
             ->whereNotIn('company_id', $companyIds)
             ->update([
-                'company_id'  => null,
-                'updated_at'  => now(),
+                'company_id' => null,
+                'updated_at' => now(),
             ]);
-
+    
         Log::info("[v1.4.2] Cleared company_id on {$fixed} orphaned applications.");
     }
 
@@ -80,11 +98,16 @@ class DataPatch
      */
     private function resetEvaluationDraftState(): void
     {
+        if (!Schema::hasColumn('evaluations', 'is_draft')) {
+            Log::info("[v1.4.2] Skipping resetEvaluationDraftState — column does not exist.");
+            return;
+        }
+    
         $fixed = DB::table('evaluations')
             ->whereNotNull('overall_grade')
             ->where('is_draft', true)
             ->update(['is_draft' => false]);
-
+    
         Log::info("[v1.4.2] Reset is_draft on {$fixed} completed evaluations.");
     }
 }

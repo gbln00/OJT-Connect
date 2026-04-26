@@ -7,6 +7,8 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Http\Controllers\Support\SupportTicketController;
+
 
 // QR Code scanning for clock-ins
 use App\Http\Controllers\QrScanController;
@@ -249,11 +251,19 @@ Route::middleware([
         Route::get('/whats-new',                        [AdminVersionController::class, 'index'])->name('whats-new.index');
         Route::post('/whats-new/{version}/read',        [AdminVersionController::class, 'markRead'])->name('whats-new.markRead');
 
-        
+        // Updates & Patch
         Route::prefix('updates')->name('updates.')->group(function () {
             Route::post('/{tenantUpdate}/install',      [\App\Http\Controllers\Admin\AdminUpdateController::class, 'install'])->name('install');
             Route::get('/{tenantUpdate}/status',        [\App\Http\Controllers\Admin\AdminUpdateController::class, 'status'])->name('status');
         });
+
+        //Support & Feedback
+        Route::get('/support',                                      [SupportTicketController::class, 'index'])->name('support.index');
+        Route::get('/support/create',                               [SupportTicketController::class, 'create'])->name('support.create');
+        Route::post('/supprt',                                      [SupportTicketController::class, 'store'])->name('support.store');
+        Route::get('/support/{ticket}',                             [SupportTicketController::class, 'show'])->name('support.show');
+        Route::post('/support/{ticket}/reply',                      [SupportTicketController::class, 'reply'])->name('support.reply');
+        Route::patch('/support/{ticket}/close',                     [SupportTicketController::class, 'close'])->name('support.close');
 
     });
 
@@ -347,8 +357,14 @@ Route::middleware([
         });
 
         // ── Plan overview ─────────────────────────────────────────────
-        Route::get('/plan', [CoordinatorPlanController::class, 'index'])->name('plan.index');
+        Route::get('/plan',                                 [CoordinatorPlanController::class, 'index'])->name('plan.index');
 
+        Route::get('/support',                                      [SupportTicketController::class, 'index'])->name('index');
+        Route::get('/support/create',                               [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/supprt',                                      [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/support/{ticket}',                             [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/support/{ticket}/reply',                      [SupportTicketController::class, 'reply'])->name('reply');
+        Route::patch('/support/{ticket}/close',                     [SupportTicketController::class, 'close'])->name('close');
     });
 
     // ══════════════════════════════════════════════════════════════════
@@ -400,6 +416,13 @@ Route::middleware([
             Route::get('/evaluations/{application}',        [SupervisorEvaluationController::class, 'create'])->name('evaluations.create');
             Route::post('/evaluations/{application}',       [SupervisorEvaluationController::class, 'store'])->name('evaluations.store');
         });
+
+        Route::get('/support',                                      [SupportTicketController::class, 'index'])->name('index');
+        Route::get('/support/create',                               [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/supprt',                                      [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/support/{ticket}',                             [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/support/{ticket}/reply',                      [SupportTicketController::class, 'reply'])->name('reply');
+        Route::patch('/support/{ticket}/close',                     [SupportTicketController::class, 'close'])->name('close');
     });
 
     // ══════════════════════════════════════════════════════════════════
@@ -451,6 +474,13 @@ Route::middleware([
 
             Route::get('/evaluation', [StudentEvaluationController::class, 'show'])->name('evaluation.show');
         });
+
+        Route::get('/support',                                      [SupportTicketController::class, 'index'])->name('support.index');
+        Route::get('/support/create',                               [SupportTicketController::class, 'create'])->name('support.create');
+        Route::post('/supprt',                                      [SupportTicketController::class, 'store'])->name('support.store');
+        Route::get('/support/{ticket}',                             [SupportTicketController::class, 'show'])->name('support.show');
+        Route::post('/support/{ticket}/reply',                      [SupportTicketController::class, 'reply'])->name('support.reply');
+        Route::patch('/support/{ticket}/close',                     [SupportTicketController::class, 'close'])->name('support.close');
     });
 
 });

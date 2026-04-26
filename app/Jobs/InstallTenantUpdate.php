@@ -42,7 +42,7 @@ class InstallTenantUpdate implements ShouldQueue
 
             // ── Phase 3: Enable maintenance mode ────────────────────
             // We store a flag in cache that the middleware checks
-            Cache::put("tenant_maintenance_{$this->tenant->id}", true, now()->addMinutes(10));
+            Cache::store('database')->put("tenant_maintenance_{$this->tenant->id}", true, now()->addMinutes(10));
 
             // ── Phase 4: Run version-specific migrations ─────────────
             if ($version->migration_folder) {
@@ -108,7 +108,7 @@ class InstallTenantUpdate implements ShouldQueue
             try { tenancy()->end(); } catch (\Throwable) {}
 
             // Always lift maintenance mode on failure
-            Cache::forget("tenant_maintenance_{$this->tenant->id}");
+            Cache::store('database')->forget("tenant_maintenance_{$this->tenant->id}");
 
             // Mark as failed with error details
             $this->tenantUpdate->update([
@@ -150,7 +150,7 @@ class InstallTenantUpdate implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error("Job permanently failed: " . $exception->getMessage());
-        Cache::forget("tenant_maintenance_{$this->tenant->id}");
+        Cache::store('database')->forget("tenant_maintenance_{$this->tenant->id}");
 
         $this->tenantUpdate->update([
             'status'    => 'failed',
