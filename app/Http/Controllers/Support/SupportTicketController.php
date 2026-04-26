@@ -199,15 +199,22 @@ class SupportTicketController extends Controller
     {
         try {
             $tenantId = tenancy()->tenant?->id ?? 'unknown';
+    
+            // Build the URL manually — route() inside tenant context
+            // would resolve the tenant subdomain, not the central domain.
+            $link = rtrim(config('app.url'), '/')
+                . '/super-admin/support/' . $tenantId
+                . '/' . $ticket->id;
+    
             SuperAdminNotification::notify(
                 type:    'support',
                 title:   "New Support Ticket [{$ticket->ref}]",
                 message: "From {$user->name} ({$tenantId}) — {$ticket->subject}. Priority: {$ticket->priority_label}.",
                 icon:    'bell',
-                link:    route('super_admin.support.show', ['tenantId' => $tenantId, 'ticketId' => $ticket->id]),
+                link:    $link,          // ← central domain URL
             );
         } catch (\Throwable) {
-            // Silently fail — notification is non-critical
+            // Non-critical
         }
     }
 
@@ -215,15 +222,20 @@ class SupportTicketController extends Controller
     {
         try {
             $tenantId = tenancy()->tenant?->id ?? 'unknown';
+    
+            $link = rtrim(config('app.url'), '/')
+                . '/super-admin/support/' . $tenantId
+                . '/' . $ticket->id;
+    
             SuperAdminNotification::notify(
                 type:    'support',
                 title:   "Ticket Reply [{$ticket->ref}]",
                 message: "{$user->name} ({$tenantId}) replied to: {$ticket->subject}.",
                 icon:    'bell',
-                link:    route('super_admin.support.show', ['tenantId' => $tenantId, 'ticketId' => $ticket->id]),
+                link:    $link,          // ← central domain URL
             );
         } catch (\Throwable) {
-            // Silently fail
+            // Non-critical
         }
     }
     
