@@ -12,9 +12,8 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Handles all tenant-side support ticket interactions.
- * This single controller is shared by all roles (admin, coordinator,
- * supervisor, student) — the route prefix and layout view are the
- * only things that differ per role.
+ * Shared by all roles (admin, coordinator, supervisor, student).
+ * The route prefix and layout view are the only things that differ per role.
  */
 class SupportTicketController extends Controller
 {
@@ -78,7 +77,6 @@ class SupportTicketController extends Controller
             'status'   => 'open',
         ]);
 
-        // Notify the super admin about the new ticket
         $this->notifySuperAdmin($ticket, $user);
 
         return redirect()
@@ -92,7 +90,6 @@ class SupportTicketController extends Controller
     {
         $user = Auth::user();
 
-        // Security: users can only view their own tickets
         if ($ticket->user_id !== $user->id) {
             abort(403);
         }
@@ -113,7 +110,6 @@ class SupportTicketController extends Controller
             abort(403);
         }
 
-        // Don't allow replies to closed tickets
         if ($ticket->isClosed()) {
             return back()->with('error', 'This ticket is closed. Please open a new ticket if you need further assistance.');
         }
@@ -142,12 +138,10 @@ class SupportTicketController extends Controller
             'attachment_name' => $attachName,
         ]);
 
-        // If ticket was "waiting on user", move it back to in_progress
         if ($ticket->isWaiting()) {
             $ticket->update(['status' => 'in_progress']);
         }
 
-        // Notify super admin of new reply
         $this->notifySuperAdminReply($ticket, $user);
 
         return back()->with('success', 'Reply sent.');
@@ -177,9 +171,6 @@ class SupportTicketController extends Controller
 
     // ── Private helpers ───────────────────────────────────────────
 
-    /**
-     * Resolve the Blade layout file name for a given role.
-     */
     private function layoutForRole(string $role): string
     {
         return match($role) {
@@ -191,10 +182,6 @@ class SupportTicketController extends Controller
         };
     }
 
-    /**
-     * Resolve the route name prefix for a given role.
-     * e.g. 'admin.' so we can call route('admin.support.show', ...)
-     */
     private function routePrefix(string $role): string
     {
         return match($role) {
@@ -206,9 +193,6 @@ class SupportTicketController extends Controller
         };
     }
 
-    /**
-     * Fire a super-admin notification when a new ticket is created.
-     */
     private function notifySuperAdmin(SupportTicket $ticket, $user): void
     {
         try {
@@ -225,9 +209,6 @@ class SupportTicketController extends Controller
         }
     }
 
-    /**
-     * Notify super admin when a user posts a reply.
-     */
     private function notifySuperAdminReply(SupportTicket $ticket, $user): void
     {
         try {

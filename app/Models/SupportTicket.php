@@ -53,14 +53,14 @@ class SupportTicket extends Model
         return $query->where('user_id', $userId);
     }
 
-    // ── Status helpers ─────────────────────────────────────────────
+    // ── Status helpers ────────────────────────────────────────────
 
-    public function isOpen(): bool        { return $this->status === 'open'; }
-    public function isInProgress(): bool  { return $this->status === 'in_progress'; }
-    public function isWaiting(): bool     { return $this->status === 'waiting_on_user'; }
-    public function isResolved(): bool    { return $this->status === 'resolved'; }
-    public function isClosed(): bool      { return $this->status === 'closed'; }
-    public function isActive(): bool      { return in_array($this->status, ['open', 'in_progress', 'waiting_on_user']); }
+    public function isOpen(): bool       { return $this->status === 'open'; }
+    public function isInProgress(): bool { return $this->status === 'in_progress'; }
+    public function isWaiting(): bool    { return $this->status === 'waiting_on_user'; }
+    public function isResolved(): bool   { return $this->status === 'resolved'; }
+    public function isClosed(): bool     { return $this->status === 'closed'; }
+    public function isActive(): bool     { return in_array($this->status, ['open', 'in_progress', 'waiting_on_user']); }
 
     // ── Label helpers ─────────────────────────────────────────────
 

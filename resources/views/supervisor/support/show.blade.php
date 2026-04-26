@@ -1,4 +1,4 @@
-@extends($layout.coordinator-supervisor.app)
+@extends($layout . '.supervisor-app')
 
 @section('title', 'Ticket ' . $ticket->ref)
 @section('page-title', 'Ticket ' . $ticket->ref)

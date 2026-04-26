@@ -1,4 +1,5 @@
-@extends($layout.coordinator-supervisor.app)
+@extends($layout . '.supervisor-app')
+
 
 @section('title', 'Support & Feedback')
 @section('page-title', 'Support & Feedback')

@@ -1,4 +1,4 @@
-@extends($layout.coordinator-app)
+@extends($layout . '.coordinator-app')
 
 @section('title', 'New Support Ticket')
 @section('page-title', 'New Support Ticket')
