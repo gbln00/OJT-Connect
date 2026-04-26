@@ -864,12 +864,30 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
                 </svg>
                 <span style="flex:1;">Support</span>
-                @php $openTickets = 0;
+                @php
+                $openTickets = 0;
                 try {
-                    foreach(\App\Models\Tenant::all() as $t) {
-                        try { $openTickets += $t->run(fn() => \App\Models\SupportTicket::whereIn('status',['open','in_progress'])->count()); } catch(\Throwable) {}
+                    $tenantDbs = \App\Models\Tenant::all()->map(fn($t) => 'tenant' . $t->id);
+                    foreach ($tenantDbs as $dbName) {
+                        try {
+                            // Check if the database and table exist before querying
+                            $tableExists = \Illuminate\Support\Facades\DB::select(
+                                "SELECT COUNT(*) as cnt FROM information_schema.TABLES
+                                WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'support_tickets'",
+                                [$dbName]
+                            );
+                            if (($tableExists[0]->cnt ?? 0) > 0) {
+                                $count = \Illuminate\Support\Facades\DB::select(
+                                    "SELECT COUNT(*) as cnt FROM `{$dbName}`.`support_tickets`
+                                    WHERE status IN ('open', 'in_progress')",
+                                );
+                                $openTickets += $count[0]->cnt ?? 0;
+                            }
+                        } catch (\Throwable) {
+                            // Tenant DB may not have the table yet
+                        }
                     }
-                } catch(\Throwable) {}
+                } catch (\Throwable) {}
                 @endphp
                 @if($openTickets > 0)
                     <span class="nav-badge">{{ $openTickets }}</span>

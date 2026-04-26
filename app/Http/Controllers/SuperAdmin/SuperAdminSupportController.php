@@ -7,12 +7,13 @@ use App\Models\SupportTicket;
 use App\Models\SupportTicketReply;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Super-admin view of all support tickets across all tenants.
- * Runs on the central domain — uses tenancy()->initialize() to
- * query a specific tenant's DB when viewing individual tickets.
+ * Runs on the central domain — uses $tenant->run() to query each
+ * tenant's DB, then immediately maps results to plain objects so
+ * no Eloquent model tries to resolve the 'tenant' connection
+ * during Blade rendering (which would crash on the central domain).
  */
 class SuperAdminSupportController extends Controller
 {
@@ -20,9 +21,9 @@ class SuperAdminSupportController extends Controller
 
     public function index(Request $request)
     {
-        $tenants        = Tenant::with('domains')->get();
-        $allTickets     = collect();
-        $ticketSummary  = [];
+        $tenants       = Tenant::with('domains')->get();
+        $allTickets    = collect();
+        $ticketSummary = [];
 
         foreach ($tenants as $tenant) {
             try {
@@ -39,14 +40,38 @@ class SuperAdminSupportController extends Controller
                     return $q->take(50)->get();
                 });
 
+                // ── KEY FIX ───────────────────────────────────────────────
+                // Map each Eloquent model to a plain stdClass immediately
+                // after $tenant->run() exits the tenant context.
+                // This prevents any lazy-loaded property or accessor from
+                // trying to re-open the 'tenant' connection during rendering
+                // on the central domain.
                 foreach ($rows as $ticket) {
-                    $ticket->tenant_id   = $tenant->id;
-                    $ticket->tenant_name = $tenant->name ?? $tenant->id;
-                    $allTickets->push($ticket);
+                    $allTickets->push((object) [
+                        'id'          => $ticket->id,
+                        'ref'         => $ticket->ref,                   // computed here, safely inside run()
+                        'subject'     => $ticket->subject,
+                        'type'        => $ticket->type,
+                        'type_label'  => $ticket->type_label,
+                        'priority'    => $ticket->priority,
+                        'priority_label' => $ticket->priority_label,
+                        'priority_color' => $ticket->priority_color,
+                        'status'      => $ticket->status,
+                        'status_label'   => $ticket->status_label,
+                        'status_color'   => $ticket->status_color,
+                        'module'      => $ticket->module,
+                        'created_at'  => $ticket->created_at,
+                        'resolved_at' => $ticket->resolved_at,
+                        'reply_count' => $ticket->replies()->count(),    // still inside run()
+                        'user_name'   => $ticket->user?->name,
+                        'user_role'   => $ticket->user?->role,
+                        'tenant_id'   => $tenant->id,
+                        'tenant_name' => $tenant->name ?? $tenant->id,
+                    ]);
                 }
 
                 // Summary counts for sidebar
-                $counts = $tenant->run(fn() => [
+                $counts = $tenant->run(fn () => [
                     'open'     => SupportTicket::whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count(),
                     'resolved' => SupportTicket::whereIn('status', ['resolved', 'closed'])->count(),
                     'total'    => SupportTicket::count(),
@@ -60,18 +85,20 @@ class SuperAdminSupportController extends Controller
             }
         }
 
-        // Sort: urgent + open first
+        // Sort: open + urgent first
         $priorityOrder = ['urgent' => 0, 'high' => 1, 'normal' => 2, 'low' => 3];
         $statusOrder   = ['open' => 0, 'in_progress' => 1, 'waiting_on_user' => 2, 'resolved' => 3, 'closed' => 4];
 
         $allTickets = $allTickets->sortBy([
-            fn($a, $b) => ($statusOrder[$a->status] ?? 9) <=> ($statusOrder[$b->status] ?? 9),
-            fn($a, $b) => ($priorityOrder[$a->priority] ?? 9) <=> ($priorityOrder[$b->priority] ?? 9),
+            fn ($a, $b) => ($statusOrder[$a->status]   ?? 9) <=> ($statusOrder[$b->status]   ?? 9),
+            fn ($a, $b) => ($priorityOrder[$a->priority] ?? 9) <=> ($priorityOrder[$b->priority] ?? 9),
         ])->values();
 
-        $totalOpen = $allTickets->whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count();
-        $totalUrgent = $allTickets->where('priority', 'urgent')
-                                  ->whereIn('status', ['open', 'in_progress'])->count();
+        $totalOpen   = $allTickets->whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count();
+        $totalUrgent = $allTickets
+            ->where('priority', 'urgent')
+            ->whereIn('status', ['open', 'in_progress'])
+            ->count();
 
         return view('super_admin.support.index', compact(
             'allTickets', 'tenants', 'ticketSummary', 'totalOpen', 'totalUrgent'
@@ -84,11 +111,50 @@ class SuperAdminSupportController extends Controller
     {
         $tenant = Tenant::findOrFail($tenantId);
 
+        // Map to plain objects for the same reason as above
         [$ticket, $replies] = $tenant->run(function () use ($ticketId) {
-            $ticket  = SupportTicket::with('user')->findOrFail($ticketId);
-            $replies = SupportTicketReply::where('ticket_id', $ticketId)
-                            ->orderBy('created_at')->get();
-            return [$ticket, $replies];
+            $ticketModel = SupportTicket::with('user')->findOrFail($ticketId);
+
+            $ticketDto = (object) [
+                'id'           => $ticketModel->id,
+                'ref'          => $ticketModel->ref,
+                'subject'      => $ticketModel->subject,
+                'message'      => $ticketModel->message,
+                'type'         => $ticketModel->type,
+                'type_label'   => $ticketModel->type_label,
+                'priority'     => $ticketModel->priority,
+                'priority_label' => $ticketModel->priority_label,
+                'priority_color' => $ticketModel->priority_color,
+                'status'       => $ticketModel->status,
+                'status_label' => $ticketModel->status_label,
+                'status_color' => $ticketModel->status_color,
+                'module'       => $ticketModel->module,
+                'internal_note'=> $ticketModel->internal_note,
+                'created_at'   => $ticketModel->created_at,
+                'resolved_at'  => $ticketModel->resolved_at,
+                'user_name'    => $ticketModel->user?->name,
+                'user_email'   => $ticketModel->user?->email,
+                'user_id'      => $ticketModel->user_id,
+                'is_active'    => $ticketModel->isActive(),
+                'is_closed'    => $ticketModel->isClosed(),
+            ];
+
+            $replyDtos = SupportTicketReply::where('ticket_id', $ticketId)
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn ($r) => (object) [
+                    'id'              => $r->id,
+                    'sender_type'     => $r->sender_type,
+                    'sender_name'     => $r->sender_name,
+                    'display_name'    => $r->display_name,
+                    'message'         => $r->message,
+                    'attachment_path' => $r->attachment_path,
+                    'attachment_name' => $r->attachment_name,
+                    'created_at'      => $r->created_at,
+                    'is_from_support' => $r->isFromSupport(),
+                ]);
+
+            return [$ticketDto, $replyDtos];
         });
 
         $ticket->tenant_id   = $tenant->id;
@@ -104,31 +170,29 @@ class SuperAdminSupportController extends Controller
         $tenant = Tenant::findOrFail($tenantId);
 
         $validated = $request->validate([
-            'message'     => ['required', 'string', 'min:5', 'max:3000'],
-            'status'      => ['required', 'in:open,in_progress,waiting_on_user,resolved,closed'],
+            'message'       => ['required', 'string', 'min:5', 'max:3000'],
+            'status'        => ['required', 'in:open,in_progress,waiting_on_user,resolved,closed'],
             'internal_note' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $tenant->run(function () use ($validated, $ticketId) {
             $ticket = SupportTicket::findOrFail($ticketId);
 
-            // Save support reply
             SupportTicketReply::create([
                 'ticket_id'   => $ticket->id,
-                'user_id'     => null, // support team — no tenant user
+                'user_id'     => null,
                 'sender_type' => 'support',
                 'sender_name' => 'Support Team',
                 'message'     => $validated['message'],
             ]);
 
-            // Update ticket status and optional internal note
             $updates = ['status' => $validated['status']];
 
             if ($validated['status'] === 'resolved') {
                 $updates['resolved_at'] = now();
             }
 
-            if (!empty($validated['internal_note'])) {
+            if (! empty($validated['internal_note'])) {
                 $updates['internal_note'] = $validated['internal_note'];
             }
 
@@ -151,7 +215,7 @@ class SuperAdminSupportController extends Controller
         return back()->with('success', 'Reply sent and ticket updated.');
     }
 
-    // ── Update status only (quick action) ────────────────────────
+    // ── Update status only (quick action) ─────────────────────────
 
     public function updateStatus(Request $request, string $tenantId, int $ticketId)
     {
