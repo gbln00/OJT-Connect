@@ -692,6 +692,15 @@
                 Settings
             </a>
 
+            <a href="{{ route('supervisor.support.index') }}"
+                class="nav-item {{ request()->routeIs('supervisor.support.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 18v-6a9 9 0 0118 0v6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
+                </svg>
+                Support
+            </a>
+
         </nav>
 
         <div class="sidebar-footer">

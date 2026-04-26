@@ -131,18 +131,14 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::post('notifications/clear-read',          [SuperAdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
             Route::post('notifications/{notification}/read', [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
             Route::delete('notifications/{notification}',    [SuperAdminNotificationController::class, 'destroy'])->name('notifications.destroy');
-            Route::get('/',
-            [SuperAdminSupportController::class, 'index'])->name('index');
+            Route::get('/',                                  [SuperAdminSupportController::class, 'index'])->name('index');
  
-        // Single ticket for a specific tenant
-        // URL: /super-admin/support/{tenantId}/{ticketId}
-        Route::get('/support/{tenantId}/{ticketId}',                    [SuperAdminSupportController::class, 'show'])->name('show');
- 
-        // Reply to a ticket (sends as Support Team)
-        Route::post('/support/{tenantId}/{ticketId}/reply',             [SuperAdminSupportController::class, 'reply'])->name('reply');
- 
-        // Quick status update without a reply message
-        Route::patch('/support/{tenantId}/{ticketId}/status',           [SuperAdminSupportController::class, 'updateStatus'])->name('updateStatus');
+            Route::prefix('support')->name('support.')->group(function () {
+                Route::get('/',                                [SuperAdminSupportController::class, 'index'])->name('index');
+                Route::get('/{tenantId}/{ticketId}',           [SuperAdminSupportController::class, 'show'])->name('show');
+                Route::post('/{tenantId}/{ticketId}/reply',    [SuperAdminSupportController::class, 'reply'])->name('reply');
+                Route::patch('/{tenantId}/{ticketId}/status',  [SuperAdminSupportController::class, 'updateStatus'])->name('updateStatus');
+            });
         });
             
     });

@@ -1,12 +1,13 @@
 @extends($layout . '.student-app')
 
-
 @section('title', 'New Support Ticket')
 @section('page-title', 'New Support Ticket')
 
 @section('content')
 
-<div class="fade-up" style="max-width:720px;">
+<div class="fade-up" style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
+
+
 
     {{-- Back link --}}
     @php
@@ -24,17 +25,6 @@
         };
     @endphp
 
-    <div style="margin-bottom:20px;">
-        <a href="{{ route($indexRoute) }}"
-           style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;
-                  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
-                  color:var(--muted);text-decoration:none;transition:color 0.15s;"
-           onmouseover="this.style.color='var(--text)'"
-           onmouseout="this.style.color='var(--muted)'">
-            ← Back to tickets
-        </a>
-    </div>
-
     {{-- Header --}}
     <div style="margin-bottom:24px;">
         <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;
@@ -48,12 +38,19 @@
             Describe your issue or feedback in as much detail as possible.
             We typically respond within 1–2 business days.
         </p>
+        
     </div>
 
     <div class="card">
         <div class="card-header">
             <span class="card-title">Ticket Details</span>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-ghost btn-sm">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back
+            </a>
         </div>
+
+        
 
         <form method="POST" action="{{ route($storeRoute) }}" style="padding:24px;">
             @csrf

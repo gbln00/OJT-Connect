@@ -27,7 +27,6 @@ class SupportTicketController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
@@ -41,16 +40,19 @@ class SupportTicketController extends Controller
         ];
 
         $layout = $this->layoutForRole($user->role);
+        $view   = $this->viewPrefixForRole($user->role) . '.index';
 
-        return view('support.index', compact('tickets', 'counts', 'layout'));
+        return view($view, compact('tickets', 'counts', 'layout'));
     }
-
     // ── Create form ────────────────────────────────────────────────
 
     public function create()
     {
-        $layout = $this->layoutForRole(Auth::user()->role);
-        return view('support.create', compact('layout'));
+        $user   = Auth::user();
+        $layout = $this->layoutForRole($user->role);
+        $view   = $this->viewPrefixForRole($user->role) . '.create';
+    
+        return view($view, compact('layout'));
     }
 
     // ── Store a new ticket ─────────────────────────────────────────
@@ -89,17 +91,17 @@ class SupportTicketController extends Controller
     public function show(SupportTicket $ticket)
     {
         $user = Auth::user();
-
+    
         if ($ticket->user_id !== $user->id) {
             abort(403);
         }
-
+    
         $ticket->load('replies');
         $layout = $this->layoutForRole($user->role);
-
-        return view('support.show', compact('ticket', 'layout'));
+        $view   = $this->viewPrefixForRole($user->role) . '.show';
+    
+        return view($view, compact('ticket', 'layout'));
     }
-
     // ── Post a reply to a ticket ───────────────────────────────────
 
     public function reply(Request $request, SupportTicket $ticket)
@@ -174,11 +176,11 @@ class SupportTicketController extends Controller
     private function layoutForRole(string $role): string
     {
         return match($role) {
-            'admin'              => 'layouts.app',
-            'ojt_coordinator'    => 'layouts.coordinator-app',
-            'company_supervisor' => 'layouts.supervisor-app',
-            'student_intern'     => 'layouts.student-app',
-            default              => 'layouts.app',
+            'admin'              => 'layouts',
+            'ojt_coordinator'    => 'layouts.coordinator',
+            'company_supervisor' => 'layouts.supervisor',
+            'student_intern'     => 'layouts.student',
+            default              => 'layouts',
         };
     }
 
@@ -223,5 +225,16 @@ class SupportTicketController extends Controller
         } catch (\Throwable) {
             // Silently fail
         }
+    }
+    
+    private function viewPrefixForRole(string $role): string
+    {
+        return match($role) {
+            'admin'              => 'admin.support',
+            'ojt_coordinator'    => 'coordinator.support',
+            'company_supervisor' => 'supervisor.support',
+            'student_intern'     => 'student.support',
+            default              => 'admin.support',
+        };
     }
 }

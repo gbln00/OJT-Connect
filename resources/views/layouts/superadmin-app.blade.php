@@ -845,7 +845,9 @@
                 @endif
             </a>
 
-             <a href="{{ route('super_admin.versions.index') }}"
+            <div class="nav-section-label">Patch & Tenants Support</div>
+
+            <a href="{{ route('super_admin.versions.index') }}"
                 class="nav-item {{ request()->routeIs('super_admin.versions.*') ? 'active' : '' }}">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     {{-- Tag / release icon --}}
@@ -854,6 +856,27 @@
                 </svg>
                 Versions
             </a>
+
+            <a href="{{ route('super_admin.support.index') }}"
+                class="nav-item {{ request()->routeIs('super_admin.support.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 18v-6a9 9 0 0118 0v6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
+                </svg>
+                <span style="flex:1;">Support</span>
+                @php $openTickets = 0;
+                try {
+                    foreach(\App\Models\Tenant::all() as $t) {
+                        try { $openTickets += $t->run(fn() => \App\Models\SupportTicket::whereIn('status',['open','in_progress'])->count()); } catch(\Throwable) {}
+                    }
+                } catch(\Throwable) {}
+                @endphp
+                @if($openTickets > 0)
+                    <span class="nav-badge">{{ $openTickets }}</span>
+                @endif
+            </a>
+
+            <div class="nav-section-label">Alerts</div>
 
             @php $notifUnread = \App\Models\SuperAdminNotification::unread()->count(); @endphp
             <a href="{{ route('super_admin.notifications.index') }}"
@@ -866,6 +889,8 @@
                     <span class="nav-badge">{{ $notifUnread }}</span>
                 @endif
             </a>
+
+            
 
         </nav>
 
