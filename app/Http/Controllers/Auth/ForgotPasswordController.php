@@ -17,14 +17,19 @@ class ForgotPasswordController extends Controller
 
     public function sendResetLink(Request $request, RecaptchaService $recaptcha)
     {
-        $request->validate([
+        $rules = [
             'email'                => ['required', 'email'],
-            'g-recaptcha-response' => ['required'],
-        ], [
+        ];
+
+        if (config('services.recaptcha.enabled')) {
+            $rules['g-recaptcha-response'] = ['required'];
+        }
+
+        $request->validate($rules, [
             'g-recaptcha-response.required' => 'Please complete the CAPTCHA.',
         ]);
 
-        if (!$recaptcha->verify($request->input('g-recaptcha-response'))) {
+        if (config('services.recaptcha.enabled') && !$recaptcha->verify($request->input('g-recaptcha-response'))) {
             return back()->withErrors([
                 'email' => 'CAPTCHA verification failed. Please try again.',
             ])->withInput($request->only('email'));

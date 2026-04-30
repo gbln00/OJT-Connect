@@ -46,6 +46,7 @@
         </div>
 
         {{-- reCAPTCHA v2 --}}
+        @if (config('services.recaptcha.enabled'))
         <div class="form-group recaptcha-group">
             <div class="recaptcha-frame">
             <div id="recaptcha-container"></div>
@@ -54,6 +55,7 @@
                 <div class="invalid-feedback recaptcha-error">{{ $message }}</div>
             @enderror
         </div>
+        @endif
 
         
 
@@ -61,6 +63,7 @@
         <button type="submit" class="btn-primary">Send reset link</button>
     </form>
 
+        @if (config('services.recaptcha.enabled'))
         <script>
             function onRecaptchaLoad() {
                 const el = document.getElementById('recaptcha-container');
@@ -73,5 +76,6 @@
             }
         </script>
         <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+        @endif
     
 @endsection

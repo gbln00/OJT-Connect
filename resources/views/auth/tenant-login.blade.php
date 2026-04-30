@@ -2,7 +2,9 @@
 @section('title', 'Sign in — ' . (tenant('name') ?? 'OJTConnect'))
 
 @push('scripts')
+@if (config('services.recaptcha.enabled'))
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endif
 @endpush
 
 @section('content')
@@ -97,6 +99,7 @@
         </div>
 
         {{-- reCAPTCHA v2 --}}
+        @if (config('services.recaptcha.enabled'))
         <div class="form-group" style="margin-top: 4px;">
             <div style="display: flex; justify-content: center;">
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
@@ -105,6 +108,7 @@
                 <div class="invalid-feedback" style="display:block; margin-top: 6px; text-align: center;">{{ $message }}</div>
             @enderror
         </div>
+        @endif
 
         <button type="submit" class="btn-primary">
             Sign in
