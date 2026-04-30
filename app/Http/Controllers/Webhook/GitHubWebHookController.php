@@ -103,6 +103,12 @@ class GitHubWebhookController extends Controller
             }
         }
 
+        // ── 7. Trigger server-level code deployment ───────────────────
+        dispatch(function () {
+            \Illuminate\Support\Facades\Artisan::call('system:deploy');
+            \Illuminate\Support\Facades\Log::info('Webhook-triggered deployment finished.');
+        })->afterResponse(); // Runs AFTER we return the 200 to GitHub
+
         Log::info("GitHub release v{$tag} processed. {$notified} tenants notified.");
 
         return response()->json([

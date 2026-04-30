@@ -45,3 +45,7 @@ Schedule::command('subscriptions:expire')
 // Bandwidth aggregation — runs daily at 1 AM
 Schedule::command('tenants:aggregate-bandwidth')
     ->dailyAt('01:00');
+
+
+//
+Schedule::command('system:check-updates')->hourly();

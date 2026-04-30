@@ -14,6 +14,7 @@ return [
     'central_domains' => [
         'localhost',
         '127.0.0.1',
+        '10.0.0.58',
         'wikipedia-predefine-caress.ngrok-free.dev', 
     ],
 

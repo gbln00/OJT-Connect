@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Stancl\Tenancy\Database\Models\Domain;
 
 class SuperAdminTenantApprovalController extends Controller
 {
@@ -25,7 +26,7 @@ class SuperAdminTenantApprovalController extends Controller
         return view('super_admin.approvals.pending', compact('registrations'));
     }
 
-    public function approve(TenantRegistration $registration)
+    public function approve(Request $request, TenantRegistration $registration)
     {
 
         if ($registration->status !== 'pending') {
@@ -47,10 +48,7 @@ class SuperAdminTenantApprovalController extends Controller
             'created_by' => null,
         ]);
 
-        // Create the tenant's domain
-        $tenant->domains()->create([
-            'domain' => $registration->subdomain . '.' . config('app.base_domain', 'localhost'),
-        ]);
+        $this->ensureTenantDomains($tenant, $registration->subdomain, $request);
 
         $registration->update(['status' => 'approved']);
 
@@ -104,5 +102,41 @@ class SuperAdminTenantApprovalController extends Controller
         );
 
         return back()->with('info', "Registration rejected.");
+    }
+
+    private function ensureTenantDomains(Tenant $tenant, string $subdomain, ?Request $request = null): void
+    {
+        $baseDomains = [
+            config('app.base_domain', 'localhost'),
+            'localhost',
+            // Useful when accessing app via WiFi/LAN from other devices.
+            '10.0.0.58.nip.io',
+        ];
+
+        if ($request) {
+            $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';
+            if ($requestHost !== '') {
+                $baseDomains[] = $requestHost;
+            }
+        }
+
+        $domains = collect($baseDomains)
+            ->filter()
+            ->map(fn (string $domain) => strtolower(trim($domain)))
+            ->map(function (string $domain) {
+                $domain = preg_replace('#^https?://#', '', $domain);
+                return rtrim($domain, '/');
+            })
+            ->filter(fn (string $domain) => ! str_contains($domain, '.localhost'))
+            ->unique()
+            ->map(fn (string $baseDomain) => "{$subdomain}.{$baseDomain}");
+
+        foreach ($domains as $domain) {
+            Domain::firstOrCreate([
+                'domain' => $domain,
+            ], [
+                'tenant_id' => $tenant->getTenantKey(),
+            ]);
+        }
     }
 }
