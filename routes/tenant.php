@@ -232,6 +232,7 @@ Route::middleware([
             
             // ── Analytics Dashboard (Premium only) ──────────────────────────
             Route::get('/analytics',                    [AdminController::class, 'analytics'])->name('analytics.index');
+            Route::get('/mock-lab',                     [AdminController::class, 'mockLab'])->name('mock-lab.index');
             
             // ── Tenant Customization (Premium only) ───────────────────────────
             Route::get('/customization',                [TenantCustomizationController::class, 'index'])->name('customization.index');

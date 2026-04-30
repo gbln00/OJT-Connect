@@ -929,6 +929,17 @@
                 @endif
             </a>
 
+            <a href="{{ route('admin.mock-lab.index') }}"
+               class="nav-item {{ request()->routeIs('admin.mock-lab.*') ? 'active' : '' }}">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M9 3h6l1 3h4v2l-2 12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L4 8V6h4l1-3z"/>
+                    <line x1="10" y1="11" x2="14" y2="11"/>
+                    <line x1="10" y1="15" x2="14" y2="15"/>
+                </svg>
+                Mock Feature Lab
+                <span class="nav-badge" style="background:var(--blue-color);font-size:8px;">UPDATE</span>
+            </a>
+
             <div class="nav-section-label">Plan & Promotions</div>
 
             <a href="{{ route('admin.plan.index') }}"

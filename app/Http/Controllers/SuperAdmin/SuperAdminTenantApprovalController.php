@@ -106,12 +106,17 @@ class SuperAdminTenantApprovalController extends Controller
 
     private function ensureTenantDomains(Tenant $tenant, string $subdomain, ?Request $request = null): void
     {
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST) ?: null;
+
         $baseDomains = [
             config('app.base_domain', 'localhost'),
             'localhost',
-            // Useful when accessing app via WiFi/LAN from other devices.
-            '10.0.0.58.nip.io',
         ];
+
+        // Useful when accessing app via WiFi/LAN from other devices.
+        if ($appHost && filter_var($appHost, FILTER_VALIDATE_IP)) {
+            $baseDomains[] = "{$appHost}.nip.io";
+        }
 
         if ($request) {
             $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';

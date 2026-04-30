@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateProfileRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Services\AnalyticsService;
+use App\Models\SystemVersion;
+use App\Models\TenantSetting;
+use App\Models\TenantUpdate;
 use App\Models\User;
 use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+    private const MOCK_UPDATE_VERSION = '1.4.4';
+
     public function dashboard()
     {
         $totalUsers          = User::count();
@@ -69,6 +74,37 @@ class AdminController extends Controller
             'recentEvals',
             'topStudents'
         ));
+    }
+
+    public function mockLab()
+    {
+        $tenantId = tenancy()->tenant?->id;
+
+        $requiredVersion = SystemVersion::where('version', self::MOCK_UPDATE_VERSION)->first();
+
+        if (! $requiredVersion) {
+            return redirect()
+                ->route('admin.whats-new.index')
+                ->with('error', "Mock feature requires update v" . self::MOCK_UPDATE_VERSION . ", but it is not published yet.");
+        }
+
+        $installed = TenantUpdate::where('tenant_id', $tenantId)
+            ->where('version_id', $requiredVersion->id)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (! $installed) {
+            return redirect()
+                ->route('admin.whats-new.index')
+                ->with('error', "Install update v{$requiredVersion->version} to unlock the Mock Feature Lab.");
+        }
+
+        $activatedAt = TenantSetting::get('mock_feature.activated_at');
+
+        return view('admin.mock-lab.index', [
+            'requiredVersion' => $requiredVersion->version,
+            'activatedAt' => $activatedAt,
+        ]);
     }
 
 
