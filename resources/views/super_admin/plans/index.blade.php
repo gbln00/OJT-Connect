@@ -14,8 +14,12 @@ $featureKeys = [
     'hour_logs'      => 'Hour Log Tracking',
     'weekly_reports' => 'Weekly Reports',
     'evaluations'    => 'Evaluations',
+    'csv_import'     => 'CSV Import',
     'pdf_export'     => 'PDF Export',
     'excel_export'   => 'Excel Export',
+    'analytics_dashboard' => 'Analytics Dashboard',
+    'tenant_customization' => 'Tenant Customization',
+    'qr_clock_in'    => 'QR Clock-in',
     'email_notifs'   => 'Email Notifications',
 ];
 @endphp

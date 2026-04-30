@@ -31,14 +31,18 @@ class PlanSeeder extends Seeder
                 'is_active'     => true,
                 'features'      => [
                     // ✓ Included
-                    'hour_logs'      => true,   // OJT hour monitoring
-                    'email_notifs'   => true,   // Basic notifications
+                    'hour_logs'          => true,   // OJT hour monitoring
+                    'email_notifs'       => true,   // Basic notifications
+                    'qr_clock_in'        => true,   // QR attendance module
 
                     // ✗ Not included on Basic
-                    'weekly_reports' => false,  // Online report submission (Standard+)
-                    'evaluations'    => false,  // Student evaluation system (Standard+)
-                    'pdf_export'     => false,  // Automated PDF generation (Premium only)
-                    'excel_export'   => false,  // Advanced analytics (Premium only)
+                    'weekly_reports'     => false,  // Online report submission (Standard+)
+                    'evaluations'        => false,  // Student evaluation system (Standard+)
+                    'csv_import'         => false,  // Bulk CSV import (Standard+)
+                    'pdf_export'         => false,  // Automated PDF generation (Premium only)
+                    'excel_export'       => false,  // Advanced reports (Premium only)
+                    'analytics_dashboard'=> false,  // Admin analytics dashboard (Premium only)
+                    'tenant_customization'=> false, // Tenant branding customization (Premium only)
                 ],
             ],
 
@@ -54,16 +58,20 @@ class PlanSeeder extends Seeder
                 'is_active'     => true,
                 'features'      => [
                     // ✓ Everything in Basic
-                    'hour_logs'      => true,
-                    'email_notifs'   => true,
+                    'hour_logs'          => true,
+                    'email_notifs'       => true,
+                    'qr_clock_in'        => true,
 
                     // ✓ Standard additions
-                    'weekly_reports' => true,   // Online report submission
-                    'evaluations'    => true,   // Student evaluation system
+                    'weekly_reports'     => true,   // Online report submission
+                    'evaluations'        => true,   // Student evaluation system
+                    'csv_import'         => true,   // Bulk import for users & companies
 
                     // ✗ Premium only
-                    'pdf_export'     => false,
-                    'excel_export'   => false,
+                    'pdf_export'         => false,
+                    'excel_export'       => false,
+                    'analytics_dashboard'=> false,
+                    'tenant_customization'=> false,
                 ],
             ],
 
@@ -79,14 +87,18 @@ class PlanSeeder extends Seeder
                 'is_active'     => true,
                 'features'      => [
                     // ✓ Everything in Standard
-                    'hour_logs'      => true,
-                    'email_notifs'   => true,
-                    'weekly_reports' => true,
-                    'evaluations'    => true,
+                    'hour_logs'          => true,
+                    'email_notifs'       => true,
+                    'qr_clock_in'        => true,
+                    'weekly_reports'     => true,
+                    'evaluations'        => true,
+                    'csv_import'         => true,
 
                     // ✓ Premium additions
-                    'pdf_export'     => true,   // Automated PDF generation
-                    'excel_export'   => true,   // Advanced reports & analytics
+                    'pdf_export'         => true,   // Automated PDF generation
+                    'excel_export'       => true,   // Advanced reports export
+                    'analytics_dashboard'=> true,   // Admin analytics dashboard
+                    'tenant_customization'=> true,  // Tenant branding/customization
                 ],
             ],
 

@@ -44,7 +44,18 @@ class SuperAdminPlanController extends Controller
         ]);
 
         // Build features array with all keys defaulting to false
-        $allFeatureKeys = ['hour_logs', 'weekly_reports', 'evaluations', 'pdf_export', 'excel_export', 'email_notifs'];
+        $allFeatureKeys = [
+            'hour_logs',
+            'weekly_reports',
+            'evaluations',
+            'csv_import',
+            'pdf_export',
+            'excel_export',
+            'analytics_dashboard',
+            'tenant_customization',
+            'qr_clock_in',
+            'email_notifs',
+        ];
         $features = [];
         foreach ($allFeatureKeys as $key) {
             $features[$key] = !empty($data['features'][$key]);
@@ -94,7 +105,18 @@ class SuperAdminPlanController extends Controller
             'description'  => ['nullable', 'string', 'max:500'],
         ]);
 
-        $allFeatureKeys = ['hour_logs', 'weekly_reports', 'evaluations', 'pdf_export', 'excel_export', 'email_notifs'];
+        $allFeatureKeys = [
+            'hour_logs',
+            'weekly_reports',
+            'evaluations',
+            'csv_import',
+            'pdf_export',
+            'excel_export',
+            'analytics_dashboard',
+            'tenant_customization',
+            'qr_clock_in',
+            'email_notifs',
+        ];
         $features = [];
         foreach ($allFeatureKeys as $key) {
             $features[$key] = !empty($data['features'][$key]);
