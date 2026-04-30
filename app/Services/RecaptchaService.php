@@ -8,7 +8,7 @@ class RecaptchaService
 {
     public function verify(string $token): bool
     {
-        if (app()->environment('testing')) {
+        if (app()->environment(['local', 'testing']) || ! config('services.recaptcha.enabled')) {
             return true;
         }
 

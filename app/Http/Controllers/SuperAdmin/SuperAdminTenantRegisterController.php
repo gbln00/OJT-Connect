@@ -22,7 +22,6 @@ class SuperAdminTenantRegisterController extends Controller
             'email'               => [
                 'required',
                 'email',
-                'unique:tenant_registrations,email',
                 'unique:tenants,email',
             ],
             'subdomain'           => [
@@ -30,7 +29,6 @@ class SuperAdminTenantRegisterController extends Controller
                 'alpha_dash',
                 'min:3',
                 'max:30',
-                'unique:tenant_registrations,subdomain',
                 'unique:tenants,id',
             ],
             'contact_person'      => ['required', 'string', 'max:255'],
@@ -48,10 +46,33 @@ class SuperAdminTenantRegisterController extends Controller
             ])->withInput();
         }
 
-        $registration = TenantRegistration::create($request->only([
+        $payload = $request->only([
             'company_name', 'email', 'subdomain',
             'contact_person', 'phone', 'plan',
-        ]));
+        ]);
+
+        $existing = TenantRegistration::query()
+            ->where('email', $request->email)
+            ->orWhere('subdomain', $request->subdomain)
+            ->first();
+
+        if ($existing && $existing->status !== 'rejected') {
+            return back()->withErrors([
+                'email' => 'A registration using this email or subdomain is already under review or approved.',
+            ])->withInput();
+        }
+
+        if ($existing && $existing->status === 'rejected') {
+            $existing->update([
+                ...$payload,
+                'status' => 'pending',
+                'rejection_reason' => null,
+            ]);
+
+            $registration = $existing->fresh();
+        } else {
+            $registration = TenantRegistration::create($payload);
+        }
 
         SuperAdminNotification::notify(
             type:    'registration',

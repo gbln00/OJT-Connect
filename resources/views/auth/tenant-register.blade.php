@@ -637,7 +637,9 @@
         }
     </style>
 
+    @if (config('services.recaptcha.enabled'))
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 
 </head>
 <body>
@@ -946,6 +948,7 @@
                 
 
                {{-- reCAPTCHA --}}
+                @if (config('services.recaptcha.enabled'))
                 <div class="field full" style="margin-top:.5rem;">
                     <label class="field-label">Security Check <span class="req">✦</span></label>
                     <div class="recaptcha-wrap" style="display: flex; justify-content: center;">
@@ -957,6 +960,7 @@
                         <span class="field-error">{{ $message }}</span>
                     @enderror
                 </div>
+                @endif
 
                 {{-- Submit --}}
                 <div class="submit-row">
