@@ -12,10 +12,10 @@ return [
     'domain_model' => Domain::class,
 
     'central_domains' => [
+        'ojt-connect-production.up.railway.app',
         'localhost',
         '127.0.0.1',
         '10.23.146.33',
-        'ojt-connect-production.up.railway.app',
         'wikipedia-predefine-caress.ngrok-free.dev', 
     ],
 
