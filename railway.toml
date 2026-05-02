@@ -3,3 +3,4 @@ builder = "nixpacks"
 
 [deploy]
 releaseCommand = "php artisan migrate --force && php artisan storage:link && php artisan optimize:clear"
+releaseCommand = "php artisan migrate --force && php artisan db:seed --class=SuperAdminSeeder --force"
