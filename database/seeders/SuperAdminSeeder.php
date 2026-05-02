@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +16,7 @@ class SuperAdminSeeder extends Seeder
                 'email'             => 'superadmin@ojtconnect.edu',
                 'password'          => Hash::make('password'),
                 'role'              => 'super_admin',
+                'is_active'         => 1,
                 'email_verified_at' => now(),
                 'created_at'        => now(),
                 'updated_at'        => now(),
