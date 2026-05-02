@@ -29,22 +29,13 @@ Route::get('/debug-user', function () {
     return $user ? $user->toArray() : 'User not found';
 });
 
-Route::get('/debug-insert', function () {
-    try {
-        \Illuminate\Support\Facades\DB::table('users')->insert([
-            'name'              => 'Super Admin',
-            'email'             => 'superadmin@ojtconnect.edu',
-            'password'          => \Illuminate\Support\Facades\Hash::make('password'),
-            'role'              => 'super_admin',
-            'is_active'         => 1,
-            'email_verified_at' => now(),
-            'created_at'        => now(),
-            'updated_at'        => now(),
-        ]);
-        return 'User created successfully!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
+Route::get('/debug-domain', function () {
+    return [
+        'host'    => request()->getHost(),
+        'url'     => request()->url(),
+        'app_url' => config('app.url'),
+        'domains' => config('tenancy.central_domains'),
+    ];
 });
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
