@@ -2,7 +2,6 @@
 builder = "nixpacks"
 
 [deploy]
-[deploy]
-releaseCommand = "php artisan optimize:clear && php artisan migrate --force && php artisan session:table || true && php artisan migrate --force && php artisan storage:link"
+releaseCommand = "php artisan optimize:clear && php artisan migrate --force && php artisan storage:link && php artisan db:seed --class=SuperAdminSeeder --force"
 [start]
 cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
