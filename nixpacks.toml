@@ -4,7 +4,7 @@ nixPkgs = ["php82", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Ex
 [phases.install]
 cmds = [
     "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer",
-    "composer install --optimize-autoloader --no-scripts --no-interaction --ignore-platform-req=ext-gd"
+    "/usr/local/bin/composer install --optimize-autoloader --no-scripts --no-interaction --ignore-platform-req=ext-gd"
 ]
 
 [start]
