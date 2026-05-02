@@ -24,9 +24,9 @@ use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
-Route::get('/debug-user', function () {
-    $user = \App\Models\User::where('email', 'superadmin@ojtconnect.edu')->first();
-    return $user ? $user->toArray() : 'User not found';
+Route::get('/debug-schema', function () {
+    $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+    return $columns;
 });
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
