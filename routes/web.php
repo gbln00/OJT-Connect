@@ -24,6 +24,11 @@ use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
+Route::get('/debug-log', function () {
+    $log = file_get_contents(storage_path('logs/laravel.log'));
+    return response($log)->header('Content-Type', 'text/plain');
+});
+
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
 foreach (config('tenancy.central_domains') as $domain) {
