@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Models\SystemVersion;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,21 +23,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {   
         // Custom Blade directive to check tenant's plan
-        \Blade::directive('tenantPlan', function ($expression) {
+        Blade::directive('tenantPlan', function ($expression) {
             return "<?php if(optional(tenancy()->tenant)->plan && in_array(optional(tenancy()->tenant)->plan, (array)$expression)): ?>";
         });
 
         // End the tenantPlan directive
-        \Blade::directive('endtenantPlan', function () {
+        Blade::directive('endtenantPlan', function () {
             return "<?php endif; ?>";
         });
 
-        \Blade::directive('tenantSetting', function ($expression) {
+        Blade::directive('tenantSetting', function ($expression) {
             // Usage: @tenantSetting('brand_name', 'Default Value')
             return "<?php echo \\App\\Models\\TenantSetting::get($expression); ?>";
         });
 
-        \View::composer('*', function ($view) {
+        View::composer('*', function ($view) {
             try {
                 $view->with('currentVersion', SystemVersion::current()?->version);
             } catch (\Throwable $e) {
