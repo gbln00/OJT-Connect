@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use App\Models\SystemVersion;
 
@@ -22,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {   
+
+        if (env('APP_ENV') === 'production') {
+            URL::forceRootUrl(env('APP_URL'));
+            URL::forceScheme('https');
+        }
         // Custom Blade directive to check tenant's plan
         Blade::directive('tenantPlan', function ($expression) {
             return "<?php if(optional(tenancy()->tenant)->plan && in_array(optional(tenancy()->tenant)->plan, (array)$expression)): ?>";
