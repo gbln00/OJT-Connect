@@ -3,4 +3,6 @@ builder = "nixpacks"
 
 [deploy]
 releaseCommand = "php artisan migrate --force && php artisan storage:link && php artisan optimize:clear"
-cmd = "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+
+[start]
+cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
