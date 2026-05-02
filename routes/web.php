@@ -24,14 +24,9 @@ use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
-Route::get('/debug-log', function () {
-    return [
-        'db_host' => env('DB_HOST'),
-        'db_port' => env('DB_PORT'),
-        'session' => env('SESSION_DRIVER'),
-        'cache' => env('CACHE_STORE'),
-        'app_env' => env('APP_ENV'),
-    ];
+Route::get('/debug-user', function () {
+    $user = \App\Models\User::where('email', 'superadmin@ojtconnect.edu')->first();
+    return $user ? $user->toArray() : 'User not found';
 });
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
