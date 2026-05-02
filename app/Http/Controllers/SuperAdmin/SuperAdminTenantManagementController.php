@@ -47,17 +47,6 @@ class SuperAdminTenantManagementController extends Controller
             'id.regex' => 'Tenant ID may only contain lowercase letters, numbers, and hyphens.',
         ]);
 
-        // If plan changed, use assignPlan() to compute expiry
-        if ($data['plan'] && $data['plan'] !== $tenant->plan) {
-            $customExpiry = $data['plan_expires_at']
-                ? \Carbon\Carbon::parse($data['plan_expires_at'])
-                : null;
-            $tenant->assignPlan($data['plan'], $customExpiry);
-        } elseif (isset($data['plan_expires_at'])) {
-            // Admin extending expiry without changing plan
-            $tenant->update(['plan_expires_at' => $data['plan_expires_at']]);
-        }
-
         $tenant = Tenant::create([
             'id'   => $data['id'],
             'plan' => $data['plan'] ?? 'basic',
