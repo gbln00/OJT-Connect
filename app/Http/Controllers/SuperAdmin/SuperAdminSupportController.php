@@ -24,78 +24,87 @@ class SuperAdminSupportController extends Controller
         $tenants       = Tenant::with('domains')->get();
         $allTickets    = collect();
         $ticketSummary = [];
-    
+
         foreach ($tenants as $tenant) {
             try {
-                // Pass $allTickets and $tenant into the closure by reference
-                $tenant->run(function () use ($request, $tenant, &$allTickets) {
+                $rows = $tenant->run(function () use ($request) {
                     $q = SupportTicket::with('user')->latest();
-    
+
                     if (request()->filled('status')) {
                         $q->where('status', request()->status);
                     }
                     if (request()->filled('priority')) {
                         $q->where('priority', request()->priority);
                     }
-    
-                    // Loop and map INSIDE run() so the tenant DB is still active
-                    foreach ($q->take(50)->get() as $ticket) {
-                        $allTickets->push((object) [
-                            'id'             => $ticket->id,
-                            'ref'            => $ticket->ref,
-                            'subject'        => $ticket->subject,
-                            'type'           => $ticket->type,
-                            'type_label'     => $ticket->type_label,
-                            'priority'       => $ticket->priority,
-                            'priority_label' => $ticket->priority_label,
-                            'priority_color' => $ticket->priority_color,
-                            'status'         => $ticket->status,
-                            'status_label'   => $ticket->status_label,
-                            'status_color'   => $ticket->status_color,
-                            'module'         => $ticket->module,
-                            'created_at'     => $ticket->created_at,
-                            'resolved_at'    => $ticket->resolved_at,
-                            // ↓ Fixed: resolved inside run() while tenant DB is active
-                            'reply_count'    => SupportTicketReply::where('ticket_id', $ticket->id)->count(),
-                            'user_name'      => $ticket->user?->name,
-                            'user_role'      => $ticket->user?->role,
-                            'tenant_id'      => $tenant->id,
-                            'tenant_name'    => $tenant->name ?? $tenant->id,
-                        ]);
-                    }
+
+                    return $q->take(50)->get();
                 });
-    
+
+                // ── KEY FIX ───────────────────────────────────────────────
+                // Map each Eloquent model to a plain stdClass immediately
+                // after $tenant->run() exits the tenant context.
+                // This prevents any lazy-loaded property or accessor from
+                // trying to re-open the 'tenant' connection during rendering
+                // on the central domain.
+                foreach ($rows as $ticket) {
+                    $allTickets->push((object) [
+                        'id'          => $ticket->id,
+                        'ref'         => $ticket->ref,                   // computed here, safely inside run()
+                        'subject'     => $ticket->subject,
+                        'type'        => $ticket->type,
+                        'type_label'  => $ticket->type_label,
+                        'priority'    => $ticket->priority,
+                        'priority_label' => $ticket->priority_label,
+                        'priority_color' => $ticket->priority_color,
+                        'status'      => $ticket->status,
+                        'status_label'   => $ticket->status_label,
+                        'status_color'   => $ticket->status_color,
+                        'module'      => $ticket->module,
+                        'created_at'  => $ticket->created_at,
+                        'resolved_at' => $ticket->resolved_at,
+                        'reply_count' => $ticket->replies()->count(),    // still inside run()
+                        'user_name'   => $ticket->user?->name,
+                        'user_role'   => $ticket->user?->role,
+                        'tenant_id'   => $tenant->id,
+                        'tenant_name' => $tenant->name ?? $tenant->id,
+                    ]);
+                }
+
+                // Summary counts for sidebar
                 $counts = $tenant->run(fn () => [
                     'open'     => SupportTicket::whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count(),
                     'resolved' => SupportTicket::whereIn('status', ['resolved', 'closed'])->count(),
                     'total'    => SupportTicket::count(),
                 ]);
-    
+
                 $ticketSummary[$tenant->id] = $counts;
-    
+
             } catch (\Throwable) {
+                // Tenant DB may not have the table yet — skip gracefully
                 $ticketSummary[$tenant->id] = ['open' => 0, 'resolved' => 0, 'total' => 0];
             }
         }
-    
+
+        // Sort: open + urgent first
         $priorityOrder = ['urgent' => 0, 'high' => 1, 'normal' => 2, 'low' => 3];
         $statusOrder   = ['open' => 0, 'in_progress' => 1, 'waiting_on_user' => 2, 'resolved' => 3, 'closed' => 4];
-    
+
         $allTickets = $allTickets->sortBy([
-            fn ($a, $b) => ($statusOrder[$a->status]     ?? 9) <=> ($statusOrder[$b->status]     ?? 9),
+            fn ($a, $b) => ($statusOrder[$a->status]   ?? 9) <=> ($statusOrder[$b->status]   ?? 9),
             fn ($a, $b) => ($priorityOrder[$a->priority] ?? 9) <=> ($priorityOrder[$b->priority] ?? 9),
         ])->values();
-    
+
         $totalOpen   = $allTickets->whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count();
         $totalUrgent = $allTickets
             ->where('priority', 'urgent')
             ->whereIn('status', ['open', 'in_progress'])
             ->count();
-    
+
         return view('super_admin.support.index', compact(
             'allTickets', 'tenants', 'ticketSummary', 'totalOpen', 'totalUrgent'
         ));
     }
+
     // ── Show single ticket (from a specific tenant) ───────────────
 
     public function show(Request $request, string $tenantId, int $ticketId)

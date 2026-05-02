@@ -25,25 +25,21 @@
         default                             => 'student.support.close',
     };
 @endphp
-{{-- Flash --}}
-    @if(session('success'))
-    <div style="background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.2);
-                color:#2dd4bf;padding:12px 16px;margin-bottom:16px;
-                display:flex;align-items:center;gap:10px;font-size:13px;">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <polyline points="20,6 9,17 4,12"/>
-        </svg>
-        {{ session('success') }}
+
+<div style="max-width:800px;">
+
+    {{-- Back --}}
+    <div style="margin-bottom:20px;">
+        <a href="{{ route($indexRoute) }}"
+           style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;
+                  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+                  color:var(--muted);text-decoration:none;transition:color 0.15s;"
+           onmouseover="this.style.color='var(--text)'"
+           onmouseout="this.style.color='var(--muted)'">
+            ← All tickets
+        </a>
     </div>
-    @endif
-<div style="max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
-    <div class="card-header">
-            <span class="card-title">Ticket Details</span>
-            <a href="{{ route('admin.support.index') }}" class="btn btn-ghost btn-sm">
-                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                Back
-            </a>
-        </div>
+
     {{-- Ticket header card --}}
     <div class="card fade-up" style="margin-bottom:16px;">
         <div style="padding:20px 24px;">
@@ -66,10 +62,7 @@
                     {{ str_replace('_', ' ', ucfirst($ticket->module)) }}
                 </span>
                 @endif
-                
             </div>
-
-            
 
             {{-- Subject --}}
             <h2 style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
