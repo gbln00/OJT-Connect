@@ -132,7 +132,7 @@ class SuperAdminTenantApprovalController extends Controller
                 $domain = preg_replace('#^https?://#', '', $domain);
                 return rtrim($domain, '/');
             })
-            ->filter(fn (string $domain) => ! str_contains($domain, '.localhost'))
+            ->filter(fn (string $domain) => ! str_contains($domain, '.ojt-connect.xyz')) // Exclude old hardcoded domain
             ->unique()
             ->map(fn (string $baseDomain) => "{$subdomain}.{$baseDomain}");
 

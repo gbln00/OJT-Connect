@@ -779,7 +779,7 @@
                         />
                     </div>
                     <span class="subdomain-hint">
-                        Your URL will be: <strong id="subdomain-preview">yourdomain</strong>.localhost:8000
+                        Your URL will be: <strong id="subdomain-preview">yourdomain</strong>.ojt-connect.xyz
                     </span>
                     @error('subdomain')
                     <span class="field-error">{{ $message }}</span>
