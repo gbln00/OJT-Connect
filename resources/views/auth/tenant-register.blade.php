@@ -28,7 +28,6 @@
             min-height: 100vh;
         }
 
-        /* ── Grain overlay ── */
         body::after {
             content: '';
             position: fixed; inset: 0;
@@ -36,7 +35,6 @@
             pointer-events: none; z-index: 999; opacity: 0.5;
         }
 
-        /* ── Scan line ── */
         .scanline {
             position: fixed; left: 0; right: 0; height: 200px;
             background: linear-gradient(to bottom, transparent, rgba(171,171,171,0.012), transparent);
@@ -44,7 +42,6 @@
             animation: scandown 12s linear infinite;
         }
 
-        /* ── Grid background ── */
         .grid-bg {
             position: fixed; inset: 0;
             pointer-events: none; z-index: 0;
@@ -58,13 +55,11 @@
             background: radial-gradient(ellipse 80% 45% at 50% 0%, rgba(140,14,3,0.12) 0%, transparent 65%);
         }
 
-        /* ── Orbs ── */
         .orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
         .orb-a { width: 700px; height: 700px; background: rgba(14,17,38,0.9); top: -300px; right: -200px; animation: drift1 20s ease-in-out infinite alternate; }
         .orb-b { width: 500px; height: 500px; background: rgba(13,13,13,0.95); bottom: -180px; left: -160px; animation: drift2 25s ease-in-out infinite alternate; }
         .orb-c { width: 400px; height: 400px; background: rgba(140,14,3,0.07); top: 40%; left: 35%; animation: drift1 30s ease-in-out infinite alternate; }
 
-        /* ── Keyframes ── */
         @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes drift1   { 0% { transform: translate(0,0); } 100% { transform: translate(-40px,55px); } }
@@ -73,7 +68,6 @@
         @keyframes scandown { 0%{transform:translateY(-100%);opacity:0} 5%{opacity:1} 95%{opacity:1} 100%{transform:translateY(100vh);opacity:0} }
         @keyframes staggerUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── NAV ── */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 50;
             display: flex; align-items: center; justify-content: space-between;
@@ -161,7 +155,6 @@
         }
         .btn-crimson:active { transform: scale(0.98); }
 
-        /* ── TWO-COLUMN LAYOUT ── */
         .layout {
             display: grid;
             grid-template-columns: 420px 1fr;
@@ -169,7 +162,6 @@
             position: relative; z-index: 10;
         }
 
-        /* ── LEFT PANEL ── */
         .panel-left {
             position: sticky; top: 0;
             height: 100vh;
@@ -189,7 +181,6 @@
             pointer-events: none;
         }
 
-        /* Giant decorative letter */
         .panel-ornament {
             position: absolute;
             bottom: -2rem; right: -1.5rem;
@@ -238,7 +229,6 @@
             max-width: 28ch;
         }
 
-        /* Steps */
         .steps { position: relative; z-index: 1; }
 
         .steps-label {
@@ -281,7 +271,6 @@
             color: rgba(171,171,171,0.3);
         }
 
-        /* ── RIGHT PANEL ── */
         .panel-right {
             padding: 7rem 4rem 4rem;
             display: flex; flex-direction: column;
@@ -289,7 +278,6 @@
             max-width: 680px;
         }
 
-        /* Form header */
         .form-header { margin-bottom: 2.5rem; animation: staggerUp 0.6s 0.1s ease both; }
 
         .form-eyebrow {
@@ -318,7 +306,6 @@
         }
         .form-subheading span { color: rgba(140,14,3,0.8); }
 
-        /* Alerts */
         .alert-success {
             display: flex; align-items: flex-start; gap: 10px;
             padding: 1rem 1.25rem;
@@ -346,7 +333,6 @@
         .alert-error ul { padding-left: 1.1rem; }
         .alert-error li { margin-bottom: .2rem; }
 
-        /* Section divider */
         .form-section-label {
             display: flex; align-items: center; gap: 14px;
             margin-bottom: 1.25rem;
@@ -361,7 +347,6 @@
             color: rgba(171,171,171,0.28);
         }
 
-        /* Grid */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -429,7 +414,6 @@
             font-size: 11px; color: var(--crimson);
         }
 
-        /* Select arrow */
         select {
             cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(171,171,171,0.3)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -439,7 +423,6 @@
         }
         select option { background: var(--night); color: var(--ash); }
 
-        /* Subdomain hint */
         .subdomain-hint {
             font-family: 'DM Mono', monospace;
             font-size: 11px;
@@ -450,7 +433,6 @@
             font-weight: 500;
         }
 
-        /* Plan cards */
         .plan-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -528,7 +510,6 @@
             color: rgba(171,171,171,0.35); line-height: 1.5;
         }
 
-        /* Divider */
         .form-divider {
             grid-column: 1 / -1;
             height: 1px;
@@ -536,7 +517,6 @@
             margin: .5rem 0;
         }
 
-        /* Submit row */
         .submit-row {
             grid-column: 1 / -1;
             display: flex; align-items: center;
@@ -583,7 +563,6 @@
             box-shadow: 0 0 0 3px rgba(140,14,3,0.1);
         }
 
-        /* Login link */
         .login-link {
             grid-column: 1 / -1;
             text-align: center;
@@ -598,7 +577,6 @@
         }
         .login-link a:hover { color: var(--crimson2); text-decoration: underline; }
 
-        /* Stagger animations */
         .form-grid > *:nth-child(1)  { animation: staggerUp .5s .15s ease both; }
         .form-grid > *:nth-child(2)  { animation: staggerUp .5s .20s ease both; }
         .form-grid > *:nth-child(3)  { animation: staggerUp .5s .25s ease both; }
@@ -611,7 +589,6 @@
         .form-grid > *:nth-child(10) { animation: staggerUp .5s .60s ease both; }
         .form-grid > *:nth-child(11) { animation: staggerUp .5s .65s ease both; }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 960px) {
             nav { padding: .875rem 1.5rem; }
             .layout { grid-template-columns: 1fr; }
@@ -638,7 +615,7 @@
     </style>
 
     @if (config('services.recaptcha.enabled'))
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     @endif
 
 </head>
@@ -650,7 +627,6 @@
 <div class="orb orb-b"></div>
 <div class="orb orb-c"></div>
 
-{{-- ── NAV ── --}}
 <nav>
     <a href="/" class="nav-brand">
         <div class="nav-logo">
@@ -674,7 +650,6 @@
 
 <div class="layout">
 
-    {{-- ── LEFT PANEL ── --}}
     <aside class="panel-left">
         <div class="panel-top">
             <div class="panel-eyebrow">
@@ -719,7 +694,6 @@
         <span class="panel-ornament" aria-hidden="true">§</span>
     </aside>
 
-    {{-- ── RIGHT PANEL ── --}}
     <main class="panel-right">
 
         <div class="form-header">
@@ -733,7 +707,6 @@
             </p>
         </div>
 
-        {{-- Success --}}
         @if (session('success'))
         <div class="alert-success" role="alert">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -743,7 +716,6 @@
         </div>
         @endif
 
-        {{-- Errors --}}
         @if ($errors->any())
         <div class="alert-error" role="alert">
             <strong>Please fix the following:</strong>
@@ -760,12 +732,10 @@
 
             <div class="form-grid">
 
-                {{-- Section: Institution Info --}}
                 <div class="form-section-label">
                     <span>Institution Info</span>
                 </div>
 
-                {{-- Company Name --}}
                 <div class="field full">
                     <label class="field-label" for="company_name">Institution / Company Name <span class="req">✦</span></label>
                     <div class="input-wrap">
@@ -788,7 +758,6 @@
                     @enderror
                 </div>
 
-                {{-- Subdomain --}}
                 <div class="field full">
                     <label class="field-label" for="subdomain">Preferred Subdomain <span class="req">✦</span></label>
                     <div class="input-wrap">
@@ -817,15 +786,12 @@
                     @enderror
                 </div>
 
-                {{-- Section divider --}}
                 <div class="form-divider"></div>
 
-                {{-- Section: Contact --}}
                 <div class="form-section-label">
                     <span>Point of Contact</span>
                 </div>
 
-                {{-- Contact Person --}}
                 <div class="field">
                     <label class="field-label" for="contact_person">Contact Person <span class="req">✦</span></label>
                     <div class="input-wrap">
@@ -848,7 +814,6 @@
                     @enderror
                 </div>
 
-                {{-- Email --}}
                 <div class="field">
                     <label class="field-label" for="email">Email Address <span class="req">✦</span></label>
                     <div class="input-wrap">
@@ -871,7 +836,6 @@
                     @enderror
                 </div>
 
-                {{-- Phone --}}
                 <div class="field full">
                     <label class="field-label" for="phone">Phone Number</label>
                     <div class="input-wrap">
@@ -893,15 +857,12 @@
                     @enderror
                 </div>
 
-                {{-- Section divider --}}
                 <div class="form-divider"></div>
 
-                {{-- Section: Subscription --}}
                 <div class="form-section-label">
                     <span>Subscription Plan</span>
                 </div>
 
-                {{-- Plan --}}
                 <div class="field full">
                     <label class="field-label">Choose a Plan <span class="req">✦</span></label>
                     <div class="plan-grid">
@@ -945,9 +906,7 @@
                     @enderror
                 </div>
 
-                
-
-               {{-- reCAPTCHA --}}
+                {{-- reCAPTCHA — only rendered when enabled --}}
                 @if (config('services.recaptcha.enabled'))
                 <div class="field full" style="margin-top:.5rem;">
                     <label class="field-label">Security Check <span class="req">✦</span></label>
@@ -962,7 +921,6 @@
                 </div>
                 @endif
 
-                {{-- Submit --}}
                 <div class="submit-row">
                     <p class="submit-footnote">
                         By submitting, you agree to our terms of service.<br />
@@ -984,21 +942,17 @@
 </div>{{-- /.layout --}}
 
 <script>
-    // Live subdomain preview
     function updateSubdomainHint(val) {
         const preview = document.getElementById('subdomain-preview');
         preview.textContent = val.trim() || 'yourdomain';
     }
 
-    // Pre-populate on load
     const existingSubdomain = document.getElementById('subdomain').value;
     if (existingSubdomain) updateSubdomainHint(existingSubdomain);
 
-    // Nav badge reveal (desktop only)
     const badge = document.getElementById('nav-badge-buksu');
     if (badge && window.innerWidth >= 768) badge.style.display = 'flex';
 
-    // Orb parallax
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.addEventListener('mousemove', e => {
             const x = (e.clientX / window.innerWidth  - 0.5) * 20;

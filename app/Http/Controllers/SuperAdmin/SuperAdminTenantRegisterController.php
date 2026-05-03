@@ -17,33 +17,41 @@ class SuperAdminTenantRegisterController extends Controller
 
     public function submit(Request $request, RecaptchaService $recaptcha)
     {
-        $request->validate([
-            'company_name'        => ['required', 'string', 'max:255'],
-            'email'               => [
+        $rules = [
+            'company_name'   => ['required', 'string', 'max:255'],
+            'email'          => [
                 'required',
                 'email',
                 'unique:tenants,email',
             ],
-            'subdomain'           => [
+            'subdomain'      => [
                 'required',
                 'alpha_dash',
                 'min:3',
                 'max:30',
                 'unique:tenants,id',
             ],
-            'contact_person'      => ['required', 'string', 'max:255'],
-            'phone'               => ['nullable', 'string', 'max:20'],
-            'plan'                => ['required', 'in:basic,standard,premium'],
-            'g-recaptcha-response'=> ['required'],
-        ], [
-            'g-recaptcha-response.required' => 'Please complete the CAPTCHA.',
-        ]);
+            'contact_person' => ['required', 'string', 'max:255'],
+            'phone'          => ['nullable', 'string', 'max:20'],
+            'plan'           => ['required', 'in:basic,standard,premium'],
+        ];
 
-        // Verify reCAPTCHA
-        if (!$recaptcha->verify($request->input('g-recaptcha-response'))) {
-            return back()->withErrors([
-                'g-recaptcha-response' => 'CAPTCHA verification failed. Please try again.',
-            ])->withInput();
+        $messages = [];
+
+        if (config('services.recaptcha.enabled')) {
+            $rules['g-recaptcha-response'] = ['required'];
+            $messages['g-recaptcha-response.required'] = 'Please complete the CAPTCHA.';
+        }
+
+        $request->validate($rules, $messages);
+
+        // Verify reCAPTCHA only if enabled
+        if (config('services.recaptcha.enabled')) {
+            if (!$recaptcha->verify($request->input('g-recaptcha-response'))) {
+                return back()->withErrors([
+                    'g-recaptcha-response' => 'CAPTCHA verification failed. Please try again.',
+                ])->withInput();
+            }
         }
 
         $payload = $request->only([
