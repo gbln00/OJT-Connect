@@ -37,7 +37,14 @@ Route::get('/test-email', function () {
         return 'Failed: ' . $e->getMessage();
     }
 });
-
+Route::get('/check-jobs', function () {
+    $failed = DB::table('failed_jobs')->latest()->take(5)->get();
+    $pending = DB::table('jobs')->count();
+    return response()->json([
+        'pending_jobs' => $pending,
+        'failed_jobs' => $failed,
+    ]);
+});
 
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
