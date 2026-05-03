@@ -1,19 +1,21 @@
 FROM php:8.2-cli
 
-# Install system dependencies
+# Install system dependencies (no nodejs here — we install it separately)
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libzip-dev libpng-dev \
-    libxml2-dev libcurl4-openssl-dev nodejs npm \
-    && docker-php-ext-install pdo pdo_mysql mbstring \
-       xml curl zip gd \
-    && apt-get clean
+    libxml2-dev libcurl4-openssl-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring xml curl zip gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 via nodesource
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install Node.js 20
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
 
 WORKDIR /app
 
