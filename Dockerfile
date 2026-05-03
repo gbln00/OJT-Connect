@@ -33,9 +33,13 @@ RUN echo '#!/bin/sh' > /start.sh \
     && echo 'php artisan migrate --force 2>&1' >> /start.sh \
     && echo 'php artisan storage:link --force 2>&1' >> /start.sh \
     && echo 'php artisan config:clear 2>&1' >> /start.sh \
+    && echo 'touch storage/logs/laravel.log' >> /start.sh \
+    && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
+    && echo 'tail -f storage/logs/laravel.log &' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \
     && chmod +x /start.sh
+
     
 RUN echo 'server { \
     listen 8080; \
