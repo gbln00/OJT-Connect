@@ -50,10 +50,9 @@ RUN echo 'server { \
 
 RUN echo '#!/bin/sh' > /start.sh \
     && echo 'cd /var/www/html' >> /start.sh \
-    && echo 'cp .env.example .env' >> /start.sh \
-    && echo 'php artisan key:generate --force 2>&1' >> /start.sh \
+    && echo 'php artisan migrate --force 2>&1' >> /start.sh \
+    && echo 'php artisan storage:link 2>&1' >> /start.sh \
     && echo 'php artisan config:clear 2>&1' >> /start.sh \
-    && echo 'php artisan optimize:clear 2>&1' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \
     && chmod +x /start.sh
