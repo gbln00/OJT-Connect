@@ -25,15 +25,13 @@ class ApproveTenantJob implements ShouldQueue
     public function __construct(
         public TenantRegistration $registration,
         public Tenant $tenant,
+        public string $plainPassword,
     ) {}
 
     public function handle(): void
     {
-        $plainPassword = Str::password(12);
-    
         try {
-            // Run migrations and seed inside tenant context
-            $this->tenant->run(function () use ($plainPassword) {
+            $this->tenant->run(function () {
                 Artisan::call('tenants:migrate', [
                     '--tenants' => [tenant('id')],
                     '--force'   => true,
@@ -42,17 +40,12 @@ class ApproveTenantJob implements ShouldQueue
                 (new \Database\Seeders\TenantAdminSeeder(
                     name:     $this->registration->contact_person,
                     email:    $this->registration->email,
-                    password: $plainPassword,
+                    password: $this->plainPassword,
                 ))->run();
             });
     
-            // Send email OUTSIDE tenant context
             tenancy()->end();
-    
-            Mail::to($this->registration->email)
-                ->send(new TenantApproved($this->registration, $plainPassword));
-    
-            Log::info("Tenant approval email sent to {$this->registration->email}");
+            Log::info("Tenant {$this->tenant->id} provisioned successfully.");
     
         } catch (\Throwable $e) {
             Log::error("ApproveTenantJob failed: " . $e->getMessage());
