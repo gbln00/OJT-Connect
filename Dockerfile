@@ -7,6 +7,7 @@ RUN apk add --no-cache \
     libpng-dev \
     libxml2-dev \
     oniguruma-dev \
+    curl-dev \
     nodejs npm \
     nginx
 
@@ -19,20 +20,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy project
 COPY . .
 
-# Install dependencies
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
 RUN npm ci && npm run build
 
-# Permissions
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} \
     storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
-# Nginx config
 RUN echo 'server { \
     listen 8080; \
     root /var/www/html/public; \
@@ -47,7 +44,6 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/http.d/default.conf
 
-# Start script
 RUN echo '#!/bin/sh' > /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \
