@@ -1,0 +1,21 @@
+services:
+  # ── Main Web App ──────────────────────────────────────────
+  - type: web
+    name: ojt-connect
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 8080
+
+  # ── Queue Worker ──────────────────────────────────────────
+  - type: worker
+    name: ojt-connect-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    startCommand: php artisan queue:work database --sleep=3 --tries=1 --timeout=300

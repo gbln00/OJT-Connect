@@ -13,11 +13,9 @@ return [
 
     'central_domains' => [
         'ojt-connect.xyz',
-        'ojt-connect-production.up.railway.app',
+        'www.ojt-connect.xyz',
         'localhost',
         '127.0.0.1',
-        '10.23.146.33',
-        'wikipedia-predefine-caress.ngrok-free.dev', 
     ],
 
     'bootstrappers' => [
