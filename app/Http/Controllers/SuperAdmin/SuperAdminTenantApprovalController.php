@@ -8,6 +8,7 @@ use App\Models\Tenant;
 use App\Models\SuperAdminNotification;
 use App\Mail\TenantApproved;
 use App\Mail\TenantRejected;
+use App\Jobs\ApproveTenantJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -28,16 +29,13 @@ class SuperAdminTenantApprovalController extends Controller
 
     public function approve(Request $request, TenantRegistration $registration)
     {
-
         if ($registration->status !== 'pending') {
             return back()->with('error', 'This registration has already been processed.');
         }
 
-        // Guard: prevent duplicate tenant ID
         if (DB::table('tenants')->where('id', $registration->subdomain)->exists()) {
             return back()->with('error', 'A tenant with this subdomain already exists.');
         }
-
 
         $tenant = Tenant::create([
             'id'         => $registration->subdomain,
@@ -52,34 +50,19 @@ class SuperAdminTenantApprovalController extends Controller
 
         $registration->update(['status' => 'approved']);
 
-        $plainPassword = Str::password(12); // Generate a random password for the tenant admin
+        // Dispatch to queue — returns immediately, worker handles the rest
+        ApproveTenantJob::dispatch($registration, $tenant);
 
-        $tenant->run(function () use ($registration, $plainPassword) {
-            \Artisan::call('tenants:migrate', [
-                '--tenants' => [tenant('id')],
-                '--force'   => true,
-            ]);
-
-            (new \Database\Seeders\TenantAdminSeeder(
-                name:     $registration->contact_person,
-                email:    $registration->email,
-                password: $plainPassword,
-            ))->run();
-        });
-
-        Mail::to($registration->email)->send(new TenantApproved($registration, $plainPassword));  // pass password to mail
-
-        SuperAdminNotification::notify(
+        \App\Models\SuperAdminNotification::notify(
             type:    'approval',
             title:   'Tenant Approved',
-            message: "\"{$registration->company_name}\" has been approved and provisioned.",
+            message: "\"{$registration->company_name}\" has been approved and is being provisioned.",
             icon:    'check',
             link:    route('super_admin.tenants.show', $registration->subdomain),
         );
 
-        return back()->with('success', "Tenant '{$registration->company_name}' provisioned successfully.");
+        return back()->with('success', "Tenant '{$registration->company_name}' approved! Provisioning in background.");
     }
-
     public function reject(Request $request, TenantRegistration $registration)
     {
         $request->validate([
@@ -108,15 +91,11 @@ class SuperAdminTenantApprovalController extends Controller
     {
         $baseDomains = [];
 
-        // Production domains (Cloudflare + Railway)
         $baseDomains[] = 'ojt-connect.xyz';
-        $baseDomains[] = 'ojt-connect-production.up.railway.app';
-
-        // Local development domains
+        $baseDomains[] = 'ojt-connect.onrender.com';
         $baseDomains[] = 'localhost';
         $baseDomains[] = '127.0.0.1';
 
-        // Also add the request host dynamically (handles ngrok, LAN IP, etc.)
         if ($request) {
             $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';
             if ($requestHost !== '' && !in_array($requestHost, $baseDomains)) {

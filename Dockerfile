@@ -35,12 +35,15 @@ RUN echo 'server { \
     listen 8080; \
     root /var/www/html/public; \
     index index.php; \
+    fastcgi_read_timeout 300; \
     location / { \
         try_files $uri $uri/ /index.php?$query_string; \
     } \
     location ~ \.php$ { \
         fastcgi_pass 127.0.0.1:9000; \
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; \
+        fastcgi_read_timeout 300; \
+        fastcgi_send_timeout 300; \
         include fastcgi_params; \
     } \
 }' > /etc/nginx/http.d/default.conf
