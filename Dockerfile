@@ -19,6 +19,9 @@ WORKDIR /var/www/html
 
 COPY . .
 
+# Remove local .env so Render ENV variables are used
+RUN rm -f .env bootstrap/cache/*.php
+
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
 RUN npm ci && npm run build
 
@@ -27,22 +30,8 @@ RUN mkdir -p storage/framework/{sessions,views,cache,testing} \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data /var/www/html
 
-# PHP error logging config
-RUN echo '#!/bin/sh' > /start.sh \
-    && echo 'cd /var/www/html' >> /start.sh \
-    && echo 'php artisan migrate --force 2>&1' >> /start.sh \
-    && echo 'php artisan storage:link --force 2>&1' >> /start.sh \
-    && echo 'php artisan optimize:clear 2>&1 || true' >> /start.sh \
-    && echo 'php artisan view:clear 2>&1' >> /start.sh \
-    && echo 'php artisan route:clear 2>&1' >> /start.sh \
-    && echo 'php artisan config:cache 2>&1' >> /start.sh \
-    && echo 'touch storage/logs/laravel.log' >> /start.sh \
-    && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \
-    && echo 'php-fpm -D' >> /start.sh \
-    && echo 'tail -f storage/logs/laravel.log &' >> /start.sh \
-    && echo 'nginx -g "daemon off;"' >> /start.sh \
-    && chmod +x /start.sh
-
+RUN echo 'display_errors = On' > /usr/local/etc/php/conf.d/errors.ini \
+    && echo 'error_log = /dev/stderr' >> /usr/local/etc/php/conf.d/errors.ini
 
 RUN echo 'server { \
     listen 8080; \
