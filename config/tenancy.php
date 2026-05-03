@@ -14,6 +14,7 @@ return [
     'central_domains' => [
         'ojt-connect.xyz',
         'www.ojt-connect.xyz',
+        'ojt-connect.onrender.com',
         'localhost',
         '127.0.0.1',
     ],
