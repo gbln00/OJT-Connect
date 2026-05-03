@@ -1,10 +1,9 @@
 services:
   - type: web
     name: ojt-connect
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: "composer install --optimize-autoloader --no-scripts --no-interaction && npm ci && npm run build && php artisan optimize:clear"
-    startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+    preDeployCommand: "php artisan migrate --force && php artisan storage:link && php artisan optimize:clear"
     healthCheckPath: /up
     envVars:
       - key: PORT
@@ -12,7 +11,6 @@ services:
 
   - type: worker
     name: ojt-connect-worker
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: "composer install --optimize-autoloader --no-scripts --no-interaction"
     startCommand: "php artisan queue:work database --sleep=3 --tries=1 --timeout=300"
