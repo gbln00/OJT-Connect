@@ -3,27 +3,19 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        try {
-            DB::table('users')->insertOrIgnore([
-                'name'              => 'Super Admin',
-                'email'             => 'superadmin@ojtconnect.edu',
-                'password'          => Hash::make('password'),
-                'role'              => 'super_admin',
-                'is_active'         => 1,
-                'email_verified_at' => now(),
-                'created_at'        => now(),
-                'updated_at'        => now(),
+        if (!User::where('email', 'admin@ojtconnect.com')->exists()) {
+            User::create([
+                'name'     => 'Super Admin',
+                'email'    => 'admin@ojtconnect.com',
+                'password' => bcrypt('password123'),
+                'role'     => 'super_admin',
             ]);
-            $this->command->info('Super admin created!');
-        } catch (\Exception $e) {
-            $this->command->error('Failed: ' . $e->getMessage());
         }
     }
 }

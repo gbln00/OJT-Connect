@@ -46,6 +46,7 @@ RUN echo 'server { \
 }' > /etc/nginx/http.d/default.conf
 
 RUN echo '#!/bin/sh' > /start.sh \
+    && echo 'php artisan db:seed --class=SuperAdminSeeder --force 2>&1' >> /start.sh \
     && echo 'cd /var/www/html' >> /start.sh \
     && echo 'php artisan migrate --force 2>&1' >> /start.sh \
     && echo 'php artisan storage:link --force 2>&1' >> /start.sh \
