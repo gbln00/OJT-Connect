@@ -1,6 +1,5 @@
 FROM php:8.2-fpm-alpine
 
-# Install dependencies
 RUN apk add --no-cache \
     git curl zip unzip \
     libzip-dev \
@@ -11,11 +10,9 @@ RUN apk add --no-cache \
     nodejs npm \
     nginx
 
-# Install PHP extensions
 RUN docker-php-ext-install \
     pdo pdo_mysql mbstring xml curl zip gd
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -27,8 +24,8 @@ RUN npm ci && npm run build
 
 RUN mkdir -p storage/framework/{sessions,views,cache,testing} \
     storage/logs bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chmod -R 777 storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html
 
 RUN echo 'server { \
     listen 8080; \
@@ -44,7 +41,13 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/http.d/default.conf
 
+# Startup script — generate .env from environment variables then start
 RUN echo '#!/bin/sh' > /start.sh \
+    && echo 'cd /var/www/html' >> /start.sh \
+    && echo 'cp .env.example .env' >> /start.sh \
+    && echo 'php artisan key:generate --force' >> /start.sh \
+    && echo 'php artisan config:clear' >> /start.sh \
+    && echo 'php artisan optimize:clear' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \
     && chmod +x /start.sh
