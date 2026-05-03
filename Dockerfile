@@ -32,7 +32,9 @@ RUN echo '#!/bin/sh' > /start.sh \
     && echo 'cd /var/www/html' >> /start.sh \
     && echo 'php artisan migrate --force 2>&1' >> /start.sh \
     && echo 'php artisan storage:link --force 2>&1' >> /start.sh \
-    && echo 'php artisan config:clear 2>&1' >> /start.sh \
+    && echo 'php artisan optimize:clear 2>&1 || true' >> /start.sh \
+    && echo 'php artisan view:clear 2>&1' >> /start.sh \
+    && echo 'php artisan route:clear 2>&1' >> /start.sh \
     && echo 'php artisan config:cache 2>&1' >> /start.sh \
     && echo 'touch storage/logs/laravel.log' >> /start.sh \
     && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \

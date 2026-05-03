@@ -12,7 +12,7 @@ return [
     'domain_model' => Domain::class,
 
     'central_domains' => [
-        'ojt-connect.xyz',
+        
         'www.ojt-connect.xyz',
         'ojt-connect.onrender.com',
         'localhost',
