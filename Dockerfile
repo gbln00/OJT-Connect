@@ -1,6 +1,5 @@
 FROM php:8.2-fpm
 
-# Install all required dependencies including oniguruma
 RUN apt-get update && apt-get install -y \
     git curl zip unzip \
     libzip-dev \
@@ -19,13 +18,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
@@ -42,4 +39,5 @@ RUN mkdir -p storage/framework/{sessions,views,cache,testing} \
 
 EXPOSE 8080
 
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+# Use shell form instead of exec form so $PORT gets expanded
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
