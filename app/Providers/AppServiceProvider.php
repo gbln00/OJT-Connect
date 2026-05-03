@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {   
 
-        if (env('APP_ENV') === 'production') {
-            URL::forceRootUrl(env('APP_URL'));
+        if (config('app.env') === 'production') {
+            URL::forceRootUrl(config('app.url'));
             URL::forceScheme('https');
         }
         // Custom Blade directive to check tenant's plan

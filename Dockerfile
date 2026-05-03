@@ -19,8 +19,6 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Remove local .env so Render ENV variables are used
-RUN rm -f .env bootstrap/cache/*.php
 
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
 RUN npm ci && npm run build
