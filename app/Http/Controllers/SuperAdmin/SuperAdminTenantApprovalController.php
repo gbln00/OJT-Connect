@@ -12,6 +12,7 @@ use App\Jobs\ApproveTenantJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Database\Models\Domain;
 
@@ -32,11 +33,11 @@ class SuperAdminTenantApprovalController extends Controller
         if ($registration->status !== 'pending') {
             return back()->with('error', 'This registration has already been processed.');
         }
-
+    
         if (DB::table('tenants')->where('id', $registration->subdomain)->exists()) {
             return back()->with('error', 'A tenant with this subdomain already exists.');
         }
-
+    
         $tenant = Tenant::create([
             'id'         => $registration->subdomain,
             'name'       => $registration->company_name,
@@ -45,24 +46,40 @@ class SuperAdminTenantApprovalController extends Controller
             'status'     => 'active',
             'created_by' => null,
         ]);
-
+    
         $this->ensureTenantDomains($tenant, $registration->subdomain, $request);
-
         $registration->update(['status' => 'approved']);
-
-        // Dispatch to queue — returns immediately, worker handles the rest
-        ApproveTenantJob::dispatch($registration, $tenant);
-
-        \App\Models\SuperAdminNotification::notify(
+    
+        $plainPassword = Str::password(12);
+    
+        // Dispatch provisioning to queue
+        ApproveTenantJob::dispatch($registration, $tenant, $plainPassword);
+    
+        // Send email immediately in controller — not in queue
+        try {
+            Log::info("Attempting email to: {$registration->email}");
+            Log::info("Mailer: " . config('mail.default'));
+            Log::info("Resend key: " . (config('resend.api_key') ? 'YES' : 'NO'));
+    
+            Mail::to($registration->email)
+                ->send(new TenantApproved($registration, $plainPassword));
+    
+            Log::info("Email sent to {$registration->email}");
+        } catch (\Throwable $e) {
+            Log::error("Email failed: " . $e->getMessage());
+        }
+    
+        SuperAdminNotification::notify(
             type:    'approval',
             title:   'Tenant Approved',
-            message: "\"{$registration->company_name}\" has been approved and is being provisioned.",
+            message: "\"{$registration->company_name}\" approved and being provisioned.",
             icon:    'check',
             link:    route('super_admin.tenants.show', $registration->subdomain),
         );
-
-        return back()->with('success', "Tenant '{$registration->company_name}' approved! Provisioning in background.");
+    
+        return back()->with('success', "Tenant '{$registration->company_name}' approved!");
     }
+
     public function reject(Request $request, TenantRegistration $registration)
     {
         $request->validate([
