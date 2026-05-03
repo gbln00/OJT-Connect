@@ -13,7 +13,7 @@
 
 @section('content')
 
-@php $baseDomain = config('app.base_domain', 'localhost'); @endphp
+@php $baseDomain = config('app.base_domain', 'ojt-connect.xyz'); @endphp
 
 <div style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">
 

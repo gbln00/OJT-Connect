@@ -106,21 +106,20 @@ class SuperAdminTenantApprovalController extends Controller
 
     private function ensureTenantDomains(Tenant $tenant, string $subdomain, ?Request $request = null): void
     {
-        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST) ?: null;
+        $baseDomains = [];
 
-        $baseDomains = [
-            config('app.base_domain', 'localhost'),
-            'localhost',
-        ];
+        // Production domains (Cloudflare + Railway)
+        $baseDomains[] = 'ojt-connect.xyz';
+        $baseDomains[] = 'ojt-connect-production.up.railway.app';
 
-        // Useful when accessing app via WiFi/LAN from other devices.
-        if ($appHost && filter_var($appHost, FILTER_VALIDATE_IP)) {
-            $baseDomains[] = "{$appHost}.nip.io";
-        }
+        // Local development domains
+        $baseDomains[] = 'localhost';
+        $baseDomains[] = '127.0.0.1';
 
+        // Also add the request host dynamically (handles ngrok, LAN IP, etc.)
         if ($request) {
             $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';
-            if ($requestHost !== '') {
+            if ($requestHost !== '' && !in_array($requestHost, $baseDomains)) {
                 $baseDomains[] = $requestHost;
             }
         }
@@ -132,7 +131,6 @@ class SuperAdminTenantApprovalController extends Controller
                 $domain = preg_replace('#^https?://#', '', $domain);
                 return rtrim($domain, '/');
             })
-            ->filter(fn (string $domain) => ! str_contains($domain, '.ojt-connect.xyz')) // Exclude old hardcoded domain
             ->unique()
             ->map(fn (string $baseDomain) => "{$subdomain}.{$baseDomain}");
 
