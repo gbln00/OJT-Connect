@@ -55,6 +55,7 @@ RUN echo '#!/bin/sh' > /start.sh \
     && echo 'php artisan view:clear 2>&1' >> /start.sh \
     && echo 'php artisan route:clear 2>&1' >> /start.sh \
     && echo 'php artisan config:clear 2>&1' >> /start.sh \
+    && echo 'php artisan db:seed --class=SuperAdminSeeder --force 2>&1' >> /start.sh \
     && echo 'touch storage/logs/laravel.log' >> /start.sh \
     && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \
     && echo 'php artisan queue:work database --sleep=3 --tries=1 --timeout=300 &' >> /start.sh \
