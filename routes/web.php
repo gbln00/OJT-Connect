@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 // Authentication Controllers
 use App\Http\Controllers\Auth\LoginController;
@@ -24,6 +25,14 @@ use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
+Route::get('/dbtest', function () {
+    try {
+        DB::connection()->getPdo();
+        return 'Database connected! DB: ' . DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        return 'FAILED: ' . $e->getMessage();
+    }
+});
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
