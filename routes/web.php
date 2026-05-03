@@ -25,14 +25,20 @@ use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 
-Route::get('/dbtest', function () {
+
+Route::get('/test-email', function () {
     try {
-        DB::connection()->getPdo();
-        return 'Database connected! DB: ' . DB::connection()->getDatabaseName();
+        \Illuminate\Support\Facades\Mail::raw('Test email from OJTConnect', function ($message) {
+            $message->to('yudai.bernard@gmail.com')
+                    ->subject('Test Email');
+        });
+        return 'Email sent successfully!';
     } catch (\Exception $e) {
-        return 'FAILED: ' . $e->getMessage();
+        return 'Failed: ' . $e->getMessage();
     }
 });
+
+
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
