@@ -12,6 +12,7 @@ return [
     'domain_model' => Domain::class,
 
     'central_domains' => [
+        'ojt-connect.xyz',
         'ojt-connect-production.up.railway.app',
         'localhost',
         '127.0.0.1',
