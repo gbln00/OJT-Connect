@@ -131,7 +131,7 @@ $totalCount    = \App\Models\TenantRegistration::count();
                         <td>
                             <span class="domain-pill" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid var(--border2);background:var(--surface2);font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);">
                                 <span style="width:4px;height:4px;background:var(--crimson);display:inline-block;border-radius:50%;"></span>
-                                {{ $reg->subdomain }}.localhost:8000
+                                {{ $reg->subdomain }}.ojt-connect.xyz
                             </span>
                         </td>
 
@@ -337,7 +337,7 @@ function openDetailModal(company, subdomain, email, contact, phone, plan, submit
     window._dmId      = id;
     window._dmCompany = company;
     document.getElementById('dm-company').textContent   = company;
-    document.getElementById('dm-subdomain').textContent = subdomain + '.locostalhost:8000';
+    document.getElementById('dm-subdomain').textContent = subdomain + '.ojt-connect.xyz';
     document.getElementById('dm-email').textContent     = email;
     document.getElementById('dm-contact').textContent   = contact;
     document.getElementById('dm-phone').textContent     = phone;
