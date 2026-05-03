@@ -28,12 +28,15 @@ RUN mkdir -p storage/framework/{sessions,views,cache,testing} \
     && chown -R www-data:www-data /var/www/html
 
 # PHP error logging config
-RUN echo 'display_errors = On' > /usr/local/etc/php/conf.d/errors.ini \
-    && echo 'display_startup_errors = On' >> /usr/local/etc/php/conf.d/errors.ini \
-    && echo 'error_reporting = E_ALL' >> /usr/local/etc/php/conf.d/errors.ini \
-    && echo 'log_errors = On' >> /usr/local/etc/php/conf.d/errors.ini \
-    && echo 'error_log = /dev/stderr' >> /usr/local/etc/php/conf.d/errors.ini
-
+RUN echo '#!/bin/sh' > /start.sh \
+    && echo 'cd /var/www/html' >> /start.sh \
+    && echo 'php artisan migrate --force 2>&1' >> /start.sh \
+    && echo 'php artisan storage:link --force 2>&1' >> /start.sh \
+    && echo 'php artisan config:clear 2>&1' >> /start.sh \
+    && echo 'php-fpm -D' >> /start.sh \
+    && echo 'nginx -g "daemon off;"' >> /start.sh \
+    && chmod +x /start.sh
+    
 RUN echo 'server { \
     listen 8080; \
     root /var/www/html/public; \
