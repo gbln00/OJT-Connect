@@ -13,6 +13,8 @@
 
 @section('content')
 
+@php $baseDomain = config('app.base_domain', 'localhost'); @endphp
+
 <div style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">
 
     {{-- Eyebrow --}}
@@ -29,7 +31,9 @@
             Provision Tenant
         </div>
         <div style="font-size:13px;font-weight:300;color:var(--muted);margin-top:6px;line-height:1.7;">
-            Creates an isolated database, runs tenant migrations, registers the domain, and seeds the admin account automatically.
+            Creates an isolated database, runs tenant migrations, registers
+            <strong style="color:var(--text2);">*.{{ $baseDomain }}</strong>
+            subdomain, and seeds the admin account automatically.
         </div>
     </div>
 
@@ -94,19 +98,26 @@
                     <label class="ct-label">Subdomain <span class="ct-req">✦</span></label>
                     <div class="ct-input-wrap">
                         <svg class="ct-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        <input type="text" id="subdomain" name="subdomain"
+                        <input type="text" id="subdomain_input" name="subdomain"
                                value="{{ old('subdomain') }}"
-                               placeholder="yourdomain"
+                               placeholder="e.g. buksu"
                                class="ct-input {{ $errors->has('subdomain') ? 'ct-input-error' : '' }}"
                                autocomplete="off" spellcheck="false"
                                oninput="updateSubdomainHint(this.value)">
                     </div>
-                    <span class="ct-hint">
-                        Your URL: <strong id="subdomain-preview" style="color:var(--text2);font-weight:500;">yourdomain</strong>.ojt-connect-production.up.railway.app
-                    </span>
-                    <input type="hidden" name="domain" id="domain-hidden" value="{{ old('domain') }}">
+
+                    {{-- Live domain preview --}}
+                    <div style="margin-top:6px;padding:8px 12px;background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.15);display:flex;align-items:center;gap:6px;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--teal-color);flex-shrink:0;animation:ct-pulse 2s ease-in-out infinite;"></span>
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+                            Tenant URL:
+                        </span>
+                        <span style="font-family:'DM Mono',monospace;font-size:11px;">
+                            <strong id="subdomain-preview" style="color:var(--teal-color);">{{ old('subdomain', 'yoursubdomain') }}</strong><span style="color:var(--muted);">.{{ $baseDomain }}</span>
+                        </span>
+                    </div>
+
                     @error('subdomain')<span class="ct-error-msg">{{ $message }}</span>@enderror
-                    @error('domain')<span class="ct-error-msg">{{ $message }}</span>@enderror
                 </div>
 
             </div>
@@ -117,7 +128,7 @@
             <div class="ct-grid" style="margin-bottom:24px;">
 
                 <div class="ct-field ct-full">
-                    <label class="ct-label">Institution / Company Name <span class="ct-req">✦</span></label>
+                    <label class="ct-label">Institution / Company Name</label>
                     <div class="ct-input-wrap">
                         <svg class="ct-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                         <input type="text" name="company_name"
@@ -129,7 +140,7 @@
                 </div>
 
                 <div class="ct-field">
-                    <label class="ct-label">Contact Person <span class="ct-req">✦</span></label>
+                    <label class="ct-label">Contact Person</label>
                     <div class="ct-input-wrap">
                         <svg class="ct-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         <input type="text" name="contact_person"
@@ -141,7 +152,7 @@
                 </div>
 
                 <div class="ct-field">
-                    <label class="ct-label">Contact Email <span class="ct-req">✦</span></label>
+                    <label class="ct-label">Contact Email</label>
                     <div class="ct-input-wrap">
                         <svg class="ct-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         <input type="email" name="contact_email"
@@ -247,6 +258,35 @@
             {{-- Divider --}}
             <div style="height:1px;background:var(--border);margin:4px 0 24px;"></div>
 
+            {{-- Domain Summary Box --}}
+            <div style="padding:14px 16px;background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.15);margin-bottom:24px;">
+                <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">
+                    Summary — What will be created:
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2);">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:var(--teal-color);">✓</span>
+                        <span>Isolated tenant database</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:var(--teal-color);">✓</span>
+                        <span>Tenant migrations run automatically</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:var(--teal-color);">✓</span>
+                        <span>Domain registered:
+                            <strong id="summary-domain" style="font-family:'DM Mono',monospace;color:var(--teal-color);">
+                                {{ old('subdomain', 'yoursubdomain') }}.{{ $baseDomain }}
+                            </strong>
+                        </span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:var(--teal-color);">✓</span>
+                        <span>Admin account seeded into tenant DB</span>
+                    </div>
+                </div>
+            </div>
+
             {{-- Actions --}}
             <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
                 <p style="font-size:12px;font-weight:300;color:var(--muted);line-height:1.7;">
@@ -270,7 +310,11 @@
     {{-- Info note --}}
     <div class="flash flash-info ct-fade-up ct-fade-up-3">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>On creation: Isolated DB is provisioned → tenant migrations run → domain registered for routing → admin seeded into tenant DB → tenant is immediately accessible.</span>
+        <span>
+            On creation: Isolated DB is provisioned → tenant migrations run →
+            domain <strong>subdomain.{{ $baseDomain }}</strong> registered →
+            admin seeded into tenant DB → tenant is immediately accessible.
+        </span>
     </div>
 
 </div>
@@ -279,16 +323,15 @@
 
 @push('styles')
 <style>
-/* ── Keyframes ── */
 @keyframes ct-flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.4} 94%{opacity:1} 96%{opacity:0.6} 97%{opacity:1} }
 @keyframes ct-fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ct-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
 
 .ct-fade-up   { animation: ct-fadeUp .5s ease both; }
 .ct-fade-up-1 { animation: ct-fadeUp .5s .08s ease both; }
 .ct-fade-up-2 { animation: ct-fadeUp .5s .16s ease both; }
 .ct-fade-up-3 { animation: ct-fadeUp .5s .24s ease both; }
 
-/* ── Section label ── */
 .ct-section-label {
     display: flex; align-items: center; gap: 14px;
     margin-bottom: 16px;
@@ -302,7 +345,6 @@
     color:var(--muted);
 }
 
-/* ── Grid ── */
 .ct-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -313,7 +355,6 @@
 .ct-field { display:flex; flex-direction:column; gap:5px; }
 .ct-full  { grid-column: 1 / -1; }
 
-/* ── Label ── */
 .ct-label {
     font-family:'Barlow Condensed',sans-serif;
     font-size:10px; font-weight:600;
@@ -322,7 +363,6 @@
 }
 .ct-req { color:var(--crimson); margin-left:2px; }
 
-/* ── Input wrap ── */
 .ct-input-wrap { position:relative; }
 .ct-icon {
     position:absolute; left:12px; top:50%; transform:translateY(-50%);
@@ -356,7 +396,6 @@
     background:rgba(140,14,3,0.04) !important;
 }
 
-/* ── Hint & Error ── */
 .ct-hint {
     font-family:'DM Mono',monospace;
     font-size:11px;
@@ -369,7 +408,6 @@
     color:var(--crimson);
 }
 
-/* ── Plan grid ── */
 .ct-plan-grid {
     display:grid; grid-template-columns:repeat(3,1fr);
     gap:1px; background:var(--border);
@@ -427,7 +465,6 @@
 }
 .ct-plan-desc { font-size:11px; font-weight:300; color:var(--muted); line-height:1.5; }
 
-/* ── Submit button ── */
 .ct-btn-submit {
     display:inline-flex; align-items:center; gap:8px;
     padding:0 20px; height:40px;
@@ -451,27 +488,31 @@
 
 @push('scripts')
 <script>
+const BASE_DOMAIN = '{{ $baseDomain }}';
+
 function updateSubdomainHint(val) {
+    const slug    = (val || '').trim().toLowerCase().replace(/[^a-z0-9\-]/g, '') || 'yoursubdomain';
     const preview = document.getElementById('subdomain-preview');
-    const hidden  = document.getElementById('domain-hidden');
-    const slug    = val.trim() || 'yourdomain';
+    const summary = document.getElementById('summary-domain');
     if (preview) preview.textContent = slug;
-    if (hidden)  hidden.value = slug !== 'yourdomain' ? slug + '.ojt-connect-production.up.railway.app' : '';
+    if (summary) summary.textContent = slug + '.' + BASE_DOMAIN;
 }
 
 function syncTenantId(val) {
-    const subdomain = document.getElementById('subdomain');
+    const subdomain = document.getElementById('subdomain_input');
     if (subdomain && !subdomain.dataset.manuallyEdited) {
         subdomain.value = val;
         updateSubdomainHint(val);
     }
 }
 
-document.getElementById('subdomain')?.addEventListener('input', function() {
+document.getElementById('subdomain_input')?.addEventListener('input', function() {
     this.dataset.manuallyEdited = 'true';
+    updateSubdomainHint(this.value);
 });
 
-const existingSubdomain = document.getElementById('subdomain');
-if (existingSubdomain && existingSubdomain.value) updateSubdomainHint(existingSubdomain.value);
+// Init on page load
+const existingSubdomain = document.getElementById('subdomain_input');
+if (existingSubdomain?.value) updateSubdomainHint(existingSubdomain.value);
 </script>
 @endpush
