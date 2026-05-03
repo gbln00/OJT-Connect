@@ -38,14 +38,13 @@ Route::get('/test-email', function () {
     }
 });
 Route::get('/check-jobs', function () {
-    $failed = DB::table('failed_jobs')->latest()->take(5)->get();
     $pending = DB::table('jobs')->count();
+    $failed = DB::table('failed_jobs')->take(5)->get();
     return response()->json([
         'pending_jobs' => $pending,
         'failed_jobs' => $failed,
     ]);
 });
-
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 

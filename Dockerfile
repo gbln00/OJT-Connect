@@ -58,12 +58,12 @@ RUN echo '#!/bin/sh' > /start.sh \
     && echo 'php artisan db:seed --class=SuperAdminSeeder --force 2>&1' >> /start.sh \
     && echo 'touch storage/logs/laravel.log' >> /start.sh \
     && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \
-    && echo 'php artisan queue:work database --sleep=3 --tries=1 --timeout=300 &' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
     && echo 'tail -f storage/logs/laravel.log &' >> /start.sh \
-    && echo 'nginx -g "daemon off;"' >> /start.sh \
+    && echo 'nginx -g "daemon off;" &' >> /start.sh \
+    && echo 'php artisan queue:work database --sleep=3 --tries=1 --timeout=290 --verbose 2>&1' >> /start.sh \
     && chmod +x /start.sh
-
+    
 EXPOSE 8080
 
 CMD ["/start.sh"]
