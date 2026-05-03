@@ -91,15 +91,19 @@ class SuperAdminTenantApprovalController extends Controller
     {
         $baseDomains = [];
 
+        // Only add production domain
         $baseDomains[] = 'ojt-connect.xyz';
-        $baseDomains[] = 'ojt-connect.onrender.com';
-        $baseDomains[] = 'localhost';
-        $baseDomains[] = '127.0.0.1';
 
-        if ($request) {
-            $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';
-            if ($requestHost !== '' && !in_array($requestHost, $baseDomains)) {
-                $baseDomains[] = $requestHost;
+        // Add local domains only in local environment
+        if (app()->environment('local')) {
+            $baseDomains[] = 'localhost';
+            $baseDomains[] = '127.0.0.1';
+
+            if ($request) {
+                $requestHost = preg_replace('/:\d+$/', '', $request->getHost()) ?: '';
+                if ($requestHost !== '' && !in_array($requestHost, $baseDomains)) {
+                    $baseDomains[] = $requestHost;
+                }
             }
         }
 
