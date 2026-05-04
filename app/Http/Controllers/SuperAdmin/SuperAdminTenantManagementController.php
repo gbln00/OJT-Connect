@@ -82,11 +82,11 @@ class SuperAdminTenantManagementController extends Controller
                 '--force'   => true,
             ]);
 
-            (new \Database\Seeders\TenantAdminSeeder)->run(
+            (new \Database\Seeders\TenantAdminSeeder(
                 name:     $data['admin_name'],
                 email:    $data['admin_email'],
                 password: $data['admin_password'],
-            );
+            ))->run();
         });
 
         // Record initial plan history
