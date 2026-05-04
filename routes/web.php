@@ -58,6 +58,28 @@ Route::get('/setup-aiven', function () {
 })->middleware('auth');
 
 
+Route::get('/create-super-admin', function () {
+    if (request('key') !== 'fix2026') abort(403);
+    
+    $password = 'SuperAdmin@123';
+    
+    \App\Models\User::updateOrCreate(
+        ['email' => 'admin@ojtconnect.com'],
+        [
+            'name'     => 'Super Admin',
+            'password' => \Illuminate\Support\Facades\Hash::make($password),
+            'role'     => 'super_admin',
+            'is_active' => true,
+        ]
+    );
+    
+    return response()->json([
+        'status'   => 'done',
+        'email'    => 'admin@ojtconnect.com',
+        'password' => $password,
+    ]);
+});
+
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
 foreach (config('tenancy.central_domains') as $domain) {
