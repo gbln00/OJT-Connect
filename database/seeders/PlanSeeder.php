@@ -8,18 +8,14 @@ use App\Models\Plan;
 
 class PlanSeeder extends Seeder
 {
-        /**
-        * Run the database seeds.
-        */
     public function run(): void
     {
-        // Wipe existing plans cleanly (avoids duplicate key errors on re-run)
         DB::connection('mysql')->table('plan_promotions')->delete();
         DB::connection('mysql')->table('plans')->delete();
 
         $plans = [
 
-            // ── 1. BASIC ────────────────────────────────────────────────
+            // ── BASIC ────────────────────────────────────────────────
             [
                 'name'          => 'basic',
                 'label'         => 'Basic',
@@ -30,23 +26,24 @@ class PlanSeeder extends Seeder
                 'sort_order'    => 1,
                 'is_active'     => true,
                 'features'      => [
-                    // ✓ Included
-                    'hour_logs'          => true,   // OJT hour monitoring
-                    'email_notifs'       => true,   // Basic notifications
-                    'qr_clock_in'        => true,   // QR attendance module
+                    'hour_logs'            => true,
+                    'qr_clock_in'          => true,
+                    'email_notifs'         => true,
+                    'support_tickets'      => true,   // ✓ All plans
+                    'two_factor_auth'      => true,   // ✓ All plans
 
-                    // ✗ Not included on Basic
-                    'weekly_reports'     => false,  // Online report submission (Standard+)
-                    'evaluations'        => false,  // Student evaluation system (Standard+)
-                    'csv_import'         => false,  // Bulk CSV import (Standard+)
-                    'pdf_export'         => false,  // Automated PDF generation (Premium only)
-                    'excel_export'       => false,  // Advanced reports (Premium only)
-                    'analytics_dashboard'=> false,  // Admin analytics dashboard (Premium only)
-                    'tenant_customization'=> false, // Tenant branding customization (Premium only)
+                    'weekly_reports'       => false,  // Standard+
+                    'evaluations'          => false,  // Standard+
+                    'csv_import'           => false,  // Standard+
+
+                    'pdf_export'           => false,  // Premium only
+                    'excel_export'         => false,  // Premium only
+                    'analytics_dashboard'  => false,  // Premium only
+                    'tenant_customization' => false,  // Premium only
                 ],
             ],
 
-            // ── 2. STANDARD ─────────────────────────────────────────────
+            // ── STANDARD ─────────────────────────────────────────────
             [
                 'name'          => 'standard',
                 'label'         => 'Standard',
@@ -57,67 +54,56 @@ class PlanSeeder extends Seeder
                 'sort_order'    => 2,
                 'is_active'     => true,
                 'features'      => [
-                    // ✓ Everything in Basic
-                    'hour_logs'          => true,
-                    'email_notifs'       => true,
-                    'qr_clock_in'        => true,
+                    'hour_logs'            => true,
+                    'qr_clock_in'          => true,
+                    'email_notifs'         => true,
+                    'support_tickets'      => true,
+                    'two_factor_auth'      => true,
 
-                    // ✓ Standard additions
-                    'weekly_reports'     => true,   // Online report submission
-                    'evaluations'        => true,   // Student evaluation system
-                    'csv_import'         => true,   // Bulk import for users & companies
+                    'weekly_reports'       => true,   // ✓ Standard+
+                    'evaluations'          => true,   // ✓ Standard+
+                    'csv_import'           => true,   // ✓ Standard+
 
-                    // ✗ Premium only
-                    'pdf_export'         => false,
-                    'excel_export'       => false,
-                    'analytics_dashboard'=> false,
-                    'tenant_customization'=> false,
+                    'pdf_export'           => false,  // Premium only
+                    'excel_export'         => false,  // Premium only
+                    'analytics_dashboard'  => false,  // Premium only
+                    'tenant_customization' => false,  // Premium only
                 ],
             ],
 
-            // ── 3. PREMIUM ──────────────────────────────────────────────
+            // ── PREMIUM ──────────────────────────────────────────────
             [
                 'name'          => 'premium',
                 'label'         => 'Premium',
                 'description'   => 'Unlimited students, advanced analytics, and automated PDF reports.',
                 'base_price'    => 30000,
                 'billing_cycle' => 'yearly',
-                'student_cap'   => null,        // Unlimited student records
+                'student_cap'   => null,
                 'sort_order'    => 3,
                 'is_active'     => true,
                 'features'      => [
-                    // ✓ Everything in Standard
-                    'hour_logs'          => true,
-                    'email_notifs'       => true,
-                    'qr_clock_in'        => true,
-                    'weekly_reports'     => true,
-                    'evaluations'        => true,
-                    'csv_import'         => true,
+                    'hour_logs'            => true,
+                    'qr_clock_in'          => true,
+                    'email_notifs'         => true,
+                    'support_tickets'      => true,
+                    'two_factor_auth'      => true,
 
-                    // ✓ Premium additions
-                    'pdf_export'         => true,   // Automated PDF generation
-                    'excel_export'       => true,   // Advanced reports export
-                    'analytics_dashboard'=> true,   // Admin analytics dashboard
-                    'tenant_customization'=> true,  // Tenant branding/customization
+                    'weekly_reports'       => true,
+                    'evaluations'          => true,
+                    'csv_import'           => true,
+
+                    'pdf_export'           => true,   // ✓ Premium
+                    'excel_export'         => true,   // ✓ Premium
+                    'analytics_dashboard'  => true,   // ✓ Premium
+                    'tenant_customization' => true,   // ✓ Premium
                 ],
             ],
-
         ];
 
         foreach ($plans as $data) {
             Plan::create($data);
         }
 
-        $this->command->info('✓ Plans seeded:');
-        $this->command->table(
-            ['Name', 'Label', 'Price', 'Student Cap', 'Features'],
-            collect($plans)->map(fn($p) => [
-                $p['name'],
-                $p['label'],
-                '₱' . number_format($p['base_price']),
-                $p['student_cap'] ? $p['student_cap'] : 'Unlimited',
-                collect($p['features'])->filter()->keys()->implode(', '),
-            ])->toArray()
-        );
+        $this->command->info('✓ Plans seeded successfully.');
     }
 }
