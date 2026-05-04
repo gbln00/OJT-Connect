@@ -31,25 +31,27 @@ class ApproveTenantJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            // Run migrations from CENTRAL context first
+            Artisan::call('tenants:migrate', [
+                '--tenants' => [$this->tenant->id],
+                '--force'   => true,
+            ]);
+
+            Log::info("Migrations done for {$this->tenant->id}. Output: " . Artisan::output());
+
+            // Then seed inside tenant context
             $this->tenant->run(function () {
-                Artisan::call('tenants:migrate', [
-                    '--tenants' => [tenant('id')],
-                    '--force'   => true,
-                ]);
-    
                 (new \Database\Seeders\TenantAdminSeeder(
                     name:     $this->registration->contact_person,
                     email:    $this->registration->email,
                     password: $this->plainPassword,
                 ))->run();
+
+                Log::info("Seeder done for tenant: " . tenant('id'));
             });
-    
-            tenancy()->end();
-            Log::info("Tenant {$this->tenant->id} provisioned successfully.");
-    
+
         } catch (\Throwable $e) {
-            Log::error("ApproveTenantJob failed: " . $e->getMessage());
-            tenancy()->end();
+            Log::error("ApproveTenantJob FAILED for {$this->tenant->id}: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             throw $e;
         }
     }
