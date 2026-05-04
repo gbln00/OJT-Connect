@@ -47,15 +47,16 @@ Route::get('/check-jobs', function () {
 });
 
 Route::get('/setup-aiven', function () {
-    if (!auth()->check() || auth()->user()->role !== 'super_admin') abort(403);
+    if (!Auth::check() || Auth::user()->role !== 'super_admin') abort(403);
     try {
-        DB::statement("GRANT ALL PRIVILEGES ON \`tenant%\`.* TO 'avnadmin'@'%'");
+        DB::statement("GRANT ALL PRIVILEGES ON `tenant%`.* TO 'avnadmin'@'%'");
         DB::statement("FLUSH PRIVILEGES");
         return "✅ Done! Remove this route now.";
     } catch (\Throwable $e) {
         return "❌ Error: " . $e->getMessage();
     }
 })->middleware('auth');
+
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
