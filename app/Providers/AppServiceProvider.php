@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('*', function ($view) {
             try {
-                $view->with('currentVersion', SystemVersion::current()?->version);
+                $view->with('currentVersion', SystemVersion::current());
             } catch (\Throwable $e) {
                 $view->with('currentVersion', null);
             }

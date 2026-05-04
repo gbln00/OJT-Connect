@@ -17,7 +17,7 @@
                          font-family:'DM Mono',monospace;font-size:11px;color:#2dd4bf;">
                 <span style="width:5px;height:5px;border-radius:50%;background:#2dd4bf;
                              animation:pulse 2s ease-in-out infinite;flex-shrink:0;"></span>
-                Live: v{{ $currentVersion->version }}
+                Live: v{{ is_string($currentVersion) ? $currentVersion : $currentVersion->version }}
             </span>
             @endif
         </div>
