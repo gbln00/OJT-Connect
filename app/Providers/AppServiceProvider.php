@@ -25,8 +25,8 @@ class AppServiceProvider extends ServiceProvider
     {   
 
         if (config('app.env') === 'production') {
-            URL::forceRootUrl(config('app.url'));
             URL::forceScheme('https');
+            // Remove forceRootUrl entirely
         }
         // Custom Blade directive to check tenant's plan
         Blade::directive('tenantPlan', function ($expression) {
