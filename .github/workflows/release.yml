@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Read version from version.json
         id: ver
@@ -26,12 +28,48 @@ jobs:
             echo "EXISTS=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate CHANGELOG.md
+        if: steps.check_tag.outputs.EXISTS == 'false'
+        run: |
+          VERSION="${{ steps.ver.outputs.VERSION }}"
+          DATE=$(date +%Y-%m-%d)
+          
+          # Get previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | head -1)
+          
+          # Generate commit log
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" | head -20)
+          else
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s")
+          fi
+          
+          # Prepend new version to CHANGELOG.md
+          TEMP=$(mktemp)
+          echo "## v${VERSION} — ${DATE}" > "$TEMP"
+          echo "" >> "$TEMP"
+          echo "$COMMITS" >> "$TEMP"
+          echo "" >> "$TEMP"
+          
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> "$TEMP"
+          fi
+          
+          mv "$TEMP" CHANGELOG.md
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "docs: update CHANGELOG for v${VERSION} [skip ci]"
+          git push
+
       - name: Create GitHub Release
         if: steps.check_tag.outputs.EXISTS == 'false'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.ver.outputs.VERSION }}
           name: Release v${{ steps.ver.outputs.VERSION }}
-          generate_release_notes: true
+          body_path: CHANGELOG.md
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
