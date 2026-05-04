@@ -56,8 +56,6 @@ RUN echo '#!/bin/sh' > /start.sh \
     && echo 'php artisan route:clear 2>&1' >> /start.sh \
     && echo 'php artisan config:clear 2>&1' >> /start.sh \
     && echo 'php artisan db:seed --class=SuperAdminSeeder --force 2>&1' >> /start.sh \
-    && echo 'php artisan queue:flush 2>&1' >> /start.sh \
-    && echo 'php artisan queue:clear database 2>&1' >> /start.sh \
     && echo 'touch storage/logs/laravel.log' >> /start.sh \
     && echo 'chmod 777 storage/logs/laravel.log' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
