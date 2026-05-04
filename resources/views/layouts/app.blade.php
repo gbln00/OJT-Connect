@@ -1225,7 +1225,15 @@
                             Profile & Settings
                         </a>
                         <div class="dropdown-divider"></div>
-                        <form method="POST" action="/logout" id="logout-form">@csrf</form>
+                        
+                        <form method="POST" action="{{ route('logout') }}" id="sa-logout-form">@csrf</form>
+                        <a href="#" class="dropdown-item danger"
+                           onclick="event.preventDefault();document.getElementById('sa-logout-form').submit();">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                            </svg>
+                            Log out
+                        </a>
                     </div>
                 </div>
             </div>
