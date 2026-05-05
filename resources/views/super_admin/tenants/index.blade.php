@@ -182,13 +182,6 @@
 </div>
 @endif
 
-{{-- ── Flash messages ── --}}
-@if(session('success'))
-<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:12px 16px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:12px;display:flex;align-items:center;gap:8px;">
-    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
-    {{ session('success') }}
-</div>
-@endif
 @if(session('error'))
 <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:12px 16px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:12px;display:flex;align-items:center;gap:8px;">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
