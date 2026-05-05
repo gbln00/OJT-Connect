@@ -185,14 +185,14 @@ class SupportTicketController extends Controller
     private function layoutForRole(string $role): string
     {
         return match($role) {
-            'admin'              => 'layouts',
-            'ojt_coordinator'    => 'layouts.coordinator',
-            'company_supervisor' => 'layouts.supervisor',
-            'student_intern'     => 'layouts.student',
-            default              => 'layouts',
+            'admin'              => 'layouts.app',
+            'ojt_coordinator'    => 'layouts.coordinator-app',  // fix this
+            'company_supervisor' => 'layouts.supervisor-app',   // fix this
+            'student_intern'     => 'layouts.student-app',      // fix this
+            default              => 'layouts.app',
         };
     }
-
+    
     private function routePrefix(string $role): string
     {
         return match($role) {

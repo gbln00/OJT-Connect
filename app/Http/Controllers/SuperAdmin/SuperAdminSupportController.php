@@ -21,7 +21,7 @@ class SuperAdminSupportController extends Controller
                 // ── Everything happens INSIDE run() ──────────────────────
                 $result = $tenant->run(function () use ($request) {
 
-                    $q = SupportTicket::with('user')->latest();
+                    $q = SupportTicket::with('user')->withCount('replies')->latest();
 
                     if ($request->filled('status')) {
                         $q->where('status', $request->status);
@@ -48,7 +48,7 @@ class SuperAdminSupportController extends Controller
                         'module'         => $ticket->module,
                         'created_at'     => $ticket->created_at,
                         'resolved_at'    => $ticket->resolved_at,
-                        'reply_count'    => $ticket->replies()->count(),
+                        'reply_count' => $ticket->replies_count ?? 0,
                         'user_name'      => $ticket->user?->name,
                         'user_role'      => $ticket->user?->role,
                     ]);
