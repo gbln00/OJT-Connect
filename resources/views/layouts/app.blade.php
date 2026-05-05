@@ -1091,7 +1091,7 @@
             @if($currentVersion)
             <a href="{{ route('admin.whats-new.index') }}" class="topbar-version"
                title="What's New · v{{ $currentVersion }}">
-                v{{ $currentVersion }}
+                v{{ is_object($currentVersion) ? $currentVersion->version : $currentVersion }}
             </a>
             @endif
 

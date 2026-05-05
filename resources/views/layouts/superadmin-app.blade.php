@@ -942,7 +942,7 @@
                    onmouseout="this.style.color='var(--muted)'"
                    title="Manage versions">
                     <span style="width:5px;height:5px;border-radius:50%;background:#2dd4bf;flex-shrink:0;"></span>
-                    v{{ $currentVersion }}
+                    v{{ is_object($currentVersion) ? $currentVersion->version : $currentVersion }}
                 </a>
                 <span style="font-family:'DM Mono',monospace;font-size:9px;
                              letter-spacing:0.1em;text-transform:uppercase;
@@ -985,7 +985,7 @@
                onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted2)';this.style.background='var(--surface)';"
                title="Version Control">
                 <span style="width:5px;height:5px;border-radius:50%;background:#2dd4bf;flex-shrink:0;"></span>
-                v{{ dump($currentVersion) }}
+                v{{ is_object($currentVersion) ? $currentVersion->version : $currentVersion }}
             </a>
             @endif
             <div class="topbar-actions">
