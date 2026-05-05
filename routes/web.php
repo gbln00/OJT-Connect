@@ -23,6 +23,24 @@ use App\Http\Controllers\SuperAdmin\SuperAdminVersionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 
+
+Route::get('/debug-tickets/{tenantId}', function ($tenantId) {
+    if (request('key') !== 'fix2026') abort(403);
+    
+    $tenant = \App\Models\Tenant::findOrFail($tenantId);
+    
+    $result = $tenant->run(function () {
+        return [
+            'db'      => DB::connection()->getDatabaseName(),
+            'tickets' => DB::table('support_tickets')->get()->toArray(),
+            'count'   => DB::table('support_tickets')->count(),
+        ];
+    });
+    
+    return response()->json($result);
+});
+
+
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
 foreach (config('tenancy.central_domains') as $domain) {
