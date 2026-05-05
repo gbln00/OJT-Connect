@@ -627,6 +627,22 @@
         .sidebar-overlay.open { display: block; }
 
         /* ═══════════════════════════════════════════════
+           GREETING
+        ═══════════════════════════════════════════════ */
+        .greeting { margin-bottom: 28px; }
+        .greeting-sub {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 6px;
+        }
+        .greeting-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(22px, 3vw, 30px); font-weight: 900;
+            color: var(--text); line-height: 1.1;
+        }
+        .greeting-title span { color: var(--crimson); font-style: italic; }
+
+        /* ═══════════════════════════════════════════════
            ANIMATIONS
         ═══════════════════════════════════════════════ */
         @keyframes fadeUp {

@@ -1,131 +1,135 @@
 {{--
-    Shared support create content.
-    Required: $indexRoute, $storeRoute
+    Shared support show content.
+    Required: $indexRoute, $replyRoute, $closeRoute, $createRoute, $ticket
 --}}
-<div class="fade-up" style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
+<div style="max-width:800px;margin:0 auto;">
 
-    {{-- Header --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;
-                margin-bottom:8px;gap:12px;flex-wrap:wrap;">
-        <div>
-            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;
-                        text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
-                // New Ticket
-            </div>
-            <h1 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--text);">
-                Submit a <span style="color:var(--crimson);font-style:italic;">Support Request</span>
-            </h1>
-            <p style="font-size:13px;color:var(--muted);margin-top:6px;">
-                Describe your issue or feedback in as much detail as possible.
-                We typically respond within 1–2 business days.
-            </p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="{{ route($indexRoute) }}" class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back to Tickets
+            </a>
+            <span style="color:var(--border2);">|</span>
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;">{{ $ticket->ref }}</span>
         </div>
-        <a href="{{ route($indexRoute) }}" class="btn btn-ghost btn-sm"
-           style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-top:4px;">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-            Back to Tickets
-        </a>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span class="status-pill {{ $ticket->status_color }}">{{ $ticket->status_label }}</span>
+            @php $pc = match($ticket->priority) {'urgent'=>'coral','high'=>'gold','normal'=>'blue',default=>'steel'}; @endphp
+            <span class="status-pill {{ $pc }}">{{ $ticket->priority_label }}</span>
+        </div>
     </div>
 
-    {{-- Form card --}}
-    <div class="card">
-        <div class="card-header">
-            <span class="card-title">Ticket Details</span>
+    {{-- Ticket header card --}}
+    <div class="card fade-up" style="margin-bottom:16px;">
+        <div style="padding:20px 24px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border:1px solid var(--border2);padding:2px 7px;">{{ $ticket->type_label }}</span>
+                @if($ticket->module)
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border:1px solid var(--border2);padding:2px 7px;">{{ str_replace('_', ' ', ucfirst($ticket->module)) }}</span>
+                @endif
+            </div>
+            <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;">{{ $ticket->subject }}</h2>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;">
+                <span>Submitted {{ $ticket->created_at->format('M d, Y \a\t H:i') }}</span>
+                @if($ticket->resolved_at)<span>Resolved {{ $ticket->resolved_at->format('M d, Y \a\t H:i') }}</span>@endif
+                <span>{{ $ticket->replies->count() }} {{ Str::plural('reply', $ticket->replies->count()) }}</span>
+            </div>
         </div>
+        <div style="border-top:1px solid var(--border);padding:20px 24px;background:var(--surface2);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="width:28px;height:28px;border:1px solid rgba(140,14,3,0.4);background:rgba(140,14,3,0.08);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--crimson);flex-shrink:0;">
+                    {{ strtoupper(substr($ticket->user->name ?? 'U', 0, 2)) }}
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text);">
+                        {{ $ticket->user->name ?? 'You' }}
+                        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);font-weight:400;margin-left:6px;">(you)</span>
+                    </div>
+                    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">{{ $ticket->created_at->diffForHumans() }}</div>
+                </div>
+            </div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;">{{ $ticket->message }}</div>
+        </div>
+    </div>
 
-        <form method="POST" action="{{ route($storeRoute) }}" style="padding:24px;">
+    {{-- Reply thread --}}
+    @if($ticket->replies->isNotEmpty())
+    <div style="margin-bottom:16px;display:flex;flex-direction:column;gap:10px;">
+        @foreach($ticket->replies as $reply)
+        @php $isSupport = $reply->isFromSupport(); @endphp
+        <div class="card fade-up" style="{{ $isSupport ? 'border-left:3px solid rgba(45,212,191,0.4);' : 'border-left:3px solid var(--border2);' }}">
+            <div style="padding:16px 20px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    @if($isSupport)
+                    <div style="width:28px;height:28px;border:1px solid rgba(45,212,191,0.25);background:rgba(45,212,191,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="12" height="12" fill="none" stroke="#2dd4bf" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </div>
+                    @else
+                    <div style="width:28px;height:28px;border:1px solid rgba(140,14,3,0.4);background:rgba(140,14,3,0.08);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--crimson);flex-shrink:0;">
+                        {{ strtoupper(substr($reply->sender_name ?? 'U', 0, 2)) }}
+                    </div>
+                    @endif
+                    <div>
+                        <div style="font-size:12px;font-weight:600;color:{{ $isSupport ? '#2dd4bf' : 'var(--text)' }};">{{ $reply->display_name }}</div>
+                        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">{{ $reply->created_at->diffForHumans() }} · {{ $reply->created_at->format('M d, Y H:i') }}</div>
+                    </div>
+                </div>
+                <div style="font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;">{{ $reply->message }}</div>
+                @if($reply->attachment_path)
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+                    <a href="{{ Storage::url($reply->attachment_path) }}" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--blue-color);text-decoration:none;border:1px solid var(--blue-border);padding:4px 10px;background:var(--blue-dim);">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                        {{ $reply->attachment_name ?? 'Attachment' }}
+                    </a>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    {{-- Reply form --}}
+    @if($ticket->isActive())
+    <div class="card fade-up" style="margin-bottom:16px;">
+        <div class="card-header"><span class="card-title">Add a Reply</span></div>
+        <form method="POST" action="{{ route($replyRoute, $ticket) }}" enctype="multipart/form-data" style="padding:20px;">
             @csrf
-
-            @if($errors->any())
-            <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.25);
-                        padding:12px 16px;margin-bottom:20px;">
-                <ul style="margin:0;padding:0 0 0 16px;font-size:13px;color:var(--crimson);">
-                    @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
-                </ul>
-            </div>
-            @endif
-
-            {{-- Subject --}}
-            <div style="margin-bottom:18px;">
-                <label class="form-label">Subject *</label>
-                <input type="text" name="subject" value="{{ old('subject') }}"
-                       class="form-input @error('subject') error @enderror"
-                       placeholder="Brief summary of your issue or request"
-                       maxlength="255" required>
-                @error('subject')<p class="form-error">{{ $message }}</p>@enderror
-            </div>
-
-            {{-- Type + Priority --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-                <div>
-                    <label class="form-label">Type *</label>
-                    <select name="type" class="form-select" required>
-                        <option value="">— Select type —</option>
-                        @foreach(['bug'=>'🐛 Bug Report','feature_request'=>'✨ Feature Request','general_inquiry'=>'💬 General Inquiry','billing'=>'💳 Billing','account'=>'👤 Account','other'=>'📋 Other'] as $val => $lbl)
-                            <option value="{{ $val }}" {{ old('type') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
-                        @endforeach
-                    </select>
-                    @error('type')<p class="form-error">{{ $message }}</p>@enderror
-                </div>
-                <div>
-                    <label class="form-label">Priority *</label>
-                    <select name="priority" class="form-select" required>
-                        <option value="low"    {{ old('priority','normal')==='low'    ? 'selected':'' }}>Low — Can wait</option>
-                        <option value="normal" {{ old('priority','normal')==='normal' ? 'selected':'' }}>Normal — Needs attention</option>
-                        <option value="high"   {{ old('priority','normal')==='high'   ? 'selected':'' }}>High — Affecting work</option>
-                        <option value="urgent" {{ old('priority','normal')==='urgent' ? 'selected':'' }}>Urgent — System down</option>
-                    </select>
-                    @error('priority')<p class="form-error">{{ $message }}</p>@enderror
-                </div>
-            </div>
-
-            {{-- Module --}}
-            <div style="margin-bottom:18px;">
-                <label class="form-label">Related Module <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
-                <select name="module" class="form-select">
-                    <option value="">— Not specific to a module —</option>
-                    @foreach(['applications'=>'OJT Applications','hour_logs'=>'Hour Logs','weekly_reports'=>'Weekly Reports','evaluations'=>'Evaluations','users'=>'User Management','companies'=>'Companies','notifications'=>'Notifications','exports'=>'Exports / Reports','customization'=>'Customization','qr_clock_in'=>'QR Clock-In','login'=>'Login / Authentication','other'=>'Other'] as $val => $lbl)
-                        <option value="{{ $val }}" {{ old('module') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            {{-- Message --}}
-            <div style="margin-bottom:24px;">
-                <label class="form-label">Message *</label>
-                <textarea name="message" rows="8" class="form-textarea"
-                          placeholder="Describe your issue in detail. Include steps to reproduce (for bugs), expected behavior, and any error messages you saw."
-                          required minlength="20" maxlength="5000">{{ old('message') }}</textarea>
-                <p class="form-hint">Minimum 20 characters. The more detail, the faster we can help.</p>
+            <div style="margin-bottom:14px;">
+                <label class="form-label">Your message</label>
+                <textarea name="message" rows="5" class="form-textarea" placeholder="Type your reply here..." required minlength="5" maxlength="3000">{{ old('message') }}</textarea>
                 @error('message')<p class="form-error">{{ $message }}</p>@enderror
             </div>
-
-            <div style="display:flex;align-items:center;gap:10px;">
-                <button type="submit" class="btn btn-primary">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/>
-                    </svg>
-                    Submit Ticket
-                </button>
-                <a href="{{ route($indexRoute) }}" class="btn btn-ghost">Cancel</a>
+            <div style="margin-bottom:18px;">
+                <label class="form-label">Attachment <span style="color:var(--muted);font-weight:400;">(optional, max 5 MB)</span></label>
+                <input type="file" name="attachment" class="form-input" style="padding:6px 10px;" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx">
+                <p class="form-hint">Supported: PDF, JPG, PNG, WEBP, TXT, DOC, DOCX</p>
             </div>
+            <button type="submit" class="btn btn-primary">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+                Send Reply
+            </button>
         </form>
     </div>
-
-    {{-- Tips --}}
-    <div class="card fade-up fade-up-2">
-        <div class="card-header"><span class="card-title">💡 Tips for a faster response</span></div>
-        <div style="padding:16px 20px;">
-            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
-                @foreach([['For bugs','Include the exact steps to reproduce the issue and what you expected.'],['Screenshots','Attach a screenshot in a follow-up reply if you can capture the error.'],['Feature requests','Describe the problem you\'re trying to solve, not just the solution.'],['Priority','Mark "Urgent" only if the system is completely unusable.']] as [$t,$d])
-                <li style="display:flex;gap:10px;font-size:13px;">
-                    <span style="color:var(--crimson);font-weight:600;flex-shrink:0;min-width:130px;">{{ $t }}</span>
-                    <span style="color:var(--muted);">{{ $d }}</span>
-                </li>
-                @endforeach
-            </ul>
-        </div>
+    <div style="padding:14px 0;border-top:1px solid var(--border);">
+        <form method="POST" action="{{ route($closeRoute, $ticket) }}" onsubmit="return confirm('Close this ticket? You can always open a new one.');">
+            @csrf @method('PATCH')
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--muted);border-color:var(--border2);">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Close this ticket
+            </button>
+        </form>
     </div>
+    @else
+    <div style="padding:18px;border:1px solid var(--border2);background:var(--surface2);display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--muted);flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;">This ticket is {{ $ticket->status_label }}.</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">If you still need help, please open a new ticket.</div>
+        </div>
+        <a href="{{ route($createRoute) }}" class="btn btn-ghost btn-sm" style="margin-left:auto;flex-shrink:0;">New Ticket</a>
+    </div>
+    @endif
 </div>
