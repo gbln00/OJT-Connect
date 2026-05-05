@@ -44,7 +44,7 @@
     <div class="card">
         <div class="card-header">
             <span class="card-title">Ticket Details</span>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-ghost btn-sm">
+            <a href="{{ route('supervisor.support.index') }}" class="btn btn-ghost btn-sm">
                 <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
                 Back
             </a>
