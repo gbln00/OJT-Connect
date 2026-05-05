@@ -30,78 +30,81 @@ class AdminUpdateController extends Controller
      * Tenant admin triggers an install
      * POST /admin/updates/{tenantUpdate}/install
      */
-    public function install(TenantUpdate $tenantUpdate)
+    ppublic function install(Request $request, TenantUpdate $tenantUpdate)
     {
-        $tenantId = tenancy()->tenant?->id;
-
-        // Security: make sure this record belongs to this tenant
-        abort_if($tenantUpdate->tenant_id !== $tenantId, 403);
-
-        // Can't re-install if already done or running
-        if (! $tenantUpdate->isPending() && ! $tenantUpdate->isFailed()) {
-            return response()->json([
-                'error' => 'This update is already ' . $tenantUpdate->status,
-            ], 422);
+        $user = Auth::user();
+ 
+        // Only the tenant admin can install updates
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized.'], 403);
         }
-
-        // Enforce update order: check if required version is installed
-        $version         = $tenantUpdate->version;
-        $requiredVersion = $version->requiredVersion();
-
-        if ($requiredVersion) {
-            $prerequisite = TenantUpdate::where('tenant_id', $tenantId)
-                ->where('version_id', $requiredVersion->id)
-                ->first();
-
-            if (! $prerequisite || ! $prerequisite->isCompleted()) {
-                return response()->json([
-                    'error'    => "You must install v{$requiredVersion->version} first.",
-                    'requires' => $requiredVersion->version,
-                ], 422);
-            }
+ 
+        // Only pending or failed updates can be installed
+        if (! in_array($tenantUpdate->status, ['pending', 'failed'])) {
+            return response()->json(['error' => 'This update is already installed or in progress.'], 422);
         }
-
-        // Check no other update is already running for this tenant
-        $inProgress = TenantUpdate::where('tenant_id', $tenantId)
-            ->where('status', 'in_progress')
-            ->exists();
-
-        if ($inProgress) {
-            return response()->json([
-                'error' => 'Another update is already in progress. Please wait.',
-            ], 422);
-        }
-
-        // Dispatch the background job
-        InstallTenantUpdate::dispatch(
-            $tenantUpdate,
-            tenancy()->tenant,
-            Auth::user()->email
-        );
-
-        return response()->json([
-            'ok'      => true,
-            'message' => "Installation of v{$version->version} started.",
-            'status'  => 'in_progress',
+ 
+        // Mark as in_progress immediately so the UI shows the spinner
+        $tenantUpdate->update([
+            'status'     => 'in_progress',
+            'error_log'  => null,
         ]);
+ 
+        try {
+            // ── Run the actual install steps ──────────────────────────
+ 
+            // 1. Re-run tenant migrations in case the update includes schema changes
+            Artisan::call('tenants:migrate', [
+                '--tenants' => [tenancy()->tenant->id],
+                '--force'   => true,
+            ]);
+ 
+            // 2. Clear and rebuild config/view cache
+            //    IMPORTANT: We do NOT call config:clear or cache:clear here
+            //    because those wipe the file session store and log everyone out.
+            //    Instead we just rebuild — new cache overwrites old in place.
+            Artisan::call('config:cache');
+            Artisan::call('view:cache');
+ 
+            // 3. Mark complete
+            $tenantUpdate->update([
+                'status'       => 'completed',
+                'installed_at' => now(),
+                'installed_by' => $user->email,
+                'error_log'    => null,
+            ]);
+ 
+            Log::info("TenantUpdate #{$tenantUpdate->id} installed by {$user->email} for tenant " . tenancy()->tenant->id);
+ 
+            return response()->json([
+                'status'       => 'completed',
+                'installed_at' => now()->format('M d, Y H:i'),
+            ]);
+ 
+        } catch (\Throwable $e) {
+            $tenantUpdate->update([
+                'status'    => 'failed',
+                'error_log' => $e->getMessage() . "\n" . $e->getTraceAsString(),
+            ]);
+ 
+            Log::error("TenantUpdate #{$tenantUpdate->id} failed: " . $e->getMessage());
+ 
+            return response()->json([
+                'error' => 'Installation failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Polling endpoint — frontend calls this every 3 seconds
      * GET /admin/updates/{tenantUpdate}/status
      */
-    public function status(TenantUpdate $tenantUpdate)
+    public function status(Request $request, TenantUpdate $tenantUpdate)
     {
-        $tenantId = tenancy()->tenant?->id;
-        abort_if($tenantUpdate->tenant_id !== $tenantId, 403);
-
-        // Refresh from DB
-        $tenantUpdate->refresh();
-
         return response()->json([
             'status'       => $tenantUpdate->status,
             'installed_at' => $tenantUpdate->installed_at?->format('M d, Y H:i'),
-            'error_log'    => $tenantUpdate->isFailed() ? $tenantUpdate->error_log : null,
+            'error_log'    => $tenantUpdate->error_log,
         ]);
     }
 }
