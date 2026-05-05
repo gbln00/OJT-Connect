@@ -113,6 +113,7 @@ php artisan view:cache 2>&1\n\
 echo "==> Seeding..."\n\
 php artisan db:seed --class=SuperAdminSeeder --force 2>&1 || true\n\
 php artisan db:seed --class=PlanSeeder --force 2>&1 || true\n\
+php artisan db:seed --class=DemoTenantSeeder --force 2>&1 || true\n\
 \n\
 touch storage/logs/laravel.log\n\
 chmod 777 storage/logs/laravel.log\n\
