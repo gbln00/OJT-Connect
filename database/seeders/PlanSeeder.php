@@ -10,6 +10,7 @@ class PlanSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::connection('mysql')->table('tenant_plan_histories')->delete(); 
         DB::connection('mysql')->table('plan_promotions')->delete();
         DB::connection('mysql')->table('plans')->delete();
 
