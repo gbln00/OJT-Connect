@@ -66,9 +66,10 @@ class SuperAdminTenantManagementController extends Controller
         }
 
         $tenant = Tenant::create([
-            'id'   => $data['id'],
-            'name' => $data['company_name'] ?? $data['id'],
-            'plan' => $data['plan'] ?? 'basic',
+            'id'     => $data['id'],
+            'name'   => $data['company_name'] ?? $data['id'],
+            'plan'   => $data['plan'] ?? 'basic',
+            'status' => 'active',
         ]);
 
         // Automatically create domain using base_domain
