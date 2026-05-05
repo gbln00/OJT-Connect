@@ -839,7 +839,13 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <span style="flex:1;">Approvals</span>
-                @php $pendingCount = \App\Models\TenantRegistration::where('status','pending')->count(); @endphp
+                @php 
+                    try {
+                        $pendingCount = \App\Models\TenantRegistration::on('mysql')->where('status','pending')->count(); 
+                    } catch(\Throwable $e) {
+                        $pendingCount = 0;
+                    }
+                @endphp
                 @if($pendingCount > 0)
                     <span class="nav-badge">{{ $pendingCount }}</span>
                 @endif
@@ -878,9 +884,9 @@
                             );
                             if (($tableExists[0]->cnt ?? 0) > 0) {
                                 $count = \Illuminate\Support\Facades\DB::select(
-                                    "SELECT COUNT(*) as cnt FROM `{$dbName}`.`support_tickets`
-                                    WHERE status IN ('open', 'in_progress')",
-                                );
+                                        "SELECT COUNT(*) as cnt FROM `{$dbName}`.`support_tickets`
+                                        WHERE status IN ('open', 'in_progress')",
+                                    );
                                 $openTickets += $count[0]->cnt ?? 0;
                             }
                         } catch (\Throwable) {
