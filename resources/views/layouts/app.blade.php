@@ -1079,6 +1079,7 @@
                 title="What's New · v{{ $tenantInstalledVersion }}">
                 v{{ $tenantInstalledVersion }}
             </a>
+            @endif
 
             {{-- Theme toggle --}}
             <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
