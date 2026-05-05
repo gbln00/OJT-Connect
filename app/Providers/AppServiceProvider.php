@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use App\Models\SystemVersion;
+use App\View\Composers\TenantVersionComposer;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,6 +52,13 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('currentVersion', null);
             }
         });
+
+        View::composer([
+            'layouts.app',
+            'layouts.coordinator-app',
+            'layouts.supervisor-app',
+            'layouts.student-app',
+        ], TenantVersionComposer::class);
 
     }
 }

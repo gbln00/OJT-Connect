@@ -22,9 +22,6 @@
             'roboto'  => 'Roboto:wght@300;400;500;700',
             default   => 'Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300',
         };
-        // FIX: fully-qualified class name so the central-db model resolves
-        // inside tenant context (app.blade.php runs under tenant middleware).
-        $currentVersion = \App\Models\SystemVersion::current()?->version;
     @endphp
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family={{ $cssFontName }}+Condensed:wght@400;500;600;700&family=DM+Mono:wght@400;500&family={{ $fontQuery }}&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1038,11 +1035,11 @@
                 </div>
             </div>
             {{-- Version tag — links to What's New --}}
-            @if($currentVersion)
+            @if($tenantInstalledVersion)
             <div class="sidebar-version">
                 <a href="{{ route('admin.whats-new.index') }}" class="sidebar-version-tag"
-                   title="View What's New">
-                    v{{ $currentVersion }}
+                title="View What's New">
+                    v{{ $tenantInstalledVersion }}
                 </a>
                 @if(($whatsNewUnread ?? 0) > 0)
                 <span style="font-family:'DM Mono',monospace;font-size:9px;
@@ -1077,12 +1074,11 @@
             <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
 
             {{-- Version chip — clickable, goes to What's New --}}
-            @if($currentVersion)
+            @if($tenantInstalledVersion)
             <a href="{{ route('admin.whats-new.index') }}" class="topbar-version"
-               title="What's New · v{{ $currentVersion }}">
-                v{{ is_object($currentVersion) ? $currentVersion->version : $currentVersion }}
+                title="What's New · v{{ $tenantInstalledVersion }}">
+                v{{ $tenantInstalledVersion }}
             </a>
-            @endif
 
             {{-- Theme toggle --}}
             <button class="topbar-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
