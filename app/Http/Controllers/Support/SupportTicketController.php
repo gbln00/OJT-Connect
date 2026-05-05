@@ -21,28 +21,37 @@ class SupportTicketController extends Controller
 
     public function index(Request $request)
     {
-        $user  = Auth::user();
-        $query = SupportTicket::forUser($user->id)->latest();
+        try {
+            $user  = Auth::user();
+            $query = SupportTicket::forUser($user->id)->latest();
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+
+            $tickets = $query->paginate(12)->withQueryString();
+
+            $counts = [
+                'total'    => SupportTicket::forUser($user->id)->count(),
+                'open'     => SupportTicket::forUser($user->id)->whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count(),
+                'resolved' => SupportTicket::forUser($user->id)->whereIn('status', ['resolved', 'closed'])->count(),
+            ];
+
+            $layout = $this->layoutForRole($user->role);
+            $view   = $this->viewPrefixForRole($user->role) . '.index';
+
+            return view($view, compact('tickets', 'counts', 'layout'));
+
+        } catch (\Throwable $e) {
+            $tickets = collect();
+            $counts  = ['total' => 0, 'open' => 0, 'resolved' => 0];
+            $layout  = $this->layoutForRole(Auth::user()->role);
+            $view    = $this->viewPrefixForRole(Auth::user()->role) . '.index';
+            return view($view, compact('tickets', 'counts', 'layout'));
         }
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        $tickets = $query->paginate(12)->withQueryString();
-
-        $counts = [
-            'total'    => SupportTicket::forUser($user->id)->count(),
-            'open'     => SupportTicket::forUser($user->id)->whereIn('status', ['open', 'in_progress', 'waiting_on_user'])->count(),
-            'resolved' => SupportTicket::forUser($user->id)->whereIn('status', ['resolved', 'closed'])->count(),
-        ];
-
-        $layout = $this->layoutForRole($user->role);
-        $view   = $this->viewPrefixForRole($user->role) . '.index';
-
-        return view($view, compact('tickets', 'counts', 'layout'));
     }
     // ── Create form ────────────────────────────────────────────────
 
