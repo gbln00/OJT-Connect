@@ -107,7 +107,6 @@ echo "==> Linking storage..."\n\
 php artisan storage:link --force 2>&1\n\
 \n\
 echo "==> Building caches..."\n\
-php artisan config:cache 2>&1\n\
 php artisan route:cache 2>&1\n\
 php artisan view:cache 2>&1\n\
 \n\
