@@ -1,4 +1,4 @@
-@extends($layout . '.student-app')
+@extends('layouts.student-app')
 
 @section('title', 'New Support Ticket')
 @section('page-title', 'New Support Ticket')

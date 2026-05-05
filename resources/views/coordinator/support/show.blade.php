@@ -1,4 +1,4 @@
-@extends($layout . '.coordinator-app')
+@extends('layouts.coordinator-app')
 @section('title', 'Ticket ' . $ticket->ref)
 @section('page-title', 'Ticket ' . $ticket->ref)
 
