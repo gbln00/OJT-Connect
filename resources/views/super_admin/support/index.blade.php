@@ -48,7 +48,7 @@
     </form>
 </div>
 
-{{-- ── Tenant summary sidebar + tickets grid ───────────────────── --}}
+{{-- ── Layout ───────────────────────────────────────────────────── --}}
 <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:flex-start;">
 
     {{-- Tenant sidebar --}}
@@ -57,7 +57,7 @@
             <span class="card-title">By Tenant</span>
         </div>
         <div style="padding:8px 0;">
-            @foreach($tenants as $tenant)
+            @forelse($tenants as $tenant)
             @php $counts = $ticketSummary[$tenant->id] ?? ['open' => 0, 'resolved' => 0, 'total' => 0]; @endphp
             <div style="padding:10px 16px;border-bottom:1px solid var(--border);
                         display:flex;align-items:center;justify-content:space-between;">
@@ -78,7 +78,11 @@
                 </span>
                 @endif
             </div>
-            @endforeach
+            @empty
+            <div style="padding:16px;text-align:center;font-size:12px;color:var(--muted);">
+                No tenants yet
+            </div>
+            @endforelse
         </div>
     </div>
 
@@ -86,6 +90,15 @@
     <div class="card">
         @if($allTickets->isEmpty())
         <div style="padding:60px 20px;text-align:center;">
+            <div style="width:48px;height:48px;border:1px solid var(--border2);
+                        background:var(--surface2);display:flex;align-items:center;
+                        justify-content:center;margin:0 auto 14px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"
+                     viewBox="0 0 24 24" style="color:var(--muted);">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
+                </svg>
+            </div>
             <p style="font-family:'DM Mono',monospace;font-size:11px;
                       color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">
                 No tickets found
@@ -112,8 +125,6 @@
                 </thead>
                 <tbody>
                     @foreach($allTickets as $ticket)
-                    {{-- All properties are plain stdClass set inside $tenant->run() --}}
-                    {{-- No Eloquent accessors are called during Blade rendering.    --}}
                     <tr>
                         <td>
                             <span style="font-family:'DM Mono',monospace;font-size:11px;
@@ -157,7 +168,7 @@
                             </span>
                         </td>
                         <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
-                            {{ $ticket->created_at->format('M d, Y') }}
+                            {{ \Carbon\Carbon::parse($ticket->created_at)->format('M d, Y') }}
                         </td>
                         <td>
                             <a href="{{ route('super_admin.support.show', [

@@ -5,57 +5,57 @@
 
 @section('content')
 
+@php
+    $indexRoute = match(true) {
+        request()->routeIs('admin.*')       => 'admin.support.index',
+        request()->routeIs('coordinator.*') => 'coordinator.support.index',
+        request()->routeIs('supervisor.*')  => 'supervisor.support.index',
+        default                             => 'student.support.index',
+    };
+    $storeRoute = match(true) {
+        request()->routeIs('admin.*')       => 'admin.support.store',
+        request()->routeIs('coordinator.*') => 'coordinator.support.store',
+        request()->routeIs('supervisor.*')  => 'supervisor.support.store',
+        default                             => 'student.support.store',
+    };
+@endphp
+
 <div class="fade-up" style="max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
 
-
-
-    {{-- Back link --}}
-    @php
-        $indexRoute = match(true) {
-            request()->routeIs('admin.*')       => 'admin.support.index',
-            request()->routeIs('coordinator.*') => 'coordinator.support.index',
-            request()->routeIs('supervisor.*')  => 'supervisor.support.index',
-            default                             => 'student.support.index',
-        };
-        $storeRoute = match(true) {
-            request()->routeIs('admin.*')       => 'admin.support.store',
-            request()->routeIs('coordinator.*') => 'coordinator.support.store',
-            request()->routeIs('supervisor.*')  => 'supervisor.support.store',
-            default                             => 'student.support.store',
-        };
-    @endphp
-
-    {{-- Header --}}
-    <div style="margin-bottom:24px;">
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;
-                    text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
-            // New Ticket
+    {{-- ── Header ── --}}
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;
+                margin-bottom:8px;gap:12px;flex-wrap:wrap;">
+        <div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;
+                        text-transform:uppercase;color:var(--muted);margin-bottom:6px;">
+                // New Ticket
+            </div>
+            <h1 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--text);">
+                Submit a <span style="color:var(--crimson);font-style:italic;">Support Request</span>
+            </h1>
+            <p style="font-size:13px;color:var(--muted);margin-top:6px;">
+                Describe your issue or feedback in as much detail as possible.
+                We typically respond within 1–2 business days.
+            </p>
         </div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--text);">
-            Submit a <span style="color:var(--crimson);font-style:italic;">Support Request</span>
-        </h1>
-        <p style="font-size:13px;color:var(--muted);margin-top:6px;">
-            Describe your issue or feedback in as much detail as possible.
-            We typically respond within 1–2 business days.
-        </p>
-        
+        <a href="{{ route($indexRoute) }}" class="btn btn-ghost btn-sm"
+           style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;margin-top:4px;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Back to Tickets
+        </a>
     </div>
 
+    {{-- ── Form card ── --}}
     <div class="card">
         <div class="card-header">
             <span class="card-title">Ticket Details</span>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-ghost btn-sm">
-                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                Back
-            </a>
         </div>
-
-        
 
         <form method="POST" action="{{ route($storeRoute) }}" style="padding:24px;">
             @csrf
 
-            {{-- Validation errors --}}
             @if($errors->any())
             <div style="background:rgba(140,14,3,0.07);border:1px solid rgba(140,14,3,0.25);
                         padding:12px 16px;margin-bottom:20px;">
@@ -79,7 +79,7 @@
                 @enderror
             </div>
 
-            {{-- Type + Priority (2-column) --}}
+            {{-- Type + Priority --}}
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
                 <div>
                     <label class="form-label">Type *</label>
@@ -116,9 +116,12 @@
                 </div>
             </div>
 
-            {{-- Module (optional) --}}
+            {{-- Module --}}
             <div style="margin-bottom:18px;">
-                <label class="form-label">Related Module <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+                <label class="form-label">
+                    Related Module
+                    <span style="color:var(--muted);font-weight:400;">(optional)</span>
+                </label>
                 <select name="module" class="form-select">
                     <option value="">— Not specific to a module —</option>
                     @foreach([
@@ -168,21 +171,21 @@
         </form>
     </div>
 
-    {{-- Tips card --}}
-    <div class="card fade-up fade-up-2" style="margin-top:16px;">
+    {{-- ── Tips card ── --}}
+    <div class="card fade-up fade-up-2">
         <div class="card-header">
             <span class="card-title">💡 Tips for a faster response</span>
         </div>
         <div style="padding:16px 20px;">
             <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
                 @foreach([
-                    ['For bugs', 'Include the exact steps to reproduce the issue and what you expected to happen.'],
-                    ['Screenshots', 'If you can capture a screenshot of the error, attach it in the follow-up reply.'],
-                    ['Feature requests', 'Describe the problem you\'re trying to solve, not just the solution you want.'],
-                    ['Priority', 'Mark "Urgent" only if the system is completely unusable — it helps us triage faster.'],
+                    ['For bugs',          'Include the exact steps to reproduce the issue and what you expected to happen.'],
+                    ['Screenshots',       'If you can capture a screenshot of the error, attach it in the follow-up reply.'],
+                    ['Feature requests',  'Describe the problem you\'re trying to solve, not just the solution you want.'],
+                    ['Priority',          'Mark "Urgent" only if the system is completely unusable — it helps us triage faster.'],
                 ] as [$title, $desc])
                 <li style="display:flex;gap:10px;font-size:13px;">
-                    <span style="color:var(--crimson);font-weight:600;flex-shrink:0;min-width:120px;">{{ $title }}</span>
+                    <span style="color:var(--crimson);font-weight:600;flex-shrink:0;min-width:130px;">{{ $title }}</span>
                     <span style="color:var(--muted);">{{ $desc }}</span>
                 </li>
                 @endforeach

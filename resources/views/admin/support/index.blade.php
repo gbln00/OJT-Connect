@@ -2,8 +2,23 @@
 
 @section('title', 'Support & Feedback')
 @section('page-title', 'Support & Feedback')
-x`
+
 @section('content')
+
+@php
+    $createRoute = match(true) {
+        request()->routeIs('admin.*')       => 'admin.support.create',
+        request()->routeIs('coordinator.*') => 'coordinator.support.create',
+        request()->routeIs('supervisor.*')  => 'supervisor.support.create',
+        default                             => 'student.support.create',
+    };
+    $showRoute = match(true) {
+        request()->routeIs('admin.*')       => 'admin.support.show',
+        request()->routeIs('coordinator.*') => 'coordinator.support.show',
+        request()->routeIs('supervisor.*')  => 'supervisor.support.show',
+        default                             => 'student.support.show',
+    };
+@endphp
 
 {{-- ── Page header ──────────────────────────────────────────────── --}}
 <div class="greeting fade-up">
@@ -58,10 +73,11 @@ x`
 </div>
 
 {{-- ── Toolbar ───────────────────────────────────────────────────── --}}
-<div class="fade-up fade-up-2" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
-    {{-- Filters --}}
+<div class="fade-up fade-up-2" style="display:flex;align-items:center;justify-content:space-between;
+            margin-bottom:16px;gap:12px;flex-wrap:wrap;">
     <form method="GET" style="display:flex;gap:8px;flex-wrap:wrap;">
-        <select name="status" onchange="this.form.submit()" class="form-select" style="width:auto;padding:6px 10px;font-size:12px;">
+        <select name="status" onchange="this.form.submit()" class="form-select"
+                style="width:auto;padding:6px 10px;font-size:12px;">
             <option value="">All Statuses</option>
             <option value="open"            {{ request('status') === 'open'            ? 'selected' : '' }}>Open</option>
             <option value="in_progress"     {{ request('status') === 'in_progress'     ? 'selected' : '' }}>In Progress</option>
@@ -69,7 +85,8 @@ x`
             <option value="resolved"        {{ request('status') === 'resolved'        ? 'selected' : '' }}>Resolved</option>
             <option value="closed"          {{ request('status') === 'closed'          ? 'selected' : '' }}>Closed</option>
         </select>
-        <select name="type" onchange="this.form.submit()" class="form-select" style="width:auto;padding:6px 10px;font-size:12px;">
+        <select name="type" onchange="this.form.submit()" class="form-select"
+                style="width:auto;padding:6px 10px;font-size:12px;">
             <option value="">All Types</option>
             <option value="bug"             {{ request('type') === 'bug'             ? 'selected' : '' }}>Bug Report</option>
             <option value="feature_request" {{ request('type') === 'feature_request' ? 'selected' : '' }}>Feature Request</option>
@@ -80,10 +97,7 @@ x`
         </select>
     </form>
 
-    <a href="{{ route(request()->route()->getName() === 'admin.support.index'     ? 'admin.support.create'
-                : (request()->route()->getName() === 'coordinator.support.index' ? 'coordinator.support.create'
-                : (request()->route()->getName() === 'supervisor.support.index'  ? 'supervisor.support.create'
-                : 'student.support.create'))) }}" class="btn btn-primary">
+    <a href="{{ route($createRoute) }}" class="btn btn-primary">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
@@ -97,16 +111,23 @@ x`
     <div style="padding:60px 20px;text-align:center;">
         <div style="width:48px;height:48px;border:1px solid var(--border2);background:var(--surface2);
                     display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted);">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"
+                 viewBox="0 0 24 24" style="color:var(--muted);">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
             </svg>
         </div>
-        <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;">
-            No tickets found
+        <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;
+                  color:var(--muted);text-transform:uppercase;">
+            No tickets yet
         </p>
         <p style="font-size:13px;color:var(--muted);margin-top:6px;">
             Submit a ticket and our team will get back to you.
         </p>
+        <a href="{{ route($createRoute) }}" class="btn btn-primary"
+           style="display:inline-flex;margin-top:16px;">
+            Submit your first ticket
+        </a>
     </div>
     @else
     <div class="table-wrap">
@@ -168,14 +189,6 @@ x`
                         </span>
                     </td>
                     <td>
-                        @php
-                            $showRoute = match(true) {
-                                request()->routeIs('admin.*')       => 'admin.support.show',
-                                request()->routeIs('coordinator.*') => 'coordinator.support.show',
-                                request()->routeIs('supervisor.*')  => 'supervisor.support.show',
-                                default                             => 'student.support.show',
-                            };
-                        @endphp
                         <a href="{{ route($showRoute, $ticket) }}" class="btn btn-ghost btn-sm">View</a>
                     </td>
                 </tr>
@@ -184,7 +197,6 @@ x`
         </table>
     </div>
 
-    {{-- Pagination --}}
     @if($tickets->hasPages())
     <div class="pagination">
         <span class="pagination-info">

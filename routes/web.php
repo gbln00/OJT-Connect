@@ -20,65 +20,8 @@ use App\Http\Controllers\SuperAdmin\SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\SuperAdminTenantMonitoringController;
 use App\Http\Controllers\SuperAdmin\SuperAdminPlanRequestController;
 use App\Http\Controllers\SuperAdmin\SuperAdminVersionController;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\SuperAdmin\SuperAdminSupportController;
-
 use App\Http\Controllers\Auth\GoogleAuthController;
-
-
-Route::get('/test-email', function () {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Test email from OJTConnect', function ($message) {
-            $message->to('yudai.bernard@gmail.com')
-                    ->subject('Test Email');
-        });
-        return 'Email sent successfully!';
-    } catch (\Exception $e) {
-        return 'Failed: ' . $e->getMessage();
-    }
-});
-Route::get('/check-jobs', function () {
-    $pending = DB::table('jobs')->count();
-    $failed = DB::table('failed_jobs')->take(5)->get();
-    return response()->json([
-        'pending_jobs' => $pending,
-        'failed_jobs' => $failed,
-    ]);
-});
-
-Route::get('/setup-aiven', function () {
-    if (!Auth::check() || Auth::user()->role !== 'super_admin') abort(403);
-    try {
-        DB::statement("GRANT ALL PRIVILEGES ON `tenant%`.* TO 'avnadmin'@'%'");
-        DB::statement("FLUSH PRIVILEGES");
-        return "✅ Done! Remove this route now.";
-    } catch (\Throwable $e) {
-        return "❌ Error: " . $e->getMessage();
-    }
-})->middleware('auth');
-
-
-Route::get('/create-super-admin', function () {
-    if (request('key') !== 'fix2026') abort(403);
-    
-    $password = 'SuperAdmin@123';
-    
-    \App\Models\User::updateOrCreate(
-        ['email' => 'admin@ojtconnect.com'],
-        [
-            'name'     => 'Super Admin',
-            'password' => \Illuminate\Support\Facades\Hash::make($password),
-            'role'     => 'super_admin',
-            'is_active' => true,
-        ]
-    );
-    
-    return response()->json([
-        'status'   => 'done',
-        'email'    => 'admin@ojtconnect.com',
-        'password' => $password,
-    ]);
-});
 
 Route::post('/webhook/github', [\App\Http\Controllers\Webhook\GitHubWebhookController::class, 'handle']);
 
@@ -95,7 +38,6 @@ foreach (config('tenancy.central_domains') as $domain) {
                     return redirect()->route('super_admin.dashboard');
                 }
 
-                // Non-super-admin users don't belong on the central domain
                 Auth::logout();
                 return redirect()->route('login')->withErrors([
                     'email' => 'Please log in from your institution\'s domain.',
@@ -114,11 +56,9 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('/reset-password/{token}',           [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
             Route::post('/reset-password',                  [ResetPasswordController::class, 'reset'])->name('password.update');
 
-            // ── PUBLIC: Self-service registration form ──
             Route::get('/register/company',                 [TenantRegisterController::class, 'showForm'])->name('tenant.register');
             Route::post('/register/company',                [TenantRegisterController::class, 'submit'])->name('tenant.register.submit');
 
-            // Google redirect only
             Route::get('/auth/google',                      [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         });
 
@@ -137,7 +77,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             // Dashboard
             Route::get('/dashboard',                            [SuperAdminController::class, 'dashboard'])->name('dashboard');
 
-            // ── Approval queue for new tenant registrations ─────────────────────────────────
+            // ── Approvals ─────────────────────────────────────────────────
             Route::get('/approvals',                            [TenantApprovalController::class, 'pending'])->name('approvals.pending');
             Route::post('/approvals/{registration}/approve',    [TenantApprovalController::class, 'approve'])->name('approvals.approve');
             Route::post('/approvals/{registration}/reject',     [TenantApprovalController::class, 'reject'])->name('approvals.reject');
@@ -151,16 +91,15 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/tenants/{tenant}',      [SuperAdminTenantManagementController::class, 'update'])->name('tenants.update');
             Route::delete('/tenants/{tenant}',   [SuperAdminTenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
-            // Plan Requests
+            // ── Plan Requests ─────────────────────────────────────────────
             Route::post('/plan-requests/{planRequest}/approve', [SuperAdminPlanRequestController::class, 'approve'])->name('plan_requests.approve');
             Route::post('/plan-requests/{planRequest}/reject',  [SuperAdminPlanRequestController::class, 'reject'])->name('plan_requests.reject');
-            
-            // ── Tenant Monitoring ─────────────────────────────────────────────────
+
+            // ── Monitoring ────────────────────────────────────────────────
             Route::get('/monitoring',              [SuperAdminTenantMonitoringController::class, 'index'])->name('monitoring.index');
             Route::get('/monitoring/{tenant}',     [SuperAdminTenantMonitoringController::class, 'show'])->name('monitoring.show');
 
-
-            // ── Plans ─────────────────────────────────────────────────
+            // ── Plans ─────────────────────────────────────────────────────
             Route::get   ('/plans',                [SuperAdminPlanController::class, 'index'])->name('plans.index');
             Route::get   ('/plans/create',         [SuperAdminPlanController::class, 'create'])->name('plans.create');
             Route::post  ('/plans',                [SuperAdminPlanController::class, 'store'])->name('plans.store');
@@ -168,34 +107,33 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put   ('/plans/{plan}',         [SuperAdminPlanController::class, 'update'])->name('plans.update');
             Route::delete('/plans/{plan}',         [SuperAdminPlanController::class, 'destroy'])->name('plans.destroy');
             Route::patch ('/plans/{plan}/toggle',  [SuperAdminPlanController::class, 'toggle'])->name('plans.toggle');
-  
-            // ── Promotions ─────────────────────────────────────────────
+
+            // ── Promotions ────────────────────────────────────────────────
             Route::post  ('/plans/{plan}/promotions',         [SuperAdminPlanController::class, 'storePromotion'])->name('plans.promotions.store');
             Route::put   ('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'updatePromotion'])->name('plans.promotions.update');
             Route::patch ('/plans/promotions/{promo}/toggle', [SuperAdminPlanController::class, 'togglePromotion'])->name('plans.promotions.toggle');
             Route::delete('/plans/promotions/{promo}',        [SuperAdminPlanController::class, 'destroyPromotion'])->name('plans.promotions.destroy');
 
-            
-            Route::resource('versions', \App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class);
-            Route::post('versions/{version}/publish',    [\App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class, 'publish'])->name('versions.publish');
-            Route::post('versions/{version}/set-current',[\App\Http\Controllers\SuperAdmin\SuperAdminVersionController::class, 'setCurrent'])->name('versions.setCurrent');
-            
+            // ── Versions ──────────────────────────────────────────────────
+            Route::resource('versions', SuperAdminVersionController::class);
+            Route::post('versions/{version}/publish',     [SuperAdminVersionController::class, 'publish'])->name('versions.publish');
+            Route::post('versions/{version}/set-current', [SuperAdminVersionController::class, 'setCurrent'])->name('versions.setCurrent');
 
             // ── Notifications ─────────────────────────────────────────────
-            Route::get('notifications',                      [SuperAdminNotificationController::class, 'index'])->name('notifications.index');
-            Route::post('notifications/mark-all-read',       [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-            Route::post('notifications/clear-read',          [SuperAdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
-            Route::post('notifications/{notification}/read', [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
-            Route::delete('notifications/{notification}',    [SuperAdminNotificationController::class, 'destroy'])->name('notifications.destroy');
-            Route::get('/',                                  [SuperAdminSupportController::class, 'index'])->name('index');
- 
+            Route::get   ('notifications',                      [SuperAdminNotificationController::class, 'index'])->name('notifications.index');
+            Route::post  ('notifications/mark-all-read',        [SuperAdminNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+            Route::post  ('notifications/clear-read',           [SuperAdminNotificationController::class, 'clearRead'])->name('notifications.clearRead');
+            Route::post  ('notifications/{notification}/read',  [SuperAdminNotificationController::class, 'markRead'])->name('notifications.markRead');
+            Route::delete('notifications/{notification}',       [SuperAdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+
+            // ── Support ───────────────────────────────────────────────────
             Route::prefix('support')->name('support.')->group(function () {
-                Route::get('/',                                [SuperAdminSupportController::class, 'index'])->name('index');
-                Route::get('/{tenantId}/{ticketId}',           [SuperAdminSupportController::class, 'show'])->name('show');
-                Route::post('/{tenantId}/{ticketId}/reply',    [SuperAdminSupportController::class, 'reply'])->name('reply');
-                Route::patch('/{tenantId}/{ticketId}/status',  [SuperAdminSupportController::class, 'updateStatus'])->name('updateStatus');
+                Route::get('/',                               [SuperAdminSupportController::class, 'index'])->name('index');
+                Route::get('/{tenantId}/{ticketId}',          [SuperAdminSupportController::class, 'show'])->name('show');
+                Route::post('/{tenantId}/{ticketId}/reply',   [SuperAdminSupportController::class, 'reply'])->name('reply');
+                Route::patch('/{tenantId}/{ticketId}/status', [SuperAdminSupportController::class, 'updateStatus'])->name('updateStatus');
             });
         });
-            
+
     });
 }

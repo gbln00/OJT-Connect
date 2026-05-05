@@ -4,18 +4,29 @@
 
 @section('content')
 
-<div style="max-width:860px;">
+<div style="max-width:960px;margin:0 auto;">
 
-    {{-- Back --}}
-    <div style="margin-bottom:20px;">
-        <a href="{{ route('super_admin.support.index') }}"
-           style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;
-                  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
-                  color:var(--muted);text-decoration:none;transition:color 0.15s;"
-           onmouseover="this.style.color='var(--text)'"
-           onmouseout="this.style.color='var(--muted)'">
-            ← All tickets
-        </a>
+    {{-- ── Top bar: back button + title ── --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="{{ route('super_admin.support.index') }}"
+               class="btn btn-ghost btn-sm"
+               style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path d="M19 12H5M12 5l-7 7 7 7"/>
+                </svg>
+                Back to Tickets
+            </a>
+            <span style="color:var(--border2);">|</span>
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;">
+                {{ $ticket->ref }}
+            </span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span class="status-pill {{ $ticket->status_color }}">{{ $ticket->status_label }}</span>
+            <span class="status-pill {{ $ticket->priority_color }}">{{ $ticket->priority_label }}</span>
+        </div>
     </div>
 
     {{-- Flash --}}
@@ -32,23 +43,13 @@
 
     <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:flex-start;">
 
-        {{-- ── Left: ticket thread ── --}}
+        {{-- ── Left: thread ── --}}
         <div>
 
             {{-- Header card --}}
             <div class="card fade-up" style="margin-bottom:16px;">
                 <div style="padding:20px 24px;">
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-                        <span style="font-family:'DM Mono',monospace;font-size:11px;
-                                     color:var(--muted);letter-spacing:0.1em;">
-                            {{ $ticket->ref }}
-                        </span>
-                        <span class="status-pill {{ $ticket->status_color }}">
-                            {{ $ticket->status_label }}
-                        </span>
-                        <span class="status-pill {{ $ticket->priority_color }}">
-                            {{ $ticket->priority_label }} Priority
-                        </span>
                         <span style="font-family:'DM Mono',monospace;font-size:10px;
                                      color:var(--muted);border:1px solid var(--border2);padding:2px 7px;">
                             {{ $ticket->type_label }}
@@ -61,8 +62,8 @@
                         @endif
                     </div>
 
-                    <h2 style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
-                               color:var(--text);line-height:1.3;margin-bottom:8px;">
+                    <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;
+                               color:var(--text);line-height:1.3;margin-bottom:10px;">
                         {{ $ticket->subject }}
                     </h2>
 
@@ -70,9 +71,9 @@
                                 letter-spacing:0.04em;display:flex;gap:16px;flex-wrap:wrap;">
                         <span>Tenant: <strong style="color:var(--text2);">{{ $ticket->tenant_name }}</strong></span>
                         <span>From: <strong style="color:var(--text2);">{{ $ticket->user_name ?? '—' }}</strong></span>
-                        <span>Submitted {{ $ticket->created_at->format('M d, Y \a\t H:i') }}</span>
+                        <span>Submitted {{ \Carbon\Carbon::parse($ticket->created_at)->format('M d, Y \a\t H:i') }}</span>
                         @if($ticket->resolved_at)
-                            <span>Resolved {{ $ticket->resolved_at->format('M d, Y \a\t H:i') }}</span>
+                            <span>Resolved {{ \Carbon\Carbon::parse($ticket->resolved_at)->format('M d, Y \a\t H:i') }}</span>
                         @endif
                     </div>
                 </div>
@@ -80,10 +81,10 @@
                 {{-- Original message --}}
                 <div style="border-top:1px solid var(--border);padding:20px 24px;background:var(--surface2);">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                        <div style="width:26px;height:26px;border:1px solid rgba(140,14,3,0.4);
+                        <div style="width:28px;height:28px;border:1px solid rgba(140,14,3,0.4);
                                     background:rgba(140,14,3,0.08);display:flex;align-items:center;
                                     justify-content:center;font-family:'Playfair Display',serif;
-                                    font-size:10px;font-weight:700;color:var(--crimson);flex-shrink:0;">
+                                    font-size:11px;font-weight:700;color:var(--crimson);flex-shrink:0;">
                             {{ strtoupper(substr($ticket->user_name ?? 'U', 0, 2)) }}
                         </div>
                         <div>
@@ -95,7 +96,7 @@
                                 </span>
                             </div>
                             <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">
-                                {{ $ticket->created_at->diffForHumans() }}
+                                {{ \Carbon\Carbon::parse($ticket->created_at)->diffForHumans() }}
                             </div>
                         </div>
                     </div>
@@ -109,12 +110,12 @@
                 @foreach($replies as $reply)
                 <div class="card"
                      style="{{ $reply->is_from_support
-                        ? 'border-left:3px solid rgba(45,212,191,0.3);'
+                        ? 'border-left:3px solid rgba(45,212,191,0.4);'
                         : 'border-left:3px solid var(--border2);' }}">
                     <div style="padding:16px 20px;">
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                             @if($reply->is_from_support)
-                            <div style="width:26px;height:26px;border:1px solid rgba(45,212,191,0.25);
+                            <div style="width:28px;height:28px;border:1px solid rgba(45,212,191,0.25);
                                         background:rgba(45,212,191,0.08);display:flex;align-items:center;
                                         justify-content:center;flex-shrink:0;">
                                 <svg width="12" height="12" fill="none" stroke="#2dd4bf" stroke-width="2" viewBox="0 0 24 24">
@@ -123,10 +124,10 @@
                                 </svg>
                             </div>
                             @else
-                            <div style="width:26px;height:26px;border:1px solid rgba(140,14,3,0.4);
+                            <div style="width:28px;height:28px;border:1px solid rgba(140,14,3,0.4);
                                         background:rgba(140,14,3,0.08);display:flex;align-items:center;
                                         justify-content:center;font-family:'Playfair Display',serif;
-                                        font-size:10px;font-weight:700;color:var(--crimson);flex-shrink:0;">
+                                        font-size:11px;font-weight:700;color:var(--crimson);flex-shrink:0;">
                                 {{ strtoupper(substr($reply->sender_name ?? 'U', 0, 2)) }}
                             </div>
                             @endif
@@ -136,8 +137,8 @@
                                     {{ $reply->display_name }}
                                 </div>
                                 <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">
-                                    {{ $reply->created_at->diffForHumans() }}
-                                    · {{ $reply->created_at->format('M d, Y H:i') }}
+                                    {{ \Carbon\Carbon::parse($reply->created_at)->diffForHumans() }}
+                                    · {{ \Carbon\Carbon::parse($reply->created_at)->format('M d, Y H:i') }}
                                 </div>
                             </div>
                         </div>
@@ -145,8 +146,7 @@
 
                         @if($reply->attachment_path)
                         <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-                            <a href="{{ Storage::url($reply->attachment_path) }}"
-                               target="_blank"
+                            <a href="{{ Storage::url($reply->attachment_path) }}" target="_blank"
                                style="display:inline-flex;align-items:center;gap:6px;font-size:12px;
                                       color:#60a5fa;text-decoration:none;
                                       border:1px solid rgba(96,165,250,0.2);padding:4px 10px;
@@ -205,8 +205,7 @@
                                 Internal Note
                                 <span style="color:var(--muted);font-weight:400;">(not shown to tenant)</span>
                             </label>
-                            <input type="text" name="internal_note"
-                                   class="form-input"
+                            <input type="text" name="internal_note" class="form-input"
                                    value="{{ old('internal_note') }}"
                                    placeholder="Private note for your team...">
                         </div>
@@ -252,7 +251,7 @@
                         ['Email',     $ticket->user_email ?? '—'],
                         ['Type',      $ticket->type_label],
                         ['Module',    $ticket->module ? str_replace('_', ' ', ucfirst($ticket->module)) : '—'],
-                        ['Submitted', $ticket->created_at->format('M d, Y')],
+                        ['Submitted', \Carbon\Carbon::parse($ticket->created_at)->format('M d, Y')],
                     ] as [$label, $value])
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;
                                 gap:8px;font-size:12px;">
@@ -303,7 +302,8 @@
                         </option>
                         @endforeach
                     </select>
-                    <button type="submit" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;">
+                    <button type="submit" class="btn btn-ghost btn-sm"
+                            style="width:100%;justify-content:center;">
                         Update Status
                     </button>
                 </form>
