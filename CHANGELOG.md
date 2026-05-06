@@ -1,3 +1,14 @@
+## v1.5.3 — 2026-05-06
+
+- TEST: Announcement  Announcement  Announcement  Announcement
+- TEST: Announcement  Announcement  Announcement  Announcement
+- feat: complete demo tenant seeder with all features
+- fixed: missing endif in app layout
+- fixed: controller file loc
+- fixed: controller name typo
+- fixed: wrong system version before updates
+- added: Admin update controller to prevent admin logout after update. fixed wrong system version for updates.
+
 ## v1.5.2 — 2026-05-05
 
 - ##New release available -Integrated the system online via render. -Updated the tenant support feature. -Improved overall system performance.
