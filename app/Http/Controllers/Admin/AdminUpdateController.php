@@ -7,6 +7,8 @@ use App\Models\SystemVersion;
 use App\Models\TenantUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class AdminUpdateController extends Controller
 {
@@ -30,7 +32,7 @@ class AdminUpdateController extends Controller
      * Tenant admin triggers an install
      * POST /admin/updates/{tenantUpdate}/install
      */
-    ppublic function install(Request $request, TenantUpdate $tenantUpdate)
+    public function install(Request $request, TenantUpdate $tenantUpdate)
     {
         $user = Auth::user();
  
