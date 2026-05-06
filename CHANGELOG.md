@@ -1,3 +1,7 @@
+## v1.5.4 — 2026-05-06
+
+- TEST2: Announcement  Announcement  Announcement  Announcement
+
 ## v1.5.3 — 2026-05-06
 
 - TEST: Announcement  Announcement  Announcement  Announcement
