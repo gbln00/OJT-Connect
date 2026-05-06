@@ -34,7 +34,7 @@
             </div>
         </div>
         @if(\App\Models\HourLog::where('student_id', $student->id)->where('status', 'pending')->exists())
-        <form method="POST" action="{{ route('admin.hours.approveAll', $student) }}">
+        <form method="POST" action="{{ route('admin.hours.approve-all', $student) }}">
             @csrf
             <button type="submit"
                 style="padding:9px 18px;background:var(--teal);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:opacity 0.15s;"
@@ -158,7 +158,7 @@
                     </td>
                     <td>
                         <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;
-                            background:var(--{{ $log->status_class }}-dim);color:var(--{{ $log->status_class }});">
+                                    background:var(--{{ $log->status_class }}-dim);color:var(--{{ $log->status_class }});">
                             {{ ucfirst($log->status) }}
                         </span>
                     </td>
