@@ -108,7 +108,7 @@
     \n\
     echo "==> Building caches..."\n\
     php artisan config:cache 2>&1\n\
-    php artisan view:cache 2>&1\n\
+    php artisan view:clear 2>&1\n\
     \n\
     echo "==> Seeding..."\n\
     php artisan db:seed --class=SuperAdminSeeder --force 2>&1 || true\n\
