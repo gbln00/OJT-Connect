@@ -468,12 +468,15 @@ class DemoTenantSeeder extends Seeder
         $students    = $users['students'];
 
         $reportStudents = [
-            $students['juan']  => 6,  // 6 weeks, mixed statuses
-            $students['maria'] => 8,  // 8 weeks, mostly approved
-            $students['pedro'] => 2,  // 2 weeks, pending
+            ['student' => $students['juan'],  'weeks' => 6],
+            ['student' => $students['maria'], 'weeks' => 8],
+            ['student' => $students['pedro'], 'weeks' => 2],
         ];
 
-        foreach ($reportStudents as $student => $weekCount) {
+        foreach ($reportStudents as $row) {
+            $student   = $row['student'];
+            $weekCount = $row['weeks'];
+
             $app = \App\Models\OjtApplication::where('student_id', $student->id)
                 ->where('status', 'approved')
                 ->first();
@@ -514,7 +517,6 @@ class DemoTenantSeeder extends Seeder
 
         $this->command->info('  ✓ Weekly reports seeded (Juan 6 weeks, Maria 8 weeks, Pedro 2 weeks)');
     }
-
     // ──────────────────────────────────────────────────────────────────
     // Evaluations
     // ──────────────────────────────────────────────────────────────────

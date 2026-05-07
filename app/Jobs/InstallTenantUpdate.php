@@ -28,111 +28,88 @@ class InstallTenantUpdate implements ShouldQueue
     ) {}
 
     public function handle(): void
-    {
-        $version = $this->tenantUpdate->version;
+{
+    $version = $this->tenantUpdate->version;
 
-        Log::info("Starting install of v{$version->version} for tenant {$this->tenant->id}");
+    Log::info("Starting install of v{$version->version} for tenant {$this->tenant->id}");
 
-        // ── Phase 1: Mark in progress ───────────────────────────────
-        $this->tenantUpdate->update(['status' => 'in_progress']);
+    $this->tenantUpdate->update(['status' => 'in_progress']);
+
+    try {
+        tenancy()->initialize($this->tenant);
+
+        // ── Run version-specific migrations ──────────────────────────
+        if ($version->migration_folder) {
+            $migrationPath = 'database/migrations/' . $version->migration_folder;
+
+            if (is_dir(base_path($migrationPath))) {
+                Artisan::call('migrate', [
+                    '--path'  => $migrationPath,
+                    '--force' => true,
+                ]);
+                Log::info("Migrations ran for {$migrationPath}");
+            } else {
+                Log::info("No migration folder at {$migrationPath} — skipping");
+            }
+        }
+
+        $lastBatch = DB::table('migrations')->max('batch') ?? 0;
+
+        // ── Run optional DataPatch ────────────────────────────────────
+        $patchClass = $this->resolvePatchClass($version->version);
+        if ($patchClass && class_exists($patchClass)) {
+            Log::info("Running DataPatch: {$patchClass}");
+            (new $patchClass)->run($this->tenant);
+        }
+
+        tenancy()->end();
+
+        // ── Mark completed ────────────────────────────────────────────
+        $this->tenantUpdate->update([
+            'status'          => 'completed',
+            'installed_at'    => now(),
+            'installed_by'    => $this->installedBy,
+            'migration_batch' => $lastBatch,
+        ]);
+
+        // ── Notify success ────────────────────────────────────────────
+        tenancy()->initialize($this->tenant);
+        TenantNotification::notify(
+            title:      "✅ Update v{$version->version} installed",
+            message:    "The update was applied successfully.",
+            type:       'success',
+            targetRole: 'admin'
+        );
+        tenancy()->end();
+
+        Log::info("Install of v{$version->version} completed for tenant {$this->tenant->id}");
+
+    } catch (\Throwable $e) {
+        Log::error("Install FAILED for tenant {$this->tenant->id} v{$version->version}: " . $e->getMessage());
+
+        try { tenancy()->end(); } catch (\Throwable) {}
+
+        $this->tenantUpdate->update([
+            'status'    => 'failed',
+            'error_log' => $e->getMessage() . "\n\n" . $e->getTraceAsString(),
+        ]);
 
         try {
-            // ── Phase 2: Switch to tenant context ───────────────────
-            tenancy()->initialize($this->tenant);
-
-            // ── Phase 3: Enable maintenance mode ────────────────────
-            // We store a flag in cache that the middleware checks
-            Cache::store('database')->put("tenant_maintenance_{$this->tenant->id}", true, now()->addMinutes(10));
-
-            // ── Phase 4: Run version-specific migrations ─────────────
-            if ($version->migration_folder) {
-                $migrationPath = 'database/migrations/' . $version->migration_folder;
-
-                // Only run if the folder actually exists
-                if (is_dir(base_path($migrationPath))) {
-                    Artisan::call('migrate', [
-                        '--path'  => $migrationPath,
-                        '--force' => true,
-                    ]);
-
-                    Log::info("Migrations ran for {$migrationPath}");
-                } else {
-                    Log::info("No migration folder found at {$migrationPath} — skipping migrations");
-                }
-            }
-
-            // Record the migration batch number
-            $lastBatch =  DB::table('migrations')->max('batch') ?? 0;
-
-            // ── Phase 5: Run optional DataPatch class ────────────────
-            // Convention: app/Updates/V1_3_0/DataPatch.php
-            $patchClass = $this->resolvePatchClass($version->version);
-            if ($patchClass && class_exists($patchClass)) {
-                Log::info("Running DataPatch: {$patchClass}");
-                (new $patchClass)->run($this->tenant);
-            }
-
-            // ── Phase 6: Flush tenant cache ──────────────────────────
-            Cache::flush();
-
-            // ── Phase 7: Lift maintenance mode ───────────────────────
-            Cache::forget("tenant_maintenance_{$this->tenant->id}");
-
-            // ── Phase 8: Mark completed ──────────────────────────────
-            tenancy()->end();
-
-            $this->tenantUpdate->update([
-                'status'           => 'completed',
-                'installed_at'     => now(),
-                'installed_by'     => $this->installedBy,
-                'migration_batch'  => $lastBatch,
-            ]);
-
-            // ── Phase 9: Notify success ──────────────────────────────
             tenancy()->initialize($this->tenant);
             TenantNotification::notify(
-                title:      "✅ Update v{$version->version} installed",
-                message:    "The update was applied successfully. Enjoy the new features!",
-                type:       'success',
+                title:      "❌ Update v{$version->version} failed",
+                message:    "Installation failed: " . $e->getMessage() . ". Please contact support.",
+                type:       'warning',
                 targetRole: 'admin'
             );
             tenancy()->end();
-
-            Log::info("Install of v{$version->version} completed for tenant {$this->tenant->id}");
-
-        } catch (\Throwable $e) {
-            // ── Failure handler ──────────────────────────────────────
-            Log::error("Install FAILED for tenant {$this->tenant->id} v{$version->version}: " . $e->getMessage());
-
-            // Make sure tenancy is ended cleanly
+        } catch (\Throwable) {
             try { tenancy()->end(); } catch (\Throwable) {}
-
-            // Always lift maintenance mode on failure
-            Cache::store('database')->forget("tenant_maintenance_{$this->tenant->id}");
-
-            // Mark as failed with error details
-            $this->tenantUpdate->update([
-                'status'    => 'failed',
-                'error_log' => $e->getMessage() . "\n\n" . $e->getTraceAsString(),
-            ]);
-
-            // Notify about the failure
-            try {
-                tenancy()->initialize($this->tenant);
-                TenantNotification::notify(
-                    title:      "❌ Update v{$version->version} failed",
-                    message:    "Installation failed: " . $e->getMessage() . ". Please contact support.",
-                    type:       'warning',
-                    targetRole: 'admin'
-                );
-                tenancy()->end();
-            } catch (\Throwable) {
-                try { tenancy()->end(); } catch (\Throwable) {}
-            }
-
-            throw $e; // Re-throw so the job is marked as failed in the queue
         }
+
+        throw $e;
     }
+}
 
     /**
      * Convert version string to DataPatch class name.
@@ -150,11 +127,11 @@ class InstallTenantUpdate implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error("Job permanently failed: " . $exception->getMessage());
-        Cache::store('database')->forget("tenant_maintenance_{$this->tenant->id}");
 
         $this->tenantUpdate->update([
             'status'    => 'failed',
             'error_log' => $exception->getMessage(),
         ]);
     }
+    
 }
